@@ -1,0 +1,5114 @@
+{
+ "packs": [
+  {
+   "id": "MoMBase",
+   "folder": "base",
+   "name": "Базовая игра (Mansions of Madness 2nd ed.)",
+   "kind": "box"
+  },
+  {
+   "id": "BtT",
+   "folder": "btt",
+   "name": "Beyond the Threshold",
+   "kind": "box"
+  },
+  {
+   "id": "HJ",
+   "folder": "hj",
+   "name": "Horrific Journeys",
+   "kind": "box"
+  },
+  {
+   "id": "PotS",
+   "folder": "pots",
+   "name": "Path of the Serpent",
+   "kind": "box"
+  },
+  {
+   "id": "RN",
+   "folder": "rn",
+   "name": "Recurring Nightmares",
+   "kind": "ft"
+  },
+  {
+   "id": "SM",
+   "folder": "sm",
+   "name": "Suppressed Memories",
+   "kind": "ft"
+  },
+  {
+   "id": "SoA",
+   "folder": "soa",
+   "name": "Streets of Arkham",
+   "kind": "box"
+  },
+  {
+   "id": "SoT",
+   "folder": "sot",
+   "name": "Sanctum of Twilight",
+   "kind": "box"
+  }
+ ],
+ "tiles": [
+  {
+   "id": "TileSideAlley1",
+   "pack": "MoMBase",
+   "name": "Alley 1",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideBedroom1",
+   "image": "img/Tile_Alley_1_MAD20"
+  },
+  {
+   "id": "TileSideAlley2",
+   "pack": "MoMBase",
+   "name": "Alley 2",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideBedroom2",
+   "image": "img/Tile_Alley_2_MAD20"
+  },
+  {
+   "id": "TileSideAlleyCorner1",
+   "pack": "MoMBase",
+   "name": "Alley Corner 1",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideHallCorner1",
+   "image": "img/Tile_Alley_Corner_1_MAD20"
+  },
+  {
+   "id": "TileSideAlleyCorner2",
+   "pack": "MoMBase",
+   "name": "Alley Corner 2",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideHallCorner2",
+   "image": "img/Tile_Alley_Corner_2_MAD20"
+  },
+  {
+   "id": "TileSideAlleyEnd",
+   "pack": "MoMBase",
+   "name": "Alley End",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideBilliardsRoom",
+   "image": "img/Tile_Alley_End_MAD20"
+  },
+  {
+   "id": "TileSideAttic",
+   "pack": "MoMBase",
+   "name": "Attic",
+   "traits": [
+    "inside",
+    "medium",
+    "stairs"
+   ],
+   "reverse": "TileSideParkPond",
+   "image": "img/Tile_Attic_MAD20"
+  },
+  {
+   "id": "TileSideBallroom",
+   "pack": "MoMBase",
+   "name": "Ballroom",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideWarehouse",
+   "image": "img/Tile_Ballroom_MAD20"
+  },
+  {
+   "id": "TileSideBasement",
+   "pack": "MoMBase",
+   "name": "Basement",
+   "traits": [
+    "inside",
+    "medium",
+    "stairs"
+   ],
+   "reverse": "TileSideFleaMarket",
+   "image": "img/Tile_Basement_MAD20"
+  },
+  {
+   "id": "TileSideBathroom",
+   "pack": "MoMBase",
+   "name": "Bathroom",
+   "traits": [
+    "inside",
+    "small",
+    "hallway",
+    "bathroom"
+   ],
+   "reverse": "TileSideStreet1",
+   "image": "img/Tile_Bathroom_MAD20"
+  },
+  {
+   "id": "TileSideBeach",
+   "pack": "MoMBase",
+   "name": "Beach",
+   "traits": [
+    "inside",
+    "outside",
+    "small",
+    "water"
+   ],
+   "reverse": "TileSideYard2",
+   "image": "img/Tile_Beach_MAD20"
+  },
+  {
+   "id": "TileSideBedroom1",
+   "pack": "MoMBase",
+   "name": "Bedroom 1",
+   "traits": [
+    "inside",
+    "small",
+    "bedroom"
+   ],
+   "reverse": "TileSideAlley1",
+   "image": "img/Tile_Bedroom_1_MAD20"
+  },
+  {
+   "id": "TileSideBedroom2",
+   "pack": "MoMBase",
+   "name": "Bedroom 2",
+   "traits": [
+    "inside",
+    "small",
+    "bedroom"
+   ],
+   "reverse": "TileSideAlley2",
+   "image": "img/Tile_Bedroom_2_MAD20"
+  },
+  {
+   "id": "TileSideBellTower",
+   "pack": "MoMBase",
+   "name": "Bell Tower",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideStreetCorner1",
+   "image": "img/Tile_Bell_Tower_MAD20"
+  },
+  {
+   "id": "TileSideBilliardsRoom",
+   "pack": "MoMBase",
+   "name": "Billiards Room",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideAlleyEnd",
+   "image": "img/Tile_Billiards_Room_MAD20"
+  },
+  {
+   "id": "TileSideConservatory",
+   "pack": "MoMBase",
+   "name": "Conservatory",
+   "traits": [
+    "inside",
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideStorefront",
+   "image": "img/Tile_Conservatory_MAD20"
+  },
+  {
+   "id": "TileSideDiningRoom",
+   "pack": "MoMBase",
+   "name": "Dining Room",
+   "traits": [
+    "inside",
+    "medium",
+    "kitchen"
+   ],
+   "reverse": "TileSideTownSquare",
+   "image": "img/Tile_Dining_Room_MAD20"
+  },
+  {
+   "id": "TileSideDock1",
+   "pack": "MoMBase",
+   "name": "Dock 1",
+   "traits": [
+    "outside",
+    "small",
+    "dock"
+   ],
+   "reverse": "TileSideHall2",
+   "image": "img/Tile_Dock_1_MAD20"
+  },
+  {
+   "id": "TileSideDock2",
+   "pack": "MoMBase",
+   "name": "Dock 2",
+   "traits": [
+    "outside",
+    "small",
+    "dock"
+   ],
+   "reverse": "TileSideHall1",
+   "image": "img/Tile_Dock_2_MAD20"
+  },
+  {
+   "id": "TileSideEntryHall",
+   "pack": "MoMBase",
+   "name": "Entry Hall",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSideStreetCorner2",
+   "image": "img/Tile_Entry_Hall_MAD20"
+  },
+  {
+   "id": "TileSideFleaMarket",
+   "pack": "MoMBase",
+   "name": "Flea Market",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideBasement",
+   "image": "img/Tile_Flea_Market_MAD20"
+  },
+  {
+   "id": "TileSideHall1",
+   "pack": "MoMBase",
+   "name": "Hall 1",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSideDock2",
+   "image": "img/Tile_Hall_1_MAD20"
+  },
+  {
+   "id": "TileSideHall2",
+   "pack": "MoMBase",
+   "name": "Hall 2",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSideDock1",
+   "image": "img/Tile_Hall_2_MAD20"
+  },
+  {
+   "id": "TileSideHallCorner1",
+   "pack": "MoMBase",
+   "name": "Hall Corner 1",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSideAlleyCorner1",
+   "image": "img/Tile_Hall_Corner_1_MAD20"
+  },
+  {
+   "id": "TileSideHallCorner2",
+   "pack": "MoMBase",
+   "name": "Hall Corner 2",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSideAlleyCorner2",
+   "image": "img/Tile_Hall_Corner_2_MAD20"
+  },
+  {
+   "id": "TileSideHallEnd",
+   "pack": "MoMBase",
+   "name": "Hall End",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSideStreetCorner3",
+   "image": "img/Tile_Hall_End_MAD20"
+  },
+  {
+   "id": "TileSideHallStairs",
+   "pack": "MoMBase",
+   "name": "Hall Stairs",
+   "traits": [
+    "inside",
+    "small",
+    "hallway",
+    "stairs"
+   ],
+   "reverse": "TileSideStreet2",
+   "image": "img/Tile_Hall_Stairs_MAD20"
+  },
+  {
+   "id": "TileSideHouseBoat",
+   "pack": "MoMBase",
+   "name": "House Boat",
+   "traits": [
+    "outside",
+    "inside",
+    "small",
+    "water",
+    "ship"
+   ],
+   "reverse": "TileSideOffice",
+   "image": "img/Tile_House_Boat_MAD20"
+  },
+  {
+   "id": "TileSideInteriorHall",
+   "pack": "MoMBase",
+   "name": "Interior Hall",
+   "traits": [
+    "inside",
+    "medium",
+    "hallway"
+   ],
+   "reverse": "TileSideRootCellar",
+   "image": "img/Tile_Interior_Hall_MAD20"
+  },
+  {
+   "id": "TileSideLibrary",
+   "pack": "MoMBase",
+   "name": "Library",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideYard1",
+   "image": "img/Tile_Library_MAD20"
+  },
+  {
+   "id": "TileSideLobby",
+   "pack": "MoMBase",
+   "name": "Lobby",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideToolShed",
+   "image": "img/Tile_Lobby_MAD20"
+  },
+  {
+   "id": "TileSideLounge",
+   "pack": "MoMBase",
+   "name": "Lounge",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSidePier",
+   "image": "img/Tile_Lounge_MAD20"
+  },
+  {
+   "id": "TileSideOffice",
+   "pack": "MoMBase",
+   "name": "Office",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideHouseBoat",
+   "image": "img/Tile_Office_MAD20"
+  },
+  {
+   "id": "TileSideParkPond",
+   "pack": "MoMBase",
+   "name": "Park Pond",
+   "traits": [
+    "outside",
+    "medium",
+    "water"
+   ],
+   "reverse": "TileSideAttic",
+   "image": "img/Tile_Park_Pond_MAD20"
+  },
+  {
+   "id": "TileSidePier",
+   "pack": "MoMBase",
+   "name": "Pier",
+   "traits": [
+    "inside",
+    "outside",
+    "medium",
+    "dock",
+    "water"
+   ],
+   "reverse": "TileSideLounge",
+   "image": "img/Tile_Pier_MAD20"
+  },
+  {
+   "id": "TileSideRentalDock",
+   "pack": "MoMBase",
+   "name": "Rental Dock",
+   "traits": [
+    "inside",
+    "outside",
+    "small",
+    "dock"
+   ],
+   "reverse": "TileSideStudy",
+   "image": "img/Tile_Rental_Dock_MAD20"
+  },
+  {
+   "id": "TileSideRootCellar",
+   "pack": "MoMBase",
+   "name": "Root Cellar",
+   "traits": [
+    "inside",
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideInteriorHall",
+   "image": "img/Tile_Root_Cellar_MAD20"
+  },
+  {
+   "id": "TileSideStorefront",
+   "pack": "MoMBase",
+   "name": "Storefront",
+   "traits": [
+    "inside",
+    "outside",
+    "medium",
+    "street"
+   ],
+   "reverse": "TileSideConservatory",
+   "image": "img/Tile_Storefront_MAD20"
+  },
+  {
+   "id": "TileSideStreet1",
+   "pack": "MoMBase",
+   "name": "Street 1",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideBathroom",
+   "image": "img/Tile_Street_1_MAD20"
+  },
+  {
+   "id": "TileSideStreet2",
+   "pack": "MoMBase",
+   "name": "Street 2",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideHallStairs",
+   "image": "img/Tile_Street_2_MAD20"
+  },
+  {
+   "id": "TileSideStreetCorner1",
+   "pack": "MoMBase",
+   "name": "Street Corner 1",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideBellTower",
+   "image": "img/Tile_Street_Corner_1_MAD20"
+  },
+  {
+   "id": "TileSideStreetCorner2",
+   "pack": "MoMBase",
+   "name": "Street Corner 2",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideEntryHall",
+   "image": "img/Tile_Street_Corner_2_MAD20"
+  },
+  {
+   "id": "TileSideStreetCorner3",
+   "pack": "MoMBase",
+   "name": "Street Corner 3",
+   "traits": [
+    "outside",
+    "small",
+    "street"
+   ],
+   "reverse": "TileSideHallEnd",
+   "image": "img/Tile_Street_Corner_3_MAD20"
+  },
+  {
+   "id": "TileSideStudy",
+   "pack": "MoMBase",
+   "name": "Study",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideRentalDock",
+   "image": "img/Tile_Study_MAD20"
+  },
+  {
+   "id": "TileSideToolShed",
+   "pack": "MoMBase",
+   "name": "Tool Shed",
+   "traits": [
+    "inside",
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideLobby",
+   "image": "img/Tile_Tool_Shed_MAD20"
+  },
+  {
+   "id": "TileSideTownSquare",
+   "pack": "MoMBase",
+   "name": "Town Square",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideDiningRoom",
+   "image": "img/Tile_Town_Square_MAD20"
+  },
+  {
+   "id": "TileSideWarehouse",
+   "pack": "MoMBase",
+   "name": "Warehouse",
+   "traits": [
+    "inside",
+    "medium",
+    "storage"
+   ],
+   "reverse": "TileSideBallroom",
+   "image": "img/Tile_Warehouse_MAD20"
+  },
+  {
+   "id": "TileSideYard1",
+   "pack": "MoMBase",
+   "name": "Yard 1",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideLibrary",
+   "image": "img/Tile_Yard_1_MAD20"
+  },
+  {
+   "id": "TileSideYard2",
+   "pack": "MoMBase",
+   "name": "Yard 2",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideBeach",
+   "image": "img/Tile_Yard_2_MAD20"
+  },
+  {
+   "id": "TileSideAtticStorage",
+   "pack": "BtT",
+   "name": "Attic Storage",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideLibraryMAD23",
+   "image": "img/Tile_Attic_Storage_MAD23"
+  },
+  {
+   "id": "TileSideBalcony",
+   "pack": "BtT",
+   "name": "Balcony",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideBasementStorage",
+   "image": "img/Tile_Balcony_MAD23"
+  },
+  {
+   "id": "TileSideBasementStorage",
+   "pack": "BtT",
+   "name": "Basement Storage",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideBalcony",
+   "image": "img/Tile_Basement_Storage_MAD23"
+  },
+  {
+   "id": "TileSideBedroom",
+   "pack": "BtT",
+   "name": "Bedroom",
+   "traits": [
+    "inside",
+    "small",
+    "bedroom",
+    "storage"
+   ],
+   "reverse": "TileSideKitchen",
+   "image": "img/Tile_Bedroom_MAD23"
+  },
+  {
+   "id": "TileSideDiningRoomMAD23",
+   "pack": "BtT",
+   "name": "Dining Room",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideHallCorner",
+   "image": "img/Tile_Dining_Room_MAD23"
+  },
+  {
+   "id": "TileSideEntryHallMAD23",
+   "pack": "BtT",
+   "name": "Entry Hall",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSidePorch",
+   "image": "img/Tile_Entry_Hall_MAD23"
+  },
+  {
+   "id": "TileSideHallCorner",
+   "pack": "BtT",
+   "name": "Hall Corner",
+   "traits": [
+    "inside",
+    "small",
+    "hallway"
+   ],
+   "reverse": "TileSideDiningRoomMAD23",
+   "image": "img/Tile_Hall_Corner_MAD23"
+  },
+  {
+   "id": "TileSideHallStairsMAD23",
+   "pack": "BtT",
+   "name": "Hall Stairs",
+   "traits": [
+    "inside",
+    "small",
+    "hallway",
+    "stairs"
+   ],
+   "reverse": "TileSideYard1MAD23",
+   "image": "img/Tile_Hall_Stairs_MAD23"
+  },
+  {
+   "id": "TileSideKitchen",
+   "pack": "BtT",
+   "name": "Kitchen",
+   "traits": [
+    "inside",
+    "small",
+    "kitchen",
+    "storage"
+   ],
+   "reverse": "TileSideBedroom",
+   "image": "img/Tile_Kitchen_MAD23"
+  },
+  {
+   "id": "TileSideLibraryMAD23",
+   "pack": "BtT",
+   "name": "Library",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideAtticStorage",
+   "image": "img/Tile_Library_MAD23"
+  },
+  {
+   "id": "TileSidePorch",
+   "pack": "BtT",
+   "name": "Porch",
+   "traits": [
+    "inside",
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideEntryHallMAD23",
+   "image": "img/Tile_Porch_MAD23"
+  },
+  {
+   "id": "TileSideYard1MAD23",
+   "pack": "BtT",
+   "name": "Yard 1",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideHallStairsMAD23",
+   "image": "img/Tile_Yard_1_MAD23"
+  },
+  {
+   "id": "TileSideBaggageCar",
+   "pack": "HJ",
+   "name": "Baggage Car",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "storage",
+    "small"
+   ],
+   "reverse": "TileSideLifeBoat",
+   "image": "img/TILE_BAGGAGE_CAR_MAD27"
+  },
+  {
+   "id": "TileSideBridge",
+   "pack": "HJ",
+   "name": "Bridge",
+   "traits": [
+    "inside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideSleeperCar",
+   "image": "img/TILE_BRIDGE_MAD27"
+  },
+  {
+   "id": "TileSideCabin1",
+   "pack": "HJ",
+   "name": "Cabin 1",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideLoungeCar",
+   "image": "img/TILE_CABIN_1_MAD27"
+  },
+  {
+   "id": "TileSideCabin3",
+   "pack": "HJ",
+   "name": "Cabin 3",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSidePassengerCar2",
+   "image": "img/TILE_CABIN_3_MAD27"
+  },
+  {
+   "id": "TileSideCarboose",
+   "pack": "HJ",
+   "name": "Caboose",
+   "traits": [
+    "inside",
+    "outside",
+    "train",
+    "storage",
+    "small"
+   ],
+   "reverse": "TileSideShipDeck4",
+   "image": "img/Tile_Caboose_MAD27"
+  },
+  {
+   "id": "TileSideChartRoom",
+   "pack": "HJ",
+   "name": "Chart Room",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideDiningCar1",
+   "image": "img/TILE_CHART_ROOM_MAD27"
+  },
+  {
+   "id": "TileSideCrewBedroom",
+   "pack": "HJ",
+   "name": "Crew Bedroom",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideTracks",
+   "image": "img/TILE_CREW_BEDROOM_MAD27"
+  },
+  {
+   "id": "TileSideDiningCar1",
+   "pack": "HJ",
+   "name": "Dining Car 1",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideChartRoom",
+   "image": "img/Tile_Dining_Car_1_MAD27"
+  },
+  {
+   "id": "TileSideDiningCar2",
+   "pack": "HJ",
+   "name": "Dining Car 2",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "kitchen",
+    "small"
+   ],
+   "reverse": "TileSideShipDeck6",
+   "image": "img/Tile_Dining_Car_2_MAD27"
+  },
+  {
+   "id": "TileSideDiningRoomMAD27",
+   "pack": "HJ",
+   "name": "Dining Room",
+   "traits": [
+    "inside",
+    "ship",
+    "medium"
+   ],
+   "reverse": "TileSidePool",
+   "image": "img/TILE_DINING_ROOM_MAD27"
+  },
+  {
+   "id": "TileSideEngine",
+   "pack": "HJ",
+   "name": "Engine",
+   "traits": [
+    "inside",
+    "outside",
+    "train",
+    "small"
+   ],
+   "reverse": "TileSideShipDeck3",
+   "image": "img/Tile_Engine_MAD27"
+  },
+  {
+   "id": "TileSideEngineRoom",
+   "pack": "HJ",
+   "name": "Engine Room",
+   "traits": [
+    "inside",
+    "ship",
+    "medium"
+   ],
+   "reverse": "TileSideStation",
+   "image": "img/TILE_ENGINE_ROOM_MAD27"
+  },
+  {
+   "id": "TileSideFreightCar1",
+   "pack": "HJ",
+   "name": "Freight Car 1",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "storage",
+    "small"
+   ],
+   "reverse": "TileSideShipDeck5",
+   "image": "img/TILE_FREIGHT_CAR_1_MAD27"
+  },
+  {
+   "id": "TileSideFreightCar2",
+   "pack": "HJ",
+   "name": "Freight Car 2",
+   "traits": [
+    "outside",
+    "train",
+    "storage",
+    "small"
+   ],
+   "reverse": "TileSideStorageHold",
+   "image": "img/TILE_FREIGHT_CAR_2_MAD27"
+  },
+  {
+   "id": "TileSideLifeBoat",
+   "pack": "HJ",
+   "name": "Life Boat",
+   "traits": [
+    "small",
+    "ship",
+    "outside"
+   ],
+   "reverse": "TileSideBaggageCar",
+   "image": "img/TILE_LIFE_BOAT_MAD27"
+  },
+  {
+   "id": "TileSideLoungeCar",
+   "pack": "HJ",
+   "name": "Lounge Car",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideCabin1",
+   "image": "img/TILE_LOUNGE_CAR_MAD27"
+  },
+  {
+   "id": "TileSideMedicalOffice",
+   "pack": "HJ",
+   "name": "Medical Office",
+   "traits": [
+    "inside",
+    "storage",
+    "small"
+   ],
+   "reverse": "TileSideObservationCar",
+   "image": "img/TILE_MEDICAL_OFFICE_MAD27"
+  },
+  {
+   "id": "TileSideObservationCar",
+   "pack": "HJ",
+   "name": "Observation Car",
+   "traits": [
+    "outside",
+    "train",
+    "small"
+   ],
+   "reverse": "TileSideMedicalOffice",
+   "image": "img/TILE_OBSERVATION_CAR_MAD27"
+  },
+  {
+   "id": "TileSidePassengerCar1",
+   "pack": "HJ",
+   "name": "Passenger Car 1",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideSpa",
+   "image": "img/TILE_PASSENGER_CAR_1_MAD27"
+  },
+  {
+   "id": "TileSidePassengerCar2",
+   "pack": "HJ",
+   "name": "Passenger Car 2",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideCabin3",
+   "image": "img/TILE_PASSENGER_CAR_2_MAD27"
+  },
+  {
+   "id": "TileSidePool",
+   "pack": "HJ",
+   "name": "Pool",
+   "traits": [
+    "inside",
+    "bathroom",
+    "medium"
+   ],
+   "reverse": "TileSideDiningRoomMAD27",
+   "image": "img/TILE_POOL_MAD27"
+  },
+  {
+   "id": "TileSideProw",
+   "pack": "HJ",
+   "name": "Prow",
+   "traits": [
+    "outside",
+    "ship",
+    "medium"
+   ],
+   "reverse": "TileSideViewingRoom2",
+   "image": "img/TILE_PROW_MAD27"
+  },
+  {
+   "id": "TileSideShipDeck1",
+   "pack": "HJ",
+   "name": "Ship Deck 1",
+   "traits": [
+    "outside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideViewingRoom1",
+   "image": "img/TILE_SHIP_DECK_1_MAD27"
+  },
+  {
+   "id": "TileSideShipDeck2",
+   "pack": "HJ",
+   "name": "Ship Deck 2",
+   "traits": [
+    "outside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideViewingRoom3",
+   "image": "img/TILE_SHIP_DECK_2_MAD27"
+  },
+  {
+   "id": "TileSideShipDeck3",
+   "pack": "HJ",
+   "name": "Ship Deck 3",
+   "traits": [
+    "outside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideEngine",
+   "image": "img/TILE_SHIP_DECK_3_MAD27"
+  },
+  {
+   "id": "TileSideShipDeck4",
+   "pack": "HJ",
+   "name": "Ship Deck 4",
+   "traits": [
+    "outside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideCarboose",
+   "image": "img/TILE_SHIP_DECK_4_MAD27"
+  },
+  {
+   "id": "TileSideShipDeck5",
+   "pack": "HJ",
+   "name": "Ship Deck 5",
+   "traits": [
+    "outside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideFreightCar1",
+   "image": "img/TILE_SHIP_DECK_5_MAD27"
+  },
+  {
+   "id": "TileSideShipDeck6",
+   "pack": "HJ",
+   "name": "Ship Deck 6",
+   "traits": [
+    "outside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideDiningCar2",
+   "image": "img/TILE_SHIP_DECK_6_MAD27"
+  },
+  {
+   "id": "TileSideSleeperCar",
+   "pack": "HJ",
+   "name": "Sleeper Car",
+   "traits": [
+    "inside",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideBridge",
+   "image": "img/TILE_SLEEPER_CAR_MAD27"
+  },
+  {
+   "id": "TileSideSpa",
+   "pack": "HJ",
+   "name": "Spa",
+   "traits": [
+    "inside",
+    "bathroom",
+    "small"
+   ],
+   "reverse": "TileSidePassengerCar1",
+   "image": "img/TILE_SPA_MAD27"
+  },
+  {
+   "id": "TileSideStation",
+   "pack": "HJ",
+   "name": "Station",
+   "traits": [
+    "inside",
+    "outside",
+    "train",
+    "ship",
+    "dock",
+    "medium"
+   ],
+   "reverse": "TileSideEngineRoom",
+   "image": "img/TILE_STATION_MAD27"
+  },
+  {
+   "id": "TileSideStorageHold",
+   "pack": "HJ",
+   "name": "Storage Hold",
+   "traits": [
+    "inside",
+    "storage",
+    "train",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideFreightCar2",
+   "image": "img/TILE_STORAGE_HOLD_MAD27"
+  },
+  {
+   "id": "TileSideTracks",
+   "pack": "HJ",
+   "name": "Tracks",
+   "traits": [
+    "outside",
+    "train",
+    "small"
+   ],
+   "reverse": "TileSideCrewBedroom",
+   "image": "img/TILE_TRACKS_MAD27"
+  },
+  {
+   "id": "TileSideViewingRoom1",
+   "pack": "HJ",
+   "name": "Viewing Room 1",
+   "traits": [
+    "inside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideShipDeck1",
+   "image": "img/Tile_Viewing_Room_1_MAD27"
+  },
+  {
+   "id": "TileSideViewingRoom2",
+   "pack": "HJ",
+   "name": "Viewing Room 2",
+   "traits": [
+    "inside",
+    "ship",
+    "medium"
+   ],
+   "reverse": "TileSideProw",
+   "image": "img/Tile_Viewing_Room_2_MAD27"
+  },
+  {
+   "id": "TileSideViewingRoom3",
+   "pack": "HJ",
+   "name": "Viewing Room 3",
+   "traits": [
+    "inside",
+    "ship",
+    "small"
+   ],
+   "reverse": "TileSideShipDeck2",
+   "image": "img/Tile_Viewing_Room_3_MAD27"
+  },
+  {
+   "id": "TileSideStatueChamber",
+   "pack": "PotS",
+   "name": "Statue Chamber",
+   "traits": [
+    "inside",
+    "medium",
+    "temple"
+   ],
+   "reverse": "TileSideRuinedHut",
+   "image": "img/Tile_Statue_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideBurialChamber",
+   "pack": "PotS",
+   "name": "Burial Chamber",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideOvergrownPath",
+   "image": "img/Tile_Burial_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideBedChamber",
+   "pack": "PotS",
+   "name": "Bed Chamber",
+   "traits": [
+    "inside",
+    "temple",
+    "small"
+   ],
+   "reverse": "TileSideJungleRuins1",
+   "image": "img/Tile_Bed_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideVerdantChamber",
+   "pack": "PotS",
+   "name": "Verdant Chamber",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideClearing1",
+   "image": "img/Tile_Verdant_Chamber_MAD28"
+  },
+  {
+   "id": "TileSidePit",
+   "pack": "PotS",
+   "name": "Pit",
+   "traits": [
+    "inside",
+    "medium",
+    "temple"
+   ],
+   "reverse": "TileSideClearing2",
+   "image": "img/Tile_Pit_MAD28"
+  },
+  {
+   "id": "TileSideTunnel",
+   "pack": "PotS",
+   "name": "Tunnel",
+   "traits": [
+    "inside",
+    "small",
+    "cave"
+   ],
+   "reverse": "TileSideRavine",
+   "image": "img/Tile_Tunnel_MAD28"
+  },
+  {
+   "id": "TileSideRopeBridge",
+   "pack": "PotS",
+   "name": "Rope Bridge",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideMosaicChamber",
+   "image": "img/Tile_Rope_Bridge_MAD28"
+  },
+  {
+   "id": "TileSideHollowGrove",
+   "pack": "PotS",
+   "name": "Hollow Grove",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideSunlitChamber",
+   "image": "img/Tile_Hollow_Grove_MAD28"
+  },
+  {
+   "id": "TileSideCrumblingPlaza",
+   "pack": "PotS",
+   "name": "Crumbling Plaza",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSidePoolChamber",
+   "image": "img/Tile_Crumbling_Plaza_MAD28"
+  },
+  {
+   "id": "TileSideShrine",
+   "pack": "PotS",
+   "name": "Shrine",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideHallChamber1",
+   "image": "img/Tile_Shrine_MAD28"
+  },
+  {
+   "id": "TileSideJungleRuins1",
+   "pack": "PotS",
+   "name": "Jungle Ruins 1",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideBedChamber",
+   "image": "img/Tile_Jungle_Ruins_1_MAD28"
+  },
+  {
+   "id": "TileSideJungleRuins2",
+   "pack": "PotS",
+   "name": "Jungle Ruins 2",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideStorageChamber",
+   "image": "img/Tile_Jungle_Ruins_2_MAD28"
+  },
+  {
+   "id": "TileSideRiver1",
+   "pack": "PotS",
+   "name": "River 1",
+   "traits": [
+    "outside",
+    "small",
+    "river"
+   ],
+   "reverse": "TileSideAltarChamber",
+   "image": "img/Tile_River_1_MAD28"
+  },
+  {
+   "id": "TileSideRiver2",
+   "pack": "PotS",
+   "name": "River 2",
+   "traits": [
+    "outside",
+    "small",
+    "river"
+   ],
+   "reverse": "TileSideAntechamber",
+   "image": "img/Tile_River_2_MAD28"
+  },
+  {
+   "id": "TileSideRiverCrossing",
+   "pack": "PotS",
+   "name": "River Crossing",
+   "traits": [
+    "outside",
+    "small",
+    "river"
+   ],
+   "reverse": "TileSideRuinedChamber",
+   "image": "img/Tile_River_Crossing_MAD28"
+  },
+  {
+   "id": "TileSideRiverEdge",
+   "pack": "PotS",
+   "name": "River Edge",
+   "traits": [
+    "outside",
+    "medium",
+    "river"
+   ],
+   "reverse": "TileSideThroneChamber",
+   "image": "img/Tile_River_Edge_MAD28"
+  },
+  {
+   "id": "TileSideCampsite",
+   "pack": "PotS",
+   "name": "Campsite",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideHallChamber2",
+   "image": "img/Tile_Campsite_MAD28"
+  },
+  {
+   "id": "TileSideClearing1",
+   "pack": "PotS",
+   "name": "Clearing 1",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideVerdantChamber",
+   "image": "img/Tile_Clearing_1_MAD28"
+  },
+  {
+   "id": "TileSideClearing2",
+   "pack": "PotS",
+   "name": "Abandoned Hut",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSidePit",
+   "image": "img/Tile_Abandoned_Hut_MAD28"
+  },
+  {
+   "id": "TileSideTempleStairs",
+   "pack": "PotS",
+   "name": "Temple Stairs",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideCrackedChamber",
+   "image": "img/Tile_Temple_Stairs_MAD28"
+  },
+  {
+   "id": "TileSideThroneChamber",
+   "pack": "PotS",
+   "name": "Throne Chamber",
+   "traits": [
+    "inside",
+    "medium",
+    "temple"
+   ],
+   "reverse": "TileSideRiverEdge",
+   "image": "img/Tile_Throne_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideOvergrownPath",
+   "pack": "PotS",
+   "name": "Overgrown Path",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideBurialChamber",
+   "image": "img/Tile_Overgrown_Path_MAD28"
+  },
+  {
+   "id": "TileSideAltarChamber",
+   "pack": "PotS",
+   "name": "Altar Chamber",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideRiver1",
+   "image": "img/Tile_Altar_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideSunlitChamber",
+   "pack": "PotS",
+   "name": "Sunlit Chamber",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideHollowGrove",
+   "image": "img/Tile_Sunlit_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideRuinedHut",
+   "pack": "PotS",
+   "name": "Ruined Hut",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideStatueChamber",
+   "image": "img/Tile_Ruined_Hut_MAD28"
+  },
+  {
+   "id": "TileSideHallChamber1",
+   "pack": "PotS",
+   "name": "Hall Chamber 1",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideShrine",
+   "image": "img/Tile_Hall_Chamber_1_MAD28"
+  },
+  {
+   "id": "TileSideHallChamber2",
+   "pack": "PotS",
+   "name": "Hall Chamber 2",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideCampsite",
+   "image": "img/Tile_Hall_Chamber_2_MAD28"
+  },
+  {
+   "id": "TileSideStorageChamber",
+   "pack": "PotS",
+   "name": "Storage Chamber",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideJungleRuins2",
+   "image": "img/Tile_Storage_Chamber_MAD28"
+  },
+  {
+   "id": "TileSidePoolChamber",
+   "pack": "PotS",
+   "name": "Pool Chamber",
+   "traits": [
+    "inside",
+    "medium",
+    "cave",
+    "water"
+   ],
+   "reverse": "TileSideCrumblingPlaza",
+   "image": "img/Tile_Pool_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideMosaicChamber",
+   "pack": "PotS",
+   "name": "Mosaic Chamber",
+   "traits": [
+    "inside",
+    "medium",
+    "temple"
+   ],
+   "reverse": "TileSideRopeBridge",
+   "image": "img/Tile_Mosaic_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideRavine",
+   "pack": "PotS",
+   "name": "Ravine",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideTunnel",
+   "image": "img/Tile_Ravine_MAD28"
+  },
+  {
+   "id": "TileSideAntechamber",
+   "pack": "PotS",
+   "name": "Antechamber",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideRiver2",
+   "image": "img/Tile_Antechamber_MAD28"
+  },
+  {
+   "id": "TileSideCrackedChamber",
+   "pack": "PotS",
+   "name": "Cracked Chamber",
+   "traits": [
+    "inside",
+    "medium",
+    "temple"
+   ],
+   "reverse": "TileSideTempleStairs",
+   "image": "img/Tile_Cracked_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideRuinedChamber",
+   "pack": "PotS",
+   "name": "Ruined Chamber",
+   "traits": [
+    "inside",
+    "small",
+    "temple"
+   ],
+   "reverse": "TileSideRiverCrossing",
+   "image": "img/Tile_Ruined_Chamber_MAD28"
+  },
+  {
+   "id": "TileSideDiner",
+   "pack": "SoA",
+   "name": "Diner",
+   "traits": [
+    "inside",
+    "big"
+   ],
+   "reverse": "TileSideExhibitEntrance",
+   "image": "img/Tile_Diner_MAD25"
+  },
+  {
+   "id": "TileSideExhibitEntrance",
+   "pack": "SoA",
+   "name": "Exhibit Entrance",
+   "traits": [
+    "inside",
+    "big"
+   ],
+   "reverse": "TileSideDiner",
+   "image": "img/Tile_Exhibit_Entrance_MAD25"
+  },
+  {
+   "id": "TileSideYard1MAD25",
+   "pack": "SoA",
+   "name": "Yard 1",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideMainExhibit",
+   "image": "img/Tile_Yard_1_MAD25"
+  },
+  {
+   "id": "TileSideMainExhibit",
+   "pack": "SoA",
+   "name": "Main Exhibit",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideYard1MAD25",
+   "image": "img/Tile_Main_Exhibit_MAD25"
+  },
+  {
+   "id": "TileSideLab",
+   "pack": "SoA",
+   "name": "Lab",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideBandstand",
+   "image": "img/Tile_Lab_MAD25"
+  },
+  {
+   "id": "TileSideBandstand",
+   "pack": "SoA",
+   "name": "Bandstand",
+   "traits": [
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideLab",
+   "image": "img/Tile_Bandstand_MAD25"
+  },
+  {
+   "id": "TileSideLobbyMAD25",
+   "pack": "SoA",
+   "name": "Lobby",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideExhibit3",
+   "image": "img/Tile_Lobby_MAD25"
+  },
+  {
+   "id": "TileSideExhibit3",
+   "pack": "SoA",
+   "name": "Exhibit 3",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideLobbyMAD25",
+   "image": "img/Tile_Exhibit_3_MAD25"
+  },
+  {
+   "id": "TileSideClassroom1",
+   "pack": "SoA",
+   "name": "Classroom 1",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideLibraryMAD25",
+   "image": "img/Tile_Classroom_1_MAD25"
+  },
+  {
+   "id": "TileSideLibraryMAD25",
+   "pack": "SoA",
+   "name": "Library",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideClassroom1",
+   "image": "img/Tile_Library_MAD25"
+  },
+  {
+   "id": "TileSideGeneralShop",
+   "pack": "SoA",
+   "name": "General Shop",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideStudio",
+   "image": "img/Tile_General_Shop_MAD25"
+  },
+  {
+   "id": "TileSideStudio",
+   "pack": "SoA",
+   "name": "Studio",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideGeneralShop",
+   "image": "img/Tile_Studio_MAD25"
+  },
+  {
+   "id": "TileSideSewer1",
+   "pack": "SoA",
+   "name": "Sewer 1",
+   "traits": [
+    "small",
+    "inside"
+   ],
+   "reverse": "TileSideLibraryArchives",
+   "image": "img/Tile_Sewer_1_MAD25"
+  },
+  {
+   "id": "TileSideLibraryArchives",
+   "pack": "SoA",
+   "name": "Library Archives",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideSewer1",
+   "image": "img/Tile_Library_Archives_MAD25"
+  },
+  {
+   "id": "TileSidePrintingPress",
+   "pack": "SoA",
+   "name": "Printing Press",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideExhibit2",
+   "image": "img/Tile_Printing_Press_MAD25"
+  },
+  {
+   "id": "TileSideExhibit2",
+   "pack": "SoA",
+   "name": "Exhibit 2",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSidePrintingPress",
+   "image": "img/Tile_Exhibit_2_MAD25"
+  },
+  {
+   "id": "TileSideStreetCorner",
+   "pack": "SoA",
+   "name": "Street Corner",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideResearchLibrary",
+   "image": "img/Tile_Street_Corner_MAD25"
+  },
+  {
+   "id": "TileSideResearchLibrary",
+   "pack": "SoA",
+   "name": "Research Library",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideStreetCorner",
+   "image": "img/Tile_Research_Library_MAD25"
+  },
+  {
+   "id": "TileSideSewer2",
+   "pack": "SoA",
+   "name": "Sewer 2",
+   "traits": [
+    "small",
+    "inside"
+   ],
+   "reverse": "TileSideChapelMAD25",
+   "image": "img/Tile_Sewer_2_MAD25"
+  },
+  {
+   "id": "TileSideChapelMAD25",
+   "pack": "SoA",
+   "name": "Chapel",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideSewer2",
+   "image": "img/Tile_Chapel_MAD25"
+  },
+  {
+   "id": "TileSideSpeakeasy",
+   "pack": "SoA",
+   "name": "Speakeasy",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSidePortraitHall",
+   "image": "img/Tile_Speakeasy_MAD25"
+  },
+  {
+   "id": "TileSidePortraitHall",
+   "pack": "SoA",
+   "name": "Portrait Hall",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideSpeakeasy",
+   "image": "img/Tile_Portrait_Hall_MAD25"
+  },
+  {
+   "id": "TileSideMagicShop",
+   "pack": "SoA",
+   "name": "Magic Shop",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideOfficeMAD25",
+   "image": "img/Tile_Magic_Shop_MAD25"
+  },
+  {
+   "id": "TileSideOfficeMAD25",
+   "pack": "SoA",
+   "name": "Office",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideMagicShop",
+   "image": "img/Tile_Office_MAD25"
+  },
+  {
+   "id": "TileSideYard2MAD25",
+   "pack": "SoA",
+   "name": "Yard 2",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideBedroomMAD25",
+   "image": "img/Tile_Yard_2_MAD25"
+  },
+  {
+   "id": "TileSideBedroomMAD25",
+   "pack": "SoA",
+   "name": "Bedroom",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideYard2MAD25",
+   "image": "img/Tile_Bedroom_MAD25"
+  },
+  {
+   "id": "TileSideAlley",
+   "pack": "SoA",
+   "name": "Alley",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideExhibit1",
+   "image": "img/Tile_Alley_MAD25"
+  },
+  {
+   "id": "TileSideExhibit1",
+   "pack": "SoA",
+   "name": "Exhibit 1",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideAlley",
+   "image": "img/Tile_Exhibit_1_MAD25"
+  },
+  {
+   "id": "TileSideCuriosityShop",
+   "pack": "SoA",
+   "name": "Curiosity Shop",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideHallStairsMAD25",
+   "image": "img/Tile_Curiosity_Shop_MAD25"
+  },
+  {
+   "id": "TileSideHallStairsMAD25",
+   "pack": "SoA",
+   "name": "Hall Stairs",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideCuriosityShop",
+   "image": "img/Tile_Hall_Stairs_MAD25"
+  },
+  {
+   "id": "TileSideWarehouseMAD25",
+   "pack": "SoA",
+   "name": "Warehouse",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideClassroom2",
+   "image": "img/Tile_Warehouse_MAD25"
+  },
+  {
+   "id": "TileSideClassroom2",
+   "pack": "SoA",
+   "name": "Classroom 2",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideWarehouseMAD25",
+   "image": "img/Tile_Classroom_2_MAD25"
+  },
+  {
+   "id": "TileSideClassroom3",
+   "pack": "SoA",
+   "name": "Classroom 3",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideLoungeMAD25",
+   "image": "img/Tile_Classroom_3_MAD25"
+  },
+  {
+   "id": "TileSideLoungeMAD25",
+   "pack": "SoA",
+   "name": "Lounge",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideClassroom3",
+   "image": "img/Tile_Lounge_MAD25"
+  },
+  {
+   "id": "TileSideCafe",
+   "pack": "SoT",
+   "name": "Cafe",
+   "traits": [
+    "inside",
+    "outside",
+    "medium"
+   ],
+   "reverse": "TileSideDungeonHall",
+   "image": "img/Tile_Cafe_MAD26"
+  },
+  {
+   "id": "TileSideDungeonHall",
+   "pack": "SoT",
+   "name": "Dungeon Hall",
+   "traits": [
+    "inside",
+    "medium"
+   ],
+   "reverse": "TileSideCafe",
+   "image": "img/Tile_Dungeon_Hall_MAD26"
+  },
+  {
+   "id": "TileSideCeremonyRoomMAD26",
+   "pack": "SoT",
+   "name": "Ceremony Room",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSidePharmacy",
+   "image": "img/Tile_Ceremony_Room_MAD26"
+  },
+  {
+   "id": "TileSideInnerSanctum",
+   "pack": "SoT",
+   "name": "Inner Sanctum",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideParadeFloat2",
+   "image": "img/Tile_Inner_Sanctum_MAD26"
+  },
+  {
+   "id": "TileSideLoungeMAD26",
+   "pack": "SoT",
+   "name": "Lounge",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideParadeFloat1",
+   "image": "img/Tile_Lounge_MAD26"
+  },
+  {
+   "id": "TileSideParadeFloat1",
+   "pack": "SoT",
+   "name": "Parade Float 1",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideLoungeMAD26",
+   "image": "img/Tile_Parade_Float_1_MAD26"
+  },
+  {
+   "id": "TileSideParadeFloat2",
+   "pack": "SoT",
+   "name": "Parade Float 2",
+   "traits": [
+    "outside",
+    "small"
+   ],
+   "reverse": "TileSideInnerSanctum",
+   "image": "img/Tile_Parade_Float_2_MAD26"
+  },
+  {
+   "id": "TileSidePharmacy",
+   "pack": "SoT",
+   "name": "Pharmacy",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideCeremonyRoomMAD26",
+   "image": "img/Tile_Pharmacy_MAD26"
+  },
+  {
+   "id": "TileSideStorageRoom",
+   "pack": "SoT",
+   "name": "Storage Room",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideVault",
+   "image": "img/Tile_Storage_Room_MAD26"
+  },
+  {
+   "id": "TileSideVault",
+   "pack": "SoT",
+   "name": "Vault",
+   "traits": [
+    "inside",
+    "small"
+   ],
+   "reverse": "TileSideStorageRoom",
+   "image": "img/Tile_Vault_MAD26"
+  }
+ ],
+ "monsters": [
+  {
+   "id": "MonsterCultist",
+   "pack": "MoMBase",
+   "name": "Cultist",
+   "traits": [
+    "small",
+    "humanoid"
+   ],
+   "health": 1,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterDeepOne",
+   "pack": "MoMBase",
+   "name": "Deep One",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 2,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterDeepOneHybrid",
+   "pack": "MoMBase",
+   "name": "Deep One Hybrid",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 2,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterGhost",
+   "pack": "MoMBase",
+   "name": "Ghost",
+   "traits": [
+    "spirit"
+   ],
+   "health": 1,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterHuntingHorror",
+   "pack": "MoMBase",
+   "name": "Hunting Horror",
+   "traits": [
+    "beast"
+   ],
+   "health": 3,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterRiot",
+   "pack": "MoMBase",
+   "name": "Riot",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 5,
+   "healthperhero": 3
+  },
+  {
+   "id": "MonsterStarSpawn",
+   "pack": "MoMBase",
+   "name": "Star Spawn",
+   "traits": [
+    "beast"
+   ],
+   "health": 9,
+   "healthperhero": 3
+  },
+  {
+   "id": "MonsterChildOfDagon",
+   "pack": "MoMBase",
+   "name": "Unique Monster Child Of Dagon",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 1,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterPriestOfDagon",
+   "pack": "MoMBase",
+   "name": "Unique Monster Priest Of Dagon",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 2,
+   "healthperhero": 2
+  },
+  {
+   "id": "MonsterThrall",
+   "pack": "BtT",
+   "name": "Thrall",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 2,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterWarlock",
+   "pack": "HJ",
+   "name": "Warlock",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 1,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterDimensionalShambler",
+   "pack": "HJ",
+   "name": "Dimensional Shambler",
+   "traits": [
+    "beast"
+   ],
+   "health": 6,
+   "healthperhero": 2
+  },
+  {
+   "id": "MonsterHuntingDeepOne",
+   "pack": "HJ",
+   "name": "Hunting Deep One",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 3,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterFormlessSpawn",
+   "pack": "HJ",
+   "name": "Formless Spawn",
+   "traits": [
+    "beast"
+   ],
+   "health": 48,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterFeatheredSerpent",
+   "pack": "PotS",
+   "name": "Feathered Serpent",
+   "traits": [
+    "beast"
+   ],
+   "health": 2,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterTempleGuardian",
+   "pack": "PotS",
+   "name": "Temple Guardian",
+   "traits": [
+    "beast"
+   ],
+   "health": 3,
+   "healthperhero": 2
+  },
+  {
+   "id": "MonsterSerpentPerson",
+   "pack": "PotS",
+   "name": "Serpent Person",
+   "traits": [
+    "snakeperson"
+   ],
+   "health": 2,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterAncientBasilisk",
+   "pack": "PotS",
+   "name": "Ancient Basilisk",
+   "traits": [
+    "beast"
+   ],
+   "health": 20,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterSkeleton",
+   "pack": "SoA",
+   "name": "Skeleton",
+   "traits": [
+    "fleshless"
+   ],
+   "health": 1,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterHiredGun",
+   "pack": "SoA",
+   "name": "Hired Gun",
+   "traits": [
+    "humanoid"
+   ],
+   "health": 2,
+   "healthperhero": 1
+  },
+  {
+   "id": "MonsterLloigor",
+   "pack": "SoA",
+   "name": "Lloigor",
+   "traits": [
+    "beast"
+   ],
+   "health": 1,
+   "healthperhero": 2
+  },
+  {
+   "id": "MonsterStarVampire",
+   "pack": "SoA",
+   "name": "Star Vampire",
+   "traits": [
+    "beast"
+   ],
+   "health": 9,
+   "healthperhero": 3
+  },
+  {
+   "id": "MonsterWraith",
+   "pack": "SoT",
+   "name": "Wraith",
+   "traits": [
+    "spirit"
+   ],
+   "health": 2,
+   "healthperhero": 2
+  }
+ ],
+ "items": [
+  {
+   "id": "ItemCommon18Derringer",
+   "pack": "MoMBase",
+   "name": "18 Derringer",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommon38Revolver",
+   "pack": "MoMBase",
+   "name": "38 Revolver",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommon45Automatic",
+   "pack": "MoMBase",
+   "name": "45 Automatic",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommon2x4",
+   "pack": "MoMBase",
+   "name": "2x 4",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonArcaneManuscript",
+   "pack": "MoMBase",
+   "name": "Arcane Manuscript",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonAxe",
+   "pack": "MoMBase",
+   "name": "Axe",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonBandages",
+   "pack": "MoMBase",
+   "name": "Bandages",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonBrassKnuckles",
+   "pack": "MoMBase",
+   "name": "Brass Knuckles",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonBullseyeLantern",
+   "pack": "MoMBase",
+   "name": "Bullseye Lantern",
+   "traits": [
+    "lightsource",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonCandles",
+   "pack": "MoMBase",
+   "name": "Candles",
+   "traits": [
+    "lightsource",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonCarbineRifle",
+   "pack": "MoMBase",
+   "name": "Carbine Rifle",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonCrowbar",
+   "pack": "MoMBase",
+   "name": "Crowbar",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonDynamite",
+   "pack": "MoMBase",
+   "name": "Dynamite",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonElderSignPendant",
+   "pack": "MoMBase",
+   "name": "Elder Sign Pendant",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonElderWard",
+   "pack": "MoMBase",
+   "name": "Elder Ward",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonFireExtinguisher",
+   "pack": "MoMBase",
+   "name": "Fire Extinguisher",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonFlareGun",
+   "pack": "MoMBase",
+   "name": "Flare Gun",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonHolyCross",
+   "pack": "MoMBase",
+   "name": "Holy Cross",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonHolyWater",
+   "pack": "MoMBase",
+   "name": "Holy Water",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonKeroseneLantern",
+   "pack": "MoMBase",
+   "name": "Kerosene Lantern",
+   "traits": [
+    "lightsource",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonKingJamesBible",
+   "pack": "MoMBase",
+   "name": "King James Bible",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonKnife",
+   "pack": "MoMBase",
+   "name": "Knife",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonLeadPipe",
+   "pack": "MoMBase",
+   "name": "Lead Pipe",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonLuckyCigaretteCase",
+   "pack": "MoMBase",
+   "name": "Lucky Cigarette Case",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonLuckyRabbitsFoot",
+   "pack": "MoMBase",
+   "name": "Lucky Rabbits Foot",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMachete",
+   "pack": "MoMBase",
+   "name": "Machete",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMagnifyingGlass",
+   "pack": "MoMBase",
+   "name": "Magnifying Glass",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMeatCleaver",
+   "pack": "MoMBase",
+   "name": "Meat Cleaver",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMedicalTextbook",
+   "pack": "MoMBase",
+   "name": "Medical Textbook",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonPickaxe",
+   "pack": "MoMBase",
+   "name": "Pickaxe",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonPocketWatch",
+   "pack": "MoMBase",
+   "name": "Pocket Watch",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonRitualDagger",
+   "pack": "MoMBase",
+   "name": "Ritual Dagger",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSedatives",
+   "pack": "MoMBase",
+   "name": "Sedatives",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonShotgun",
+   "pack": "MoMBase",
+   "name": "Shotgun",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonShovel",
+   "pack": "MoMBase",
+   "name": "Shovel",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSledgehammer",
+   "pack": "MoMBase",
+   "name": "Sledgehammer",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonTommyGun",
+   "pack": "MoMBase",
+   "name": "Tommy Gun",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonTorch",
+   "pack": "MoMBase",
+   "name": "Torch",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "lightsource",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonWhiskey",
+   "pack": "MoMBase",
+   "name": "Whiskey",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonWrench",
+   "pack": "MoMBase",
+   "name": "Wrench",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemUniqueBrassKey",
+   "pack": "MoMBase",
+   "name": "Brass Key",
+   "traits": [
+    "key",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueCircumstantialEvidence",
+   "pack": "MoMBase",
+   "name": "Circumstantial Evidence",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueConclusiveEvidence",
+   "pack": "MoMBase",
+   "name": "Conclusive Evidence",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueCultSigil",
+   "pack": "MoMBase",
+   "name": "Cult Sigil",
+   "traits": [
+    "evidence",
+    "key",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueForensicEvidence",
+   "pack": "MoMBase",
+   "name": "Forensic Evidence",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueHandcuffs",
+   "pack": "MoMBase",
+   "name": "Handcuffs",
+   "traits": [
+    "equipment",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueGoldKey",
+   "pack": "MoMBase",
+   "name": "Gold Key",
+   "traits": [
+    "key",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueGrotesqueStone",
+   "pack": "MoMBase",
+   "name": "Grotesque Stone",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueIncriminatingEvidence",
+   "pack": "MoMBase",
+   "name": "Incriminating Evidence",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueOilLamp",
+   "pack": "MoMBase",
+   "name": "Oil Lamp",
+   "traits": [
+    "lightsource",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueOldJournal",
+   "pack": "MoMBase",
+   "name": "Old Journal",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueOldKeys",
+   "pack": "MoMBase",
+   "name": "Old Keys",
+   "traits": [
+    "key",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueMissingLink",
+   "pack": "MoMBase",
+   "name": "Missing Link",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniquePhotographicEvidence",
+   "pack": "MoMBase",
+   "name": "Photographic Evidence",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniquePuzzleBox",
+   "pack": "MoMBase",
+   "name": "Puzzle Box",
+   "traits": [
+    "equipment",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueRitualComponents",
+   "pack": "MoMBase",
+   "name": "Ritual Components",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueRope",
+   "pack": "MoMBase",
+   "name": "Rope",
+   "traits": [
+    "equipment",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueSilverKey",
+   "pack": "MoMBase",
+   "name": "Silver Key",
+   "traits": [
+    "key",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemSpellFeedTheMind",
+   "pack": "MoMBase",
+   "name": "Feed The Mind",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemSpellFleshWard",
+   "pack": "MoMBase",
+   "name": "Flesh Ward",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemSpellInstillBravery",
+   "pack": "MoMBase",
+   "name": "Instill Bravery",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemSpellShriveling",
+   "pack": "MoMBase",
+   "name": "Shriveling",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  },
+  {
+   "id": "ItemSpellWither",
+   "pack": "MoMBase",
+   "name": "Wither",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  },
+  {
+   "id": "ItemSpellWrack",
+   "pack": "MoMBase",
+   "name": "Wrack",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  },
+  {
+   "id": "ItemCommon25Automatic",
+   "pack": "BtT",
+   "name": "25 Automatic",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonBlackjack",
+   "pack": "BtT",
+   "name": "Blackjack",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonEnchantedBlade",
+   "pack": "BtT",
+   "name": "Enchanted Blade",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonFineClothes",
+   "pack": "BtT",
+   "name": "Fine Clothes",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonScribesJournal",
+   "pack": "BtT",
+   "name": "Scribes Journal",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonRazor",
+   "pack": "BtT",
+   "name": "Razor",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonTomeOfHorrors",
+   "pack": "BtT",
+   "name": "Tome Of Horrors",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonTomeOfSecrets",
+   "pack": "BtT",
+   "name": "Tome Of Secrets",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemUniqueCultistsJournal",
+   "pack": "BtT",
+   "name": "Cultists Journal",
+   "traits": [
+    "evidence",
+    "tome",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemSpellPoisonMist",
+   "pack": "BtT",
+   "name": "Poison Mist",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  },
+  {
+   "id": "ItemSpellArcaneInsight",
+   "pack": "BtT",
+   "name": "Arcane Insight",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemCommon41Derringer",
+   "pack": "HJ",
+   "name": "41 Derringer",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonAstronomyGuidebook",
+   "pack": "HJ",
+   "name": "Astronomy Guidebook",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCaptainsHat",
+   "pack": "HJ",
+   "name": "Captains Hat",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonCoalShovel",
+   "pack": "HJ",
+   "name": "Coal Shovel",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonDiversHelm",
+   "pack": "HJ",
+   "name": "Divers Helm",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonDiversJournal",
+   "pack": "HJ",
+   "name": "Divers Journal",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonGateBox",
+   "pack": "HJ",
+   "name": "Gate Box",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonGatlingGun",
+   "pack": "HJ",
+   "name": "Gatling Gun",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonHarpoon",
+   "pack": "HJ",
+   "name": "Harpoon",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonLifePreserver",
+   "pack": "HJ",
+   "name": "Life Preserver",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMapOfTheLeyLines",
+   "pack": "HJ",
+   "name": "Map Of The Ley Lines",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMysticSextant",
+   "pack": "HJ",
+   "name": "Mystic Sexton",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSturdyLuggage",
+   "pack": "HJ",
+   "name": "Sturdy Luggage",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemUniqueFishingNet",
+   "pack": "HJ",
+   "name": "Fishing Net",
+   "traits": [
+    "equipment",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueFuel",
+   "pack": "HJ",
+   "name": "Fuel",
+   "traits": [
+    "equipment",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueGoldenTrumpet",
+   "pack": "HJ",
+   "name": "Golden Trumpet",
+   "traits": [
+    "equipment",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueSatchelOfTheVoid",
+   "pack": "HJ",
+   "name": "Satchel Of The Void",
+   "traits": [
+    "equipment",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueTicket",
+   "pack": "HJ",
+   "name": "Ticket",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemSpellMistsOfRlyeh",
+   "pack": "HJ",
+   "name": "Mists Of Rlyeh",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemSpellStormOfSpirits",
+   "pack": "HJ",
+   "name": "Storm Of Spirits",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  },
+  {
+   "id": "ItemSpellPlumbingTheVoid",
+   "pack": "HJ",
+   "name": "Plumbing The Void",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemCommonDiskOfItzamna",
+   "pack": "PotS",
+   "name": "Disc Of Itzamna",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonAntiVenom",
+   "pack": "PotS",
+   "name": "Antivenom",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonExpeditionLog",
+   "pack": "PotS",
+   "name": "Expedition Log",
+   "traits": [
+    "tome",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonHedgeShears",
+   "pack": "PotS",
+   "name": "Hedge Shears",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonJeweledSkull",
+   "pack": "PotS",
+   "name": "Jeweled Skull",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonLuckyBandana",
+   "pack": "PotS",
+   "name": "Lucky Bandana",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMatches",
+   "pack": "PotS",
+   "name": "Matches",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonOtherworldlyCompass",
+   "pack": "PotS",
+   "name": "Otherworldly Compass",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonPithHelmet",
+   "pack": "PotS",
+   "name": "Pith Helmet",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSerpentBracelet",
+   "pack": "PotS",
+   "name": "Serpent Bracelet",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSurvivalKnife",
+   "pack": "PotS",
+   "name": "Survival Knife",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSurvivalPack",
+   "pack": "PotS",
+   "name": "Survival Pack",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonTimewornBrand",
+   "pack": "PotS",
+   "name": "Timeworn Brand",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonTorch",
+   "pack": "PotS",
+   "name": "Torch",
+   "traits": [
+    "weapon",
+    "heavyweapon",
+    "lightsource",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemSpellCallTheStorm",
+   "pack": "PotS",
+   "name": "Call The Storm",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  },
+  {
+   "id": "ItemUniqueCitrineSnake",
+   "pack": "PotS",
+   "name": "Citrine Snake",
+   "traits": [
+    "evidence",
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueJadeCrocodile",
+   "pack": "PotS",
+   "name": "Jade Crocodile",
+   "traits": [
+    "evidence",
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueObsidianJaguar",
+   "pack": "PotS",
+   "name": "Obsidian Jaguar",
+   "traits": [
+    "evidence",
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueTurquoiseEagle",
+   "pack": "PotS",
+   "name": "Turquoise Eagle",
+   "traits": [
+    "evidence",
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueMysteriousSerpent",
+   "pack": "PotS",
+   "name": "Mysterious Snake",
+   "traits": [
+    "ally",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemSpellBanishment",
+   "pack": "PotS",
+   "name": "Banishment",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemSpellSummoning",
+   "pack": "PotS",
+   "name": "Summoning",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemCommonBulletproofVest",
+   "pack": "SoA",
+   "name": "Bulletproof Vest",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonEnhancingSerum",
+   "pack": "SoA",
+   "name": "Enhancing Serum",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonFlask",
+   "pack": "SoA",
+   "name": "Flask",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonGamblersDice",
+   "pack": "SoA",
+   "name": "Gamblers Dice",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMentalStimulant",
+   "pack": "SoA",
+   "name": "Mental Stimulant",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMoonPotion",
+   "pack": "SoA",
+   "name": "Moon Potion",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonMutationJuice",
+   "pack": "SoA",
+   "name": "Mutation Juice",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonOcularExtract",
+   "pack": "SoA",
+   "name": "Ocular Extract",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonScalpel",
+   "pack": "SoA",
+   "name": "Scalpel",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSnubnoseRevolver",
+   "pack": "SoA",
+   "name": "Snubnose Revolver",
+   "traits": [
+    "weapon",
+    "firearm",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonThermos",
+   "pack": "SoA",
+   "name": "Thermos",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemUniqueBecky",
+   "pack": "SoA",
+   "name": "Becky",
+   "traits": [
+    "weapon",
+    "firearm",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueBonePipes",
+   "pack": "SoA",
+   "name": "Bone Pipes",
+   "traits": [
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueDeVermisMysteriis",
+   "pack": "SoA",
+   "name": "De Vermis Mysteriis",
+   "traits": [
+    "evidence",
+    "tome",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueLedger",
+   "pack": "SoA",
+   "name": "Ledger",
+   "traits": [
+    "evidence",
+    "tome",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueMysteriousIdol",
+   "pack": "SoA",
+   "name": "Mysterious Idol",
+   "traits": [
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueOldMap",
+   "pack": "SoA",
+   "name": "Old Map",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueStarCalendar",
+   "pack": "SoA",
+   "name": "Star Calendar",
+   "traits": [
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueStoneChest",
+   "pack": "SoA",
+   "name": "Stone Chest",
+   "traits": [
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueStrangeTablet",
+   "pack": "SoA",
+   "name": "Strange Tablet",
+   "traits": [
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemSpellAzureFlame",
+   "pack": "SoA",
+   "name": "Azure Flame",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  },
+  {
+   "id": "ItemSpellForcedLearning",
+   "pack": "SoA",
+   "name": "Forced Learning",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemSpellImplantSuggestion",
+   "pack": "SoA",
+   "name": "Implant Suggestion",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemElixir",
+   "pack": "SoA",
+   "name": "Elixir",
+   "traits": [
+    "elixir"
+   ]
+  },
+  {
+   "id": "ItemCommonPainkillers",
+   "pack": "SoT",
+   "name": "Painkillers",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonBindingPowder",
+   "pack": "SoT",
+   "name": "Binding Powder",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonConvincingDummy",
+   "pack": "SoT",
+   "name": "Convincing Dummy",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonLuckyRing",
+   "pack": "SoT",
+   "name": "Lucky Ring",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonRiotWhistle",
+   "pack": "SoT",
+   "name": "Riot Whistle",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSensibleShoes",
+   "pack": "SoT",
+   "name": "Sensible Shoes",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSilverTwilightDagger",
+   "pack": "SoT",
+   "name": "Silver Twilight Dagger",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonSwordCane",
+   "pack": "SoT",
+   "name": "Sword Cane",
+   "traits": [
+    "weapon",
+    "bladedweapon",
+    "heavyweapon",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonToteBag",
+   "pack": "SoT",
+   "name": "Tote Bag",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemCommonTrackShoes",
+   "pack": "SoT",
+   "name": "Track Shoes",
+   "traits": [
+    "equipment",
+    "common"
+   ]
+  },
+  {
+   "id": "ItemUniqueMembershipRing",
+   "pack": "SoT",
+   "name": "Membership Ring",
+   "traits": [
+    "evidence",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemUniqueTwilightDiadem",
+   "pack": "SoT",
+   "name": "Twilight Diadem",
+   "traits": [
+    "relic",
+    "unique"
+   ]
+  },
+  {
+   "id": "ItemSpellBinding",
+   "pack": "SoT",
+   "name": "Binding",
+   "traits": [
+    "spell",
+    "spelldefence"
+   ]
+  },
+  {
+   "id": "ItemSpellSpectralRazor",
+   "pack": "SoT",
+   "name": "Spectral Razor",
+   "traits": [
+    "spell",
+    "spellattack"
+   ]
+  }
+ ],
+ "tokens": [
+  {
+   "id": "TokenSearch",
+   "pack": "MoMBase",
+   "name": "Search"
+  },
+  {
+   "id": "TokenInteract",
+   "pack": "MoMBase",
+   "name": "Interact"
+  },
+  {
+   "id": "TokenExplore",
+   "pack": "MoMBase",
+   "name": "Explore"
+  },
+  {
+   "id": "TokenSight",
+   "pack": "MoMBase",
+   "name": "Sight"
+  },
+  {
+   "id": "TokenClue",
+   "pack": "MoMBase",
+   "name": "Clue"
+  },
+  {
+   "id": "TokenDarkness",
+   "pack": "MoMBase",
+   "name": "Darkness"
+  },
+  {
+   "id": "TokenFire",
+   "pack": "MoMBase",
+   "name": "Fire"
+  },
+  {
+   "id": "TokenBarricadeInside",
+   "pack": "MoMBase",
+   "name": "Barricade Inside"
+  },
+  {
+   "id": "TokenBarricadeOutside",
+   "pack": "MoMBase",
+   "name": "Barricade Outside"
+  },
+  {
+   "id": "TokenDoorInside",
+   "pack": "MoMBase",
+   "name": "Door Inside"
+  },
+  {
+   "id": "TokenDoorOutside",
+   "pack": "MoMBase",
+   "name": "Door Outside"
+  },
+  {
+   "id": "TokenSecretInside",
+   "pack": "MoMBase",
+   "name": "Secret Inside"
+  },
+  {
+   "id": "TokenSecretOutside",
+   "pack": "MoMBase",
+   "name": "Secret Outside"
+  },
+  {
+   "id": "TokenSewer",
+   "pack": "MoMBase",
+   "name": "Sewer"
+  },
+  {
+   "id": "TokenTrapdoor",
+   "pack": "MoMBase",
+   "name": "Trapdoor"
+  },
+  {
+   "id": "TokenWallInside",
+   "pack": "MoMBase",
+   "name": "Wall Inside"
+  },
+  {
+   "id": "TokenWallOutside",
+   "pack": "MoMBase",
+   "name": "Wall Outside"
+  },
+  {
+   "id": "TokenWallInsideGreen",
+   "pack": "MoMBase",
+   "name": "Wall Inside Green"
+  },
+  {
+   "id": "TokenWallOutsideGreen",
+   "pack": "MoMBase",
+   "name": "Wall Outside Green"
+  },
+  {
+   "id": "TokenInvestigators",
+   "pack": "MoMBase",
+   "name": "Investigators"
+  },
+  {
+   "id": "TokenWhiteWoman",
+   "pack": "MoMBase",
+   "name": "White Woman"
+  },
+  {
+   "id": "TokenWhiteMan",
+   "pack": "MoMBase",
+   "name": "White Man"
+  },
+  {
+   "id": "TokenGreyWoman",
+   "pack": "MoMBase",
+   "name": "Grey Woman"
+  },
+  {
+   "id": "TokenGreyMan",
+   "pack": "MoMBase",
+   "name": "Grey Man"
+  },
+  {
+   "id": "TokenGreenWoman",
+   "pack": "MoMBase",
+   "name": "Green Woman"
+  },
+  {
+   "id": "TokenGreenMan",
+   "pack": "MoMBase",
+   "name": "Green Man"
+  },
+  {
+   "id": "TokenRedWoman",
+   "pack": "MoMBase",
+   "name": "Red Woman"
+  },
+  {
+   "id": "TokenRedMan",
+   "pack": "MoMBase",
+   "name": "Red Man"
+  },
+  {
+   "id": "TokenPurpleWoman",
+   "pack": "MoMBase",
+   "name": "Purple Woman"
+  },
+  {
+   "id": "TokenPurpleMan",
+   "pack": "MoMBase",
+   "name": "Purple Man"
+  },
+  {
+   "id": "TokenOrangeWoman",
+   "pack": "MoMBase",
+   "name": "Orange Woman"
+  },
+  {
+   "id": "TokenOrangeMan",
+   "pack": "MoMBase",
+   "name": "Orange Man"
+  },
+  {
+   "id": "TokenBlueWoman",
+   "pack": "MoMBase",
+   "name": "Blue Woman"
+  },
+  {
+   "id": "TokenBlueMan",
+   "pack": "MoMBase",
+   "name": "Blue Man"
+  },
+  {
+   "id": "TokenYellowWoman",
+   "pack": "MoMBase",
+   "name": "Yellow Woman"
+  },
+  {
+   "id": "TokenYellowMan",
+   "pack": "MoMBase",
+   "name": "Yellow Man"
+  },
+  {
+   "id": "TokenDog",
+   "pack": "MoMBase",
+   "name": "Dog"
+  },
+  {
+   "id": "TokenCat",
+   "pack": "MoMBase",
+   "name": "Cat"
+  },
+  {
+   "id": "TokenRichardBechman",
+   "pack": "MoMBase",
+   "name": "Richard Bechman"
+  },
+  {
+   "id": "TokenMildredBechman",
+   "pack": "MoMBase",
+   "name": "Mildred Bechman"
+  },
+  {
+   "id": "TokenAgentCraven",
+   "pack": "MoMBase",
+   "name": "Agent Craven"
+  },
+  {
+   "id": "TokenHowardBechman",
+   "pack": "MoMBase",
+   "name": "Howard Bechman"
+  },
+  {
+   "id": "TokenGraceBechman",
+   "pack": "MoMBase",
+   "name": "Grace Bechman"
+  },
+  {
+   "id": "TokenEugeneClemens",
+   "pack": "MoMBase",
+   "name": "Eugene Clemens"
+  },
+  {
+   "id": "TokenJoyceLittle",
+   "pack": "MoMBase",
+   "name": "Joyce Little"
+  },
+  {
+   "id": "TokenSylviaMarsh",
+   "pack": "MoMBase",
+   "name": "Sylvia Marsh"
+  },
+  {
+   "id": "TokenBobbyFoster",
+   "pack": "MoMBase",
+   "name": "Bobby Foster"
+  },
+  {
+   "id": "TokenVictorBlake",
+   "pack": "MoMBase",
+   "name": "Victor Blake"
+  },
+  {
+   "id": "TokenZadocAllen",
+   "pack": "MoMBase",
+   "name": "Zadoc Allen"
+  },
+  {
+   "id": "TokenOtheraGilman",
+   "pack": "MoMBase",
+   "name": "Othera Gilman"
+  },
+  {
+   "id": "TokenEdnaHughes",
+   "pack": "MoMBase",
+   "name": "Edna Hughes"
+  },
+  {
+   "id": "TokenBruceDarzi",
+   "pack": "BtT",
+   "name": "Bruce Darzi"
+  },
+  {
+   "id": "TokenJeanSpencer",
+   "pack": "BtT",
+   "name": "Jean Spencer"
+  },
+  {
+   "id": "TokenElizabethFairview",
+   "pack": "BtT",
+   "name": "Elizabeth Fairview"
+  },
+  {
+   "id": "TokenThomasCarvey",
+   "pack": "BtT",
+   "name": "Thomas Carvey"
+  },
+  {
+   "id": "TokenMayNguyen",
+   "pack": "BtT",
+   "name": "May Nguyen"
+  },
+  {
+   "id": "TokenTetsuoMori",
+   "pack": "BtT",
+   "name": "Tetsuo Mori"
+  },
+  {
+   "id": "TokenLelandWilliams",
+   "pack": "BtT",
+   "name": "Leland Williams"
+  },
+  {
+   "id": "TokenThrall",
+   "pack": "BtT",
+   "name": "Thrall"
+  },
+  {
+   "id": "TokenDotFisher",
+   "pack": "HJ",
+   "name": "Dot Fisher"
+  },
+  {
+   "id": "TokenOfficerButler",
+   "pack": "HJ",
+   "name": "Officer Butler"
+  },
+  {
+   "id": "TokenFredCooper",
+   "pack": "HJ",
+   "name": "Fred Cooper"
+  },
+  {
+   "id": "TokenArthurHollowayIII",
+   "pack": "HJ",
+   "name": "Arthur Holloway III"
+  },
+  {
+   "id": "TokenEthelGibbs",
+   "pack": "HJ",
+   "name": "Ethel Gibbs"
+  },
+  {
+   "id": "TokenDoctorRoseBarnett",
+   "pack": "HJ",
+   "name": "Doctor Rose Barnett"
+  },
+  {
+   "id": "TokenRift",
+   "pack": "HJ",
+   "name": "Rift"
+  },
+  {
+   "id": "TokenWater",
+   "pack": "HJ",
+   "name": "Water"
+  },
+  {
+   "id": "TokenClintonFreeman",
+   "pack": "PotS",
+   "name": "Clinton Freeman"
+  },
+  {
+   "id": "TokenEulaDorman",
+   "pack": "PotS",
+   "name": "Eula Dorman"
+  },
+  {
+   "id": "TokenMarshallHastings",
+   "pack": "PotS",
+   "name": "Marshall Hastings"
+  },
+  {
+   "id": "TokenMerleGarvin",
+   "pack": "PotS",
+   "name": "Merle Garvin"
+  },
+  {
+   "id": "TokenVedaWhitsley",
+   "pack": "PotS",
+   "name": "Veda Whitsley"
+  },
+  {
+   "id": "TokenOvergrowth",
+   "pack": "PotS",
+   "name": "Overgrowth"
+  },
+  {
+   "id": "TokenRubble",
+   "pack": "PotS",
+   "name": "Rubble"
+  },
+  {
+   "id": "TokenTempleDoor",
+   "pack": "PotS",
+   "name": "Temple Door"
+  },
+  {
+   "id": "TokenTempleDoor2",
+   "pack": "PotS",
+   "name": "Temple Door 2"
+  },
+  {
+   "id": "TokenTempleWall",
+   "pack": "PotS",
+   "name": "Temple Wall"
+  },
+  {
+   "id": "TokenTempleWall2",
+   "pack": "PotS",
+   "name": "Temple Wall 2"
+  },
+  {
+   "id": "TokenPinkWoman",
+   "pack": "SoA",
+   "name": "Pink Woman"
+  },
+  {
+   "id": "TokenPinkMan",
+   "pack": "SoA",
+   "name": "Pink Man"
+  },
+  {
+   "id": "TokenCyanWoman",
+   "pack": "SoA",
+   "name": "Cyan Woman"
+  },
+  {
+   "id": "TokenCyanMan",
+   "pack": "SoA",
+   "name": "Cyan Man"
+  },
+  {
+   "id": "TokenDephinaBell",
+   "pack": "SoA",
+   "name": "Dephina Bell"
+  },
+  {
+   "id": "TokenOldSadieSheldon",
+   "pack": "SoA",
+   "name": "Old Sadie Sheldon"
+  },
+  {
+   "id": "TokenLolaSantiago",
+   "pack": "SoA",
+   "name": "Lola Santiago"
+  },
+  {
+   "id": "TokenAdamLynch",
+   "pack": "SoA",
+   "name": "Adam Lynch"
+  },
+  {
+   "id": "TokenNaomiOBannion",
+   "pack": "SoA",
+   "name": "Naomi OBannion"
+  },
+  {
+   "id": "TokenDrewWalker",
+   "pack": "SoA",
+   "name": "Drew Walker"
+  },
+  {
+   "id": "TokenAliceLuxley",
+   "pack": "SoA",
+   "name": "Alice Luxley"
+  },
+  {
+   "id": "TokenElliHorowitz",
+   "pack": "SoA",
+   "name": "Elli Horowitz"
+  },
+  {
+   "id": "TokenSadieSheldon",
+   "pack": "SoA",
+   "name": "Sadie Sheldon"
+  },
+  {
+   "id": "TokenProfessorSmith",
+   "pack": "SoA",
+   "name": "Professor Smith"
+  },
+  {
+   "id": "TokenSkeleton",
+   "pack": "SoA",
+   "name": "Skeleton"
+  },
+  {
+   "id": "TokenHiredGun",
+   "pack": "SoA",
+   "name": "Hired Gun"
+  },
+  {
+   "id": "TokenLloigor",
+   "pack": "SoA",
+   "name": "Lloigor"
+  },
+  {
+   "id": "TokenStarVampire",
+   "pack": "SoA",
+   "name": "Star Vampire"
+  },
+  {
+   "id": "TokenGrannyOrne",
+   "pack": "SoT",
+   "name": "Granny Orne"
+  },
+  {
+   "id": "TokenArthurJohnson",
+   "pack": "SoT",
+   "name": "Arthur Johnson"
+  },
+  {
+   "id": "TokenZoraLarson",
+   "pack": "SoT",
+   "name": "Zora Larson"
+  },
+  {
+   "id": "TokenGabrielCarillo",
+   "pack": "SoT",
+   "name": "Gabriel Carillo"
+  },
+  {
+   "id": "TokenMaryAnnChase",
+   "pack": "SoT",
+   "name": "Mary Ann Chase"
+  },
+  {
+   "id": "TokenLewisHayes",
+   "pack": "SoT",
+   "name": "Lewis Hayes"
+  },
+  {
+   "id": "TokenSachikoHiga",
+   "pack": "SoT",
+   "name": "Sachiko Higa"
+  },
+  {
+   "id": "TokenEstherLocke",
+   "pack": "SoT",
+   "name": "Esther Locke"
+  },
+  {
+   "id": "TokenHenryWan",
+   "pack": "SoT",
+   "name": "Henry Wan"
+  },
+  {
+   "id": "TokenTheVeiledKing",
+   "pack": "SoT",
+   "name": "The Veiled King"
+  },
+  {
+   "id": "TokenWraith",
+   "pack": "SoT",
+   "name": "Wraith"
+  }
+ ],
+ "audio": [
+  {
+   "id": "AudioMenu",
+   "traits": [
+    "menu",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioAtmosphere1",
+   "traits": [
+    "quest",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioAtmosphere2",
+   "traits": [
+    "quest",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioAtmosphere3",
+   "traits": [
+    "quest",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioAtmosphere4",
+   "traits": [
+    "quest",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioAtmosphere5",
+   "traits": [
+    "quest",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioAtmosphere6",
+   "traits": [
+    "quest",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioAtmosphere7",
+   "traits": [
+    "quest",
+    "music"
+   ]
+  },
+  {
+   "id": "AudioBladed1",
+   "traits": [
+    "attack",
+    "bladedweapon"
+   ]
+  },
+  {
+   "id": "AudioBladed2",
+   "traits": [
+    "attack",
+    "bladedweapon"
+   ]
+  },
+  {
+   "id": "AudioBladed3",
+   "traits": [
+    "attack",
+    "bladedweapon"
+   ]
+  },
+  {
+   "id": "AudioDeath",
+   "traits": []
+  },
+  {
+   "id": "AudioButlerEaten",
+   "traits": []
+  },
+  {
+   "id": "AudioButlerSaved",
+   "traits": []
+  },
+  {
+   "id": "AudioButton1",
+   "traits": []
+  },
+  {
+   "id": "AudioButton2",
+   "traits": []
+  },
+  {
+   "id": "AudioCabinet1",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioCabinet2",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioCabinet3",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioClick1",
+   "traits": []
+  },
+  {
+   "id": "AudioClick2",
+   "traits": []
+  },
+  {
+   "id": "AudioClick3",
+   "traits": []
+  },
+  {
+   "id": "AudioClock",
+   "traits": []
+  },
+  {
+   "id": "AudioComplete",
+   "traits": []
+  },
+  {
+   "id": "AudioCreatureMoves",
+   "traits": []
+  },
+  {
+   "id": "AudioCreatureWarning",
+   "traits": []
+  },
+  {
+   "id": "AudioCrows",
+   "traits": []
+  },
+  {
+   "id": "AudioCurio",
+   "traits": []
+  },
+  {
+   "id": "AudioDarkPact",
+   "traits": []
+  },
+  {
+   "id": "AudioDeselect",
+   "traits": []
+  },
+  {
+   "id": "AudioDevoured1",
+   "traits": []
+  },
+  {
+   "id": "AudioDevoured2",
+   "traits": []
+  },
+  {
+   "id": "AudioDinnerBell",
+   "traits": []
+  },
+  {
+   "id": "AudioDog",
+   "traits": []
+  },
+  {
+   "id": "AudioDoorCreak1",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioDoorCreak2",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioDoorOpen1",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioDoorOpen2",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioDoorOpen3",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioDrawer1",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioDrawer2",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioDumbwaiter",
+   "traits": []
+  },
+  {
+   "id": "AudioElectric1",
+   "traits": []
+  },
+  {
+   "id": "AudioElectric2",
+   "traits": []
+  },
+  {
+   "id": "AudioElectric3",
+   "traits": []
+  },
+  {
+   "id": "AudioElectric4",
+   "traits": []
+  },
+  {
+   "id": "AudioElectric5",
+   "traits": []
+  },
+  {
+   "id": "AudioEntrance",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioEventFinale",
+   "traits": []
+  },
+  {
+   "id": "AudioFinale1",
+   "traits": []
+  },
+  {
+   "id": "AudioFinale2",
+   "traits": []
+  },
+  {
+   "id": "AudioFinale3",
+   "traits": []
+  },
+  {
+   "id": "AudioFinalPortalSurge",
+   "traits": []
+  },
+  {
+   "id": "AudioFirearm1",
+   "traits": [
+    "attack",
+    "firearm"
+   ]
+  },
+  {
+   "id": "AudioFirearm2",
+   "traits": [
+    "attack",
+    "firearm"
+   ]
+  },
+  {
+   "id": "AudioFirstPortalSurge",
+   "traits": []
+  },
+  {
+   "id": "AudioFogBell",
+   "traits": []
+  },
+  {
+   "id": "AudioForceFinale",
+   "traits": []
+  },
+  {
+   "id": "AudioFormIdol",
+   "traits": []
+  },
+  {
+   "id": "AudioGainItem",
+   "traits": []
+  },
+  {
+   "id": "AudioGameOver",
+   "traits": []
+  },
+  {
+   "id": "AudioGenericItem1",
+   "traits": []
+  },
+  {
+   "id": "AudioGenericItem2",
+   "traits": []
+  },
+  {
+   "id": "AudioGenericItem3",
+   "traits": []
+  },
+  {
+   "id": "AudioGlassBreak1",
+   "traits": []
+  },
+  {
+   "id": "AudioGlassBreak2",
+   "traits": []
+  },
+  {
+   "id": "AudioGlassBreak3",
+   "traits": []
+  },
+  {
+   "id": "AudioGong",
+   "traits": []
+  },
+  {
+   "id": "AudioGraceDies",
+   "traits": []
+  },
+  {
+   "id": "AudioGuess",
+   "traits": []
+  },
+  {
+   "id": "AudioHeavy1",
+   "traits": [
+    "attack",
+    "heavyweapon"
+   ]
+  },
+  {
+   "id": "AudioHeavy2",
+   "traits": [
+    "attack",
+    "heavyweapon"
+   ]
+  },
+  {
+   "id": "AudioHiddenDoor1",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioHiddenDoor2",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioHiddenDoor3",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioHiddenDoor4",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioHybridAttack",
+   "traits": []
+  },
+  {
+   "id": "AudioImportant1",
+   "traits": []
+  },
+  {
+   "id": "AudioImportant2",
+   "traits": []
+  },
+  {
+   "id": "AudioInvestigator",
+   "traits": [
+    "newround"
+   ]
+  },
+  {
+   "id": "AudioLocked1",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioLocked2",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioLocked3",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioMableGhost1",
+   "traits": []
+  },
+  {
+   "id": "AudioMetalOpen1",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioMetalOpen2",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioMobTrashesDock",
+   "traits": []
+  },
+  {
+   "id": "AudioMonsterGeneric1",
+   "traits": [
+    "horror"
+   ]
+  },
+  {
+   "id": "AudioMonsterGeneric2",
+   "traits": []
+  },
+  {
+   "id": "AudioMonsterGeneric3",
+   "traits": []
+  },
+  {
+   "id": "AudioMonsterGeneric4",
+   "traits": [
+    "defeated"
+   ]
+  },
+  {
+   "id": "AudioMove1",
+   "traits": []
+  },
+  {
+   "id": "AudioMove2",
+   "traits": []
+  },
+  {
+   "id": "AudioMove3",
+   "traits": []
+  },
+  {
+   "id": "AudioMove4",
+   "traits": []
+  },
+  {
+   "id": "AudioMythos",
+   "traits": []
+  },
+  {
+   "id": "AudioNegative1",
+   "traits": []
+  },
+  {
+   "id": "AudioNegative2",
+   "traits": []
+  },
+  {
+   "id": "AudioNegative3",
+   "traits": []
+  },
+  {
+   "id": "AudioNegative4",
+   "traits": []
+  },
+  {
+   "id": "AudioNegative5",
+   "traits": []
+  },
+  {
+   "id": "AudioNegative6",
+   "traits": []
+  },
+  {
+   "id": "AudioNegativeStory",
+   "traits": []
+  },
+  {
+   "id": "AudioNewContent",
+   "traits": []
+  },
+  {
+   "id": "AudioNodeAppear",
+   "traits": []
+  },
+  {
+   "id": "AudioNodeFailed",
+   "traits": []
+  },
+  {
+   "id": "AudioOpenObject1",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioOpenObject2",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioOpenObject3",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioOpenObject4",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioPapers1",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioPapers2",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioPapers3",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioPapers4",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioPapers5",
+   "traits": [
+    "search"
+   ]
+  },
+  {
+   "id": "AudioPaperSlideIn",
+   "traits": []
+  },
+  {
+   "id": "AudioPaperSlideOut",
+   "traits": []
+  },
+  {
+   "id": "AudioPhone1",
+   "traits": []
+  },
+  {
+   "id": "AudioPhone2",
+   "traits": []
+  },
+  {
+   "id": "AudioPiano",
+   "traits": []
+  },
+  {
+   "id": "AudioPortalOpens1",
+   "traits": []
+  },
+  {
+   "id": "AudioPortalOpens2",
+   "traits": []
+  },
+  {
+   "id": "AudioPortalSurge",
+   "traits": []
+  },
+  {
+   "id": "AudioPositive1",
+   "traits": []
+  },
+  {
+   "id": "AudioPositive2",
+   "traits": []
+  },
+  {
+   "id": "AudioPotsPans1",
+   "traits": []
+  },
+  {
+   "id": "AudioRevealTile1",
+   "traits": []
+  },
+  {
+   "id": "AudioRevealTile2",
+   "traits": []
+  },
+  {
+   "id": "AudioRitualCircle1",
+   "traits": []
+  },
+  {
+   "id": "AudioRitualCircle2",
+   "traits": []
+  },
+  {
+   "id": "AudioRoofComesOff",
+   "traits": []
+  },
+  {
+   "id": "AudioRoomFeature",
+   "traits": []
+  },
+  {
+   "id": "AudioSecurityAlarm",
+   "traits": []
+  },
+  {
+   "id": "AudioSelect",
+   "traits": []
+  },
+  {
+   "id": "AudioSetup",
+   "traits": []
+  },
+  {
+   "id": "AudioSoftButton",
+   "traits": []
+  },
+  {
+   "id": "AudioSpawnBoss1",
+   "traits": []
+  },
+  {
+   "id": "AudioSpawnBoss2",
+   "traits": []
+  },
+  {
+   "id": "AudioSpawnFirstMonster",
+   "traits": []
+  },
+  {
+   "id": "AudioSpawnRiot",
+   "traits": []
+  },
+  {
+   "id": "AudioSpawnVanderbilt1",
+   "traits": []
+  },
+  {
+   "id": "AudioSpawnVanderbilt2",
+   "traits": []
+  },
+  {
+   "id": "AudioSpell1",
+   "traits": [
+    "attack",
+    "spell"
+   ]
+  },
+  {
+   "id": "AudioSpell2",
+   "traits": [
+    "attack",
+    "spell"
+   ]
+  },
+  {
+   "id": "AudioSpell3",
+   "traits": [
+    "attack",
+    "spell"
+   ]
+  },
+  {
+   "id": "AudioStoneOpen1",
+   "traits": []
+  },
+  {
+   "id": "AudioStoneOpen2",
+   "traits": []
+  },
+  {
+   "id": "AudioSuspectTransform",
+   "traits": []
+  },
+  {
+   "id": "AudioTestSound",
+   "traits": []
+  },
+  {
+   "id": "AudioThud1",
+   "traits": []
+  },
+  {
+   "id": "AudioThud2",
+   "traits": []
+  },
+  {
+   "id": "AudioTransition",
+   "traits": []
+  },
+  {
+   "id": "AudioTransistionGeneric",
+   "traits": []
+  },
+  {
+   "id": "AudioUISlideIn",
+   "traits": []
+  },
+  {
+   "id": "AudioUISlideOut",
+   "traits": []
+  },
+  {
+   "id": "AudioUnarmed1",
+   "traits": [
+    "attack",
+    "unarmed"
+   ]
+  },
+  {
+   "id": "AudioUnarmed2",
+   "traits": [
+    "attack",
+    "unarmed"
+   ]
+  },
+  {
+   "id": "AudioUnlock1",
+   "traits": [
+    "explore"
+   ]
+  },
+  {
+   "id": "AudioWoodDestroy1",
+   "traits": []
+  },
+  {
+   "id": "AudioWoodDestroy2",
+   "traits": []
+  },
+  {
+   "id": "AudioAngryGhost",
+   "traits": []
+  },
+  {
+   "id": "AudioBangDoor1",
+   "traits": []
+  },
+  {
+   "id": "AudioBangDoor2",
+   "traits": []
+  },
+  {
+   "id": "AudioBarricade1",
+   "traits": []
+  }
+ ]
+}
