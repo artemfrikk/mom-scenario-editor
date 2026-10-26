@@ -551,3 +551,4 @@ button.tk.add { cursor: pointer; border-style: dashed; color: var(--err); }
 .tower-pole { position: absolute; bottom: 0; top: 14px; width: 8px; background: #7a5c2c; border-radius: 4px; }
 .tower-rings { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; z-index: 1; }
 .ring { height: 20px; border-radius: 10px; border: 1px solid #0006; }
+.game-ui-pic { position: absolute; transform: translate(-50%, -50%); object-fit: contain; pointer-events: none; }
