@@ -216,12 +216,18 @@ export function next(s: Scenario, st: GameState, rng: Rng = Math.random, depth =
     // A puzzle always opens its window, whatever "display" says; one put aside earlier is picked up where it was left.
     return { ...out, current: name, puzzle: out.puzzles[name] ?? newPuzzle(c, rng) };
   }
-  if (c.data.display === 'false') {
+  if (c.data.display === 'false' || silent(s, c)) {
     // No window: the game goes on by itself through the first button that is enabled.
     const index = buttonsOf(c).findIndex((b) => buttonState(c, b.index, out.vars) !== 'disabled' && buttonState(c, b.index, out.vars) !== 'hidden');
     return choose(s, { ...out, current: name }, Math.max(0, index) + 1, rng, depth + 1);
   }
   return { ...out, current: name };
+}
+
+// A window with no words and one lone button says nothing to the players (like SmugglersPoint's start events): skip it.
+function silent(s: Scenario, c: QComponent): boolean {
+  if (c.type !== 'Event' || closable(c) || buttonsOf(c).length !== 1) return false;
+  return !Object.values(s.texts).some((t) => (t[c.name + '.text'] ?? '').trim());
 }
 
 // The players moved something on the puzzle table.

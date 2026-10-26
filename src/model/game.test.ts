@@ -85,6 +85,7 @@ describe('game', () => {
     [s, a] = addComponent(s, 'Event', { vartests: 'VarOperation:flag,>,0' }, 'A');
     [s, b] = addComponent(s, 'Event', {}, 'B');
     s = setButtonTargets(s, 'EventStart', 1, [a, b]);
+    for (const n of [a, b]) s = setText(s, 'Russian', n + '.text', 'Текст');
     let st = newGame(s, heroes, rng);
     st = choose(s, st, 1, rng);
     expect(st.current).toBe(b);
@@ -163,6 +164,7 @@ describe('window text', () => {
     [s, p] = addComponent(s, 'Puzzle', { class: 'tower', puzzlelevel: '2', event1: done }, 'Lock');
     [s, door] = addComponent(s, 'Event', { trigger: 'StartRound', event1: p }, 'Go');
     s = setButtonTargets(s, door, 1, [p]);
+    s = setText(s, 'Russian', door + '.text', 'Текст');
     let st = newGame(s, heroes, rng);
     st = choose(s, st, 1, rng); // intro
     st = choose(s, st, 1, rng); // Go
