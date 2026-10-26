@@ -4,7 +4,6 @@ import { canPickFolder, pickFolder, useImages } from '../images';
 import { useSimple } from '../mode';
 import { useStore } from '../store';
 import { LANGUAGE_LABEL } from './labels';
-import { useImagesDialog } from './imagesDialogStore';
 
 const PROGRAM_PATH = 'D:\\Valkyrie\\Valkyrie_Data\\StreamingAssets\\content\\MoM';
 
@@ -14,6 +13,24 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       <h3>{title}</h3>
       {children}
     </section>
+  );
+}
+
+// A folder button for browsers that cannot show the folder dialog: the ordinary upload window picks the folder instead.
+function FolderInput({ primary, disabled, onFiles, children }: { primary?: boolean; disabled?: boolean; onFiles: (files: FileList) => void; children: ReactNode }) {
+  return (
+    <label className={'btn-label' + (primary ? ' primary' : '') + (disabled ? ' disabled' : '')}>
+      {children}
+      <input
+        type="file"
+        multiple
+        disabled={disabled}
+        // @ts-expect-error non-standard but supported by every major browser
+        webkitdirectory=""
+        style={{ display: 'none' }}
+        onChange={(e) => e.target.files && onFiles(e.target.files)}
+      />
+    </label>
   );
 }
 
@@ -46,7 +63,7 @@ export function SettingsDialog({ onClose, onTour }: { onClose: () => void; onTou
   const names = useImages((s) => s.names);
   const named = Object.keys(names).length;
   const forget = useImages((s) => s.forget);
-  const showImages = useImagesDialog((s) => s.show);
+  const fromFiles = useImages((s) => s.fromFiles);
   const [folder, setFolder] = useState<FileSystemDirectoryHandle | undefined>();
   const [saveError, setSaveError] = useState('');
 
@@ -115,17 +132,29 @@ export function SettingsDialog({ onClose, onTour }: { onClose: () => void; onTou
             label={`Тайлы, монстры и предметы: ${status === 'ready' ? `подключено ${count}` : loading ? `копирую… ${found}` : 'не подключено'}`}
             hint={`Картинки и русские названия из папки import внутри MoM у Valkyrie (по умолчанию %APPDATA%\\Valkyrie\\MoM\\import). ${named ? 'Названия найдены.' : status === 'ready' ? 'Названий нет: выбирайте папку import целиком.' : ''}`}
           >
-            <button className="primary" disabled={loading} onClick={() => (canPickFolder() ? void pickFolder() : showImages())}>
-              {status === 'ready' ? 'Выбрать папку заново' : 'Подключить папку'}
-            </button>
+            {canPickFolder() ? (
+              <button className="primary" disabled={loading} onClick={() => void pickFolder()}>
+                {status === 'ready' ? 'Выбрать папку заново' : 'Подключить папку'}
+              </button>
+            ) : (
+              <FolderInput primary disabled={loading} onFiles={(f) => void fromFiles(f)}>
+                {status === 'ready' ? 'Выбрать папку заново' : 'Подключить папку'}
+              </FolderInput>
+            )}
           </Row>
           <Row
             label={`Значки жетонов: ${hasTokens ? 'подключены' : 'не подключены'}`}
             hint={`Иконки жетонов лежат не в import, а в самой программе Valkyrie, например ${PROGRAM_PATH}. Выберите эту папку, и жетоны на карте станут как в игре.`}
           >
-            <button className={hasTokens ? '' : 'primary'} disabled={loading || !canPickFolder()} onClick={() => void pickFolder('valkyrie-app')}>
-              {hasTokens ? 'Выбрать папку заново' : 'Подключить значки'}
-            </button>
+            {canPickFolder() ? (
+              <button className={hasTokens ? '' : 'primary'} disabled={loading} onClick={() => void pickFolder('valkyrie-app')}>
+                {hasTokens ? 'Выбрать папку заново' : 'Подключить значки'}
+              </button>
+            ) : (
+              <FolderInput primary={!hasTokens} disabled={loading} onFiles={(f) => void fromFiles(f)}>
+                {hasTokens ? 'Выбрать папку заново' : 'Подключить значки'}
+              </FolderInput>
+            )}
           </Row>
           {error && <div className="error">{error}</div>}
           <Row label="Забыть картинки" hint="Удаляет копии картинок из браузера. Файлы на вашем компьютере не трогаются. Потом можно подключить заново.">
@@ -133,7 +162,7 @@ export function SettingsDialog({ onClose, onTour }: { onClose: () => void; onTou
               Забыть
             </button>
           </Row>
-          {!canPickFolder() && <p className="hint">Ваш браузер не умеет выбирать папки. Откройте редактор в Chrome или Edge, либо подключайте картинки через окно «Подключить картинки» на карте.</p>}
+          {!canPickFolder() && <p className="hint">Ваш браузер выбирает папку через обычное окно загрузки: после выбора он спросит, можно ли загрузить файлы из папки. Нажмите «Загрузить», картинки скопируются только в браузер.</p>}
         </Section>
 
         {canSaveToFolder() && (
