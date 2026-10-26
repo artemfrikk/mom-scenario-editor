@@ -79,7 +79,7 @@ export function ImagesDialog({ auto }: { auto: boolean }) {
                 {copied ? 'Скопировано' : 'Копировать'}
               </button>
             </div>
-            <div className="hint">Нужна папка import внутри MoM: в ней лежат и картинки (img), и тексты (text).</div>
+            <div className="hint">Нужна папка import внутри MoM: в ней лежат и картинки (img), и тексты (text). Можно выбрать и одну папку img: картинки загрузятся, но русских названий не будет.</div>
           </li>
         </ol>
         {status === 'loading' && <div className="hint">Копирую картинки… найдено {found}</div>}
