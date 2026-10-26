@@ -1,5 +1,7 @@
 import catalog from '../content/catalog.json';
+import type { Scenario } from '../format/scenario';
 import { localName, useImages } from '../images';
+import { takenSides } from '../model/tiles';
 import { tokenLabel } from './labels';
 import type { Option } from './widgets';
 
@@ -19,6 +21,12 @@ export const TILE_OPTIONS: Option[] = catalog.tiles.map((t) => ({
   note: `${packName[t.pack] ?? t.pack} · ${t.traits.filter((x) => x !== 'inside' && x !== 'outside').join(', ')}`,
   image: t.image,
 }));
+// Rooms that can still be chosen: a card already on the map and its back side are left out.
+export function freeTileOptions(s: Scenario, except?: string): Option[] {
+  const taken = takenSides(s, except);
+  return TILE_OPTIONS.filter((o) => !taken.has(o.value));
+}
+
 export const TOKEN_OPTIONS: Option[] = catalog.tokens.map((t) => ({ value: t.id, label: tokenLabel(t.id), note: packName[t.pack] }));
 export const ITEM_OPTIONS: Option[] = catalog.items.map((t) => ({
   value: t.id,

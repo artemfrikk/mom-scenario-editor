@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { ACTIONS, applyAction, type Action } from '../model/actions';
 import { useStore } from '../store';
-import { ITEM_OPTIONS, MONSTER_OPTIONS, TILE_OPTIONS } from './options';
+import { freeTileOptions, ITEM_OPTIONS, MONSTER_OPTIONS } from './options';
 import { Picker } from './widgets';
 
-const CHOICES = { tile: TILE_OPTIONS, monster: MONSTER_OPTIONS, item: ITEM_OPTIONS };
 
 // "What can happen" in plain words: pick an action and the right fields get filled in.
 export function ActionMenu({ event }: { event: string }) {
   const lang = useStore((st) => st.lang);
+  const scenario = useStore((st) => st.scenario);
   const facts = useStore((st) => st.facts);
   const setFact = useStore((st) => st.setFact);
   const change = useStore((st) => st.change);
@@ -45,7 +45,7 @@ export function ActionMenu({ event }: { event: string }) {
       {asking?.needs && (
         <div className="action-ask">
           <div className="hint">{asking.what} Выберите:</div>
-          <Picker options={CHOICES[asking.needs]} value="" autoFocus placeholder="Начните вводить название…" onChange={(v) => run(asking, v)} />
+          <Picker options={asking.needs === 'tile' ? freeTileOptions(scenario) : asking.needs === 'monster' ? MONSTER_OPTIONS : ITEM_OPTIONS} value="" autoFocus placeholder="Начните вводить название…" onChange={(v) => run(asking, v)} />
           <button className="small ghost" onClick={() => setAsking(null)}>
             Отмена
           </button>

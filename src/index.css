@@ -355,3 +355,4 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 .room-head { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
 .room-img { width: 64px; height: 44px; object-fit: cover; border-radius: 4px; }
 .chip.on { outline: 2px solid var(--accent, #6a5acd); }
+.palette-tile.taken { opacity: .35; cursor: not-allowed; }
