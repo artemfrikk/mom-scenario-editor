@@ -137,7 +137,7 @@ function SlideBoard({ st, onSet }: { st: SlideState; onSet: (p: PuzzleState) => 
 // --- code ----------------------------------------------------------------------------------------
 
 function Sym({ n }: { n: number }) {
-  return <span style={{ color: COLORS[(n - 1) % COLORS.length], fontSize: 22 }}>{n > 0 ? SYMBOLS[(n - 1) % SYMBOLS.length] : '·'}</span>;
+  return <span style={{ color: n > 0 ? COLORS[(n - 1) % COLORS.length] : '#8a7a60', fontSize: 22 }}>{n > 0 ? SYMBOLS[(n - 1) % SYMBOLS.length] : '?'}</span>;
 }
 
 function CodeBoard({ st, onSet }: { st: CodeState; onSet: (p: PuzzleState) => void }) {
