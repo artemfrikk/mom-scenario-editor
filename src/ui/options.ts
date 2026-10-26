@@ -62,6 +62,8 @@ export function previewHtml(text: string): string {
   const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return escaped
     .replace(/&lt;(\/?)(b|i)&gt;/g, '<$1$2>')
+    .replace(/&lt;color=(#?[A-Za-z0-9]{3,20})&gt;/g, (_, c: string) => `<span class="ink" style="--ink:${c}">`)
+    .replace(/&lt;\/color&gt;/g, '</span>')
     .replace(/\{ffg:([A-Z0-9_]+)\}/g, (_, k: string) => `<i>${k.replace(/_MAD\d+$/, '').replace(/^TILE_/, '').toLowerCase().replace(/_/g, ' ')}</i>`)
     .replace(/\{c:([^}]+)\}/g, '<b>$1</b>')
     .replace(/\{rnd:hero\}/g, '<i>[случайный сыщик]</i>')

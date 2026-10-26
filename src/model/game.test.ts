@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newScenario } from '../format/scenario';
-import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, newGame, newRound, touch } from './game';
+import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, newGame, newRound, touch, windowText } from './game';
 import { addComponent, setButtonTargets, setText, updateData } from './ops';
 import { buildTemplate, WIZARD_DEFAULTS, wizardScenario } from './templates';
 
@@ -101,5 +101,17 @@ describe('game', () => {
     st = choose(s, st, 1, rng);
     st = eliminated(s, { ...st, current: null }, rng);
     expect(st.current).toBe('EventLose');
+  });
+});
+
+describe('window text', () => {
+  it('names a spawn by its monster and never repeats its own text', () => {
+    let s = newScenario('Russian');
+    let sp: string;
+    [s, sp] = addComponent(s, 'Spawn', { monster: 'MonsterDeepOne' }, 'DeepOne');
+    s = setText(s, 'Russian', sp + '.text', `Появляется <color=Cyan>{c:${sp}}</color>.`);
+    const st = newGame(s, ['A'], () => 0);
+    expect(windowText(s, st, 'Russian', sp, () => 'Глубоководный')).toBe('Появляется <color=Cyan>Глубоководный</color>.');
+    expect(windowText(s, st, 'Russian', sp)).toBe(`Появляется <color=Cyan>${sp}</color>.`);
   });
 });

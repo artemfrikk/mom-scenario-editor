@@ -250,11 +250,15 @@ export function defeat(s: Scenario, st: GameState, index: number, rng: Rng = Mat
 // --- text ------------------------------------------------------------------------------------------
 
 // The text of an open window with the game's own placeholders filled in.
-export function windowText(s: Scenario, st: GameState, lang: string, name: string): string {
+export function windowText(s: Scenario, st: GameState, lang: string, name: string, label?: (component: string) => string | undefined): string {
   let text = resolveText(s, lang, getText(s, lang, name + '.text'));
+  // {c:X} names a component. A Spawn is named by its monster; a text never pulls in its own text again.
   text = text.replace(/\{c:([^}]+)\}/g, (_, n: string) => {
     const c = getComponent(s, n);
-    return c ? resolveText(s, lang, getText(s, lang, n + '.text')) : n;
+    if (!c) return n;
+    if (c.type === 'Spawn') return label?.(n) ?? st.monsters.find((m) => m.spawn === n)?.name ?? n;
+    if (n === name || c.type === 'Tile') return label?.(n) ?? n;
+    return resolveText(s, lang, getText(s, lang, n + '.text'));
   });
   text = text.replace(/\{rnd:hero\}/g, st.hero || 'Сыщик');
   text = text.replace(/\{var:([^}]+)\}/g, (_, n: string) => String(st.vars[n] ?? 0));
