@@ -24,6 +24,8 @@ import { useStore } from '../store';
 import { TRIGGER_LABEL, TYPE_ICON, TYPE_LABEL } from './labels';
 import { describeComponent, triggerHelp, TYPE_EXPLAIN } from './help';
 import { AUDIO_OPTIONS, ITEM_OPTIONS, MONSTER_OPTIONS, previewHtml, TILE_OPTIONS, TOKEN_OPTIONS } from './options';
+import { CondEditor, OpsEditor } from './Facts';
+import { TextEditor } from './TextEditor';
 import { ChipList, Field, Guide, Picker, Thumb, type Option } from './widgets';
 
 function componentOptions(s: Scenario, filter: (c: QComponent) => boolean = () => true): Option[] {
@@ -143,11 +145,7 @@ function TextArea({ textKey, label, hint, rows = 5 }: { textKey: string; label: 
   const change = useChange();
   return (
     <Field label={label} hint={hint}>
-      <textarea
-        rows={rows}
-        value={getText(s, lang, textKey)}
-        onChange={(e) => change((sc) => setText(sc, lang, textKey, e.target.value), 'text:' + textKey)}
-      />
+      <TextEditor rows={rows} value={getText(s, lang, textKey)} onChange={(v) => change((sc) => setText(sc, lang, textKey, v), 'text:' + textKey)} />
     </Field>
   );
 }
@@ -390,7 +388,27 @@ function EventFields({ c }: { c: QComponent }) {
               onChange={(v) => change((sc) => setButtonTargets(sc, c.name, b.index, v))}
             />
           </Field>
-          {b.condition && <div className="hint">Условие: {b.condition}</div>}
+          <details open={!!b.condition} className="cond-box">
+            <summary className="hint">Показывать кнопку, только если…</summary>
+            <CondEditor
+              raw={b.condition}
+              empty="Кнопка видна всегда."
+              onChange={(v) =>
+                change((sc) => updateData(sc, c.name, { [`event${b.index}Condition`]: v, ...(v ? {} : { [`event${b.index}ConditionAction`]: undefined }) }))
+              }
+            />
+            {b.condition && (
+              <Field label="Если условие не выполнено">
+                <select
+                  value={c.data[`event${b.index}ConditionAction`] ?? 'disable'}
+                  onChange={(e) => change((sc) => updateData(sc, c.name, { [`event${b.index}ConditionAction`]: e.target.value === 'disable' ? undefined : e.target.value }))}
+                >
+                  <option value="disable">кнопка серая, нажать нельзя</option>
+                  <option value="hide">кнопки не видно совсем</option>
+                </select>
+              </Field>
+            )}
+          </details>
         </div>
       ))}
       <button className="small" onClick={() => change((sc) => addButton(sc, c.name, '', lang))}>
@@ -434,9 +452,17 @@ function EventFields({ c }: { c: QComponent }) {
       </Field>
       <DataCheck c={c} k="highlight" label="Подсветить место на карте" />
 
+      <h3>Память игры</h3>
+      <Field label="Игра запомнит" hint="Например, «Есть ключ» становится известным. Потом это можно проверить в условиях.">
+        <OpsEditor raw={c.data.operations} onChange={(v) => change((sc) => updateData(sc, c.name, { operations: v }))} />
+      </Field>
+      <Field label="Событие сработает, только если…" hint="Если условие не выполнено, событие пропускается.">
+        <CondEditor raw={c.data.vartests} empty="Срабатывает всегда." onChange={(v) => change((sc) => updateData(sc, c.name, { vartests: v }))} />
+      </Field>
+
       <details>
         <summary className="hint" style={{ cursor: 'pointer', margin: '14px 0 10px' }}>
-          Переменные и условия (для опытных)
+          То же самое текстом (для опытных)
         </summary>
         <DataInput c={c} k="operations" label="Операции" hint="Через пробел: имя,операция,значение. Например: clues,+,1 $end,=,1" />
         <DataInput c={c} k="vartests" label="Условия срабатывания" hint="Например: VarOperation:clues,>=,3" />

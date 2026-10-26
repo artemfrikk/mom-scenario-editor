@@ -14,6 +14,9 @@ import { tourSeen } from './tour';
 import { Tour } from './ui/Tour';
 import { Wizard } from './ui/Wizard';
 import { FolderSave } from './ui/FolderSave';
+import { snapshotNow } from './versions';
+import { PrintSheet } from './ui/PrintSheet';
+import { VersionsDialog } from './ui/VersionsDialog';
 
 const NAV: { view: View; icon: string; label: string }[] = [
   { view: 'quest', icon: '📖', label: 'Сценарий' },
@@ -41,6 +44,8 @@ export default function App() {
   const [started, setStarted] = useState(false);
   const [wizard, setWizard] = useState(false);
   const [tour, setTour] = useState(false);
+  const [versions, setVersions] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const issues = useMemo(() => validate(s), [s]);
   const errors = issues.filter((i) => i.level === 'error').length;
 
@@ -52,8 +57,21 @@ export default function App() {
     void useImages.getState().restore();
   }, []);
 
+  // Every few minutes of work leaves a snapshot in the version history.
+  useEffect(() => {
+    let last = useStore.getState().scenario;
+    const timer = window.setInterval(() => {
+      const now = useStore.getState().scenario;
+      if (now === last) return;
+      last = now;
+      void snapshotNow('', true);
+    }, 5 * 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   const doSave = async () => {
     const blob = await save();
+    void snapshotNow('Сохранение файла', true);
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = fileName;
@@ -133,6 +151,12 @@ export default function App() {
           Новый
         </button>
         <button onClick={() => fileInput.current?.click()}>Открыть…</button>
+        <button className="ghost" onClick={() => setVersions(true)} title="Вернуться к более раннему состоянию сценария">
+          🕘 Версии
+        </button>
+        <button className="ghost" onClick={() => setPrinting(true)} title="Весь сюжет одним документом: для вычитки и тестирования">
+          🖨 Печать
+        </button>
         <FolderSave getBlob={() => save()} fileName={fileName} onDone={flash} />
         <button className="ghost" onClick={() => setTour(true)} title="Показать знакомство с редактором">
           ?
@@ -188,6 +212,8 @@ export default function App() {
           }}
         />
       )}
+      {printing && <PrintSheet onClose={() => setPrinting(false)} />}
+      {versions && <VersionsDialog onClose={() => setVersions(false)} />}
       {tour && <Tour onClose={() => setTour(false)} />}
       {toast && <div className="toast">{toast}</div>}
     </div>

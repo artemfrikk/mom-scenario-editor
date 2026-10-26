@@ -10,6 +10,8 @@ export type Layout = Record<string, { x: number; y: number }>;
 const LAYOUT_FILE = 'mse-layout.json';
 // The author's free-form notes about the plot; also kept inside the package.
 const NOTES_FILE = 'mse-notes.md';
+// Readable names of the variables ("Есть ключ" for est_klyuch); Valkyrie only sees the ids.
+const FACTS_FILE = 'mse-facts.json';
 const HISTORY_LIMIT = 200;
 
 interface State {
@@ -17,6 +19,7 @@ interface State {
   fileName: string;
   layout: Layout;
   notes: string;
+  facts: Record<string, string>;
   notice: string;
   view: View;
   selected: string | null;
@@ -35,6 +38,9 @@ interface State {
   setLang: (l: string) => void;
   setLayout: (l: Layout, markDirty?: boolean) => void;
   setNotes: (text: string) => void;
+  setFact: (id: string, label: string) => void;
+  // Replace everything with an earlier state (version history); the scenario part can be undone.
+  restore: (snap: { scenario: Scenario; layout: Layout; notes: string; facts: Record<string, string> }) => void;
   flash: (message: string) => void;
   open: (file: File) => Promise<void>;
   reset: () => void;
@@ -53,6 +59,7 @@ export const useStore = create<State>((set, get) => ({
   fileName: 'scenario.valkyrie',
   layout: {},
   notes: '',
+  facts: {},
   notice: '',
   view: 'story',
   selected: null,
@@ -92,6 +99,21 @@ export const useStore = create<State>((set, get) => ({
   setView: (view) => set({ view }),
   setLang: (lang) => set({ lang }),
   setNotes: (notes) => set({ notes, dirty: true }),
+  setFact: (id, label) => set({ facts: { ...get().facts, [id]: label }, dirty: true }),
+  restore: (snap) => {
+    const { scenario, past } = get();
+    lastMergeKey = undefined;
+    set({
+      scenario: snap.scenario,
+      layout: snap.layout,
+      notes: snap.notes,
+      facts: snap.facts,
+      past: [...past, scenario].slice(-HISTORY_LIMIT),
+      future: [],
+      selected: null,
+      dirty: true,
+    });
+  },
   flash: (notice) => {
     set({ notice });
     window.clearTimeout(noticeTimer);
@@ -111,15 +133,25 @@ export const useStore = create<State>((set, get) => ({
       }
     }
     const notes = s.assets[NOTES_FILE] ? new TextDecoder().decode(s.assets[NOTES_FILE]) : '';
+    let facts: Record<string, string> = {};
+    if (s.assets[FACTS_FILE]) {
+      try {
+        facts = JSON.parse(new TextDecoder().decode(s.assets[FACTS_FILE]));
+      } catch {
+        facts = {};
+      }
+    }
     const assets = { ...s.assets };
     delete assets[LAYOUT_FILE];
     delete assets[NOTES_FILE];
+    delete assets[FACTS_FILE];
     s.assets = assets;
     set({
       scenario: s,
       fileName: file.name.endsWith('.valkyrie') ? file.name : file.name + '.valkyrie',
       layout,
       notes,
+      facts,
       selected: null,
       lang: defaultLanguage(s),
       past: [],
@@ -134,6 +166,7 @@ export const useStore = create<State>((set, get) => ({
       fileName: 'scenario.valkyrie',
       layout: {},
       notes: '',
+      facts: {},
       selected: null,
       lang: 'Russian',
       past: [],
@@ -147,6 +180,7 @@ export const useStore = create<State>((set, get) => ({
       fileName: 'scenario.valkyrie',
       layout: {},
       notes,
+      facts: {},
       selected: null,
       lang: defaultLanguage(scenario),
       past: [],
@@ -155,9 +189,10 @@ export const useStore = create<State>((set, get) => ({
       view: 'story',
     }),
   save: async () => {
-    const { scenario, layout, notes } = get();
+    const { scenario, layout, notes, facts } = get();
     const extra: Record<string, Uint8Array> = { [LAYOUT_FILE]: new TextEncoder().encode(JSON.stringify(layout)) };
     if (notes.trim()) extra[NOTES_FILE] = new TextEncoder().encode(notes);
+    if (Object.keys(facts).length) extra[FACTS_FILE] = new TextEncoder().encode(JSON.stringify(facts));
     const withLayout: Scenario = { ...scenario, assets: { ...scenario.assets, ...extra } };
     const blob = await saveValkyrie(withLayout);
     set({ dirty: false });
@@ -169,12 +204,13 @@ export const useStore = create<State>((set, get) => ({
 
 export async function restoreAutosave(): Promise<boolean> {
   try {
-    const saved = await idbGet<{ scenario: Scenario; layout: Layout; fileName: string; notes?: string }>(AUTOSAVE_KEY);
+    const saved = await idbGet<{ scenario: Scenario; layout: Layout; fileName: string; notes?: string; facts?: Record<string, string> }>(AUTOSAVE_KEY);
     if (!saved?.scenario) return false;
     useStore.setState({
       scenario: saved.scenario,
       layout: saved.layout ?? {},
       notes: saved.notes ?? '',
+      facts: saved.facts ?? {},
       fileName: saved.fileName,
       lang: defaultLanguage(saved.scenario),
     });
@@ -186,7 +222,7 @@ export async function restoreAutosave(): Promise<boolean> {
 
 let autosaveTimer: number | undefined;
 useStore.subscribe((state, prev) => {
-  if (state.scenario === prev.scenario && state.layout === prev.layout && state.notes === prev.notes) return;
+  if (state.scenario === prev.scenario && state.layout === prev.layout && state.notes === prev.notes && state.facts === prev.facts) return;
   window.clearTimeout(autosaveTimer);
   autosaveTimer = window.setTimeout(() => {
     // best effort: storage may be blocked in private windows
@@ -194,6 +230,7 @@ useStore.subscribe((state, prev) => {
       scenario: state.scenario,
       layout: state.layout,
       notes: state.notes,
+      facts: state.facts,
       fileName: state.fileName,
     }).catch(() => {});
   }, 800);

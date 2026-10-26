@@ -6,6 +6,7 @@ import { getText, setText } from '../model/ops';
 import { validate } from '../model/validate';
 import { useStore } from '../store';
 import { LANGUAGE_LABEL, LANGUAGES, TYPE_ICON } from './labels';
+import { TextEditor } from './TextEditor';
 import { Field } from './widgets';
 
 export function QuestPage() {
@@ -41,7 +42,7 @@ export function QuestPage() {
           <input value={text('quest.synopsys')} onChange={(e) => setT('quest.synopsys', e.target.value)} />
         </Field>
         <Field label="Вступление и описание">
-          <textarea rows={6} value={text('quest.description')} onChange={(e) => setT('quest.description', e.target.value)} />
+          <TextEditor rows={6} value={text('quest.description')} onChange={(v) => setT('quest.description', v)} />
         </Field>
         <div className="row">
           <Field label="Авторы (кратко)">

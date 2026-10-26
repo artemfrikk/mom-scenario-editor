@@ -3,6 +3,7 @@ import catalog from '../content/catalog.json';
 import { isEventLike, type QComponent } from '../format/scenario';
 import { addComponent, addedBy, deleteComponent, fmt, position, setAddedBy, setText, SNAP_TILE, SNAP_TOKEN, SQUARE, updateData } from '../model/ops';
 import { imageKey, useImages } from '../images';
+import { junction, placeBeside, tileBox, type Side } from '../model/geometry';
 import { useStore } from '../store';
 import { TILE_OPTIONS } from './options';
 import { tokenIcon } from './labels';
@@ -207,6 +208,48 @@ export function MapView({ embedded = false, only }: { embedded?: boolean; only?:
     select(created);
   };
 
+  const boxOf = (c: QComponent) => {
+    const p = position(c) ?? { x: 0, y: 0 };
+    const g = tileGeom(c);
+    return tileBox(p.x, p.y, g.w, g.h, Number(c.data.rotation ?? 0) || 0);
+  };
+  const selectedTile = pieces.find((c) => c.name === selected && c.type === 'Tile');
+
+  // A new room goes right against the chosen one, on the side that is still free, so rooms never overlap.
+  const createTileBeside = (side: string, shownBy: string, dir: Side) => {
+    const target = selectedTile;
+    if (!target) return create('Tile', { side }, shownBy);
+    const t = tileById.get(side);
+    const [w, h] = t ? fallbackSize(t.traits) : [2 * SQUARE, SQUARE];
+    const spot = placeBeside(boxOf(target), w, h, dir, pieces.filter((c) => c.type === 'Tile').map(boxOf));
+    if (!spot) {
+      flash('Вокруг выбранной комнаты нет места. Выберите другую комнату.');
+      return;
+    }
+    create('Tile', { side, xposition: fmt(spot.x), yposition: fmt(spot.y) }, shownBy);
+  };
+
+  // A door in the middle of the wall that the chosen room shares with another one.
+  const addDoorAtJunction = () => {
+    if (!selectedTile) return;
+    const mine = boxOf(selectedTile);
+    const neighbour = pieces.filter((c) => c.type === 'Tile' && c.name !== selectedTile.name).find((c) => junction(mine, boxOf(c)));
+    const at = neighbour && junction(mine, boxOf(neighbour));
+    if (!neighbour || !at) {
+      flash('У выбранной комнаты нет соседней, прижатой стенкой. Сначала поставьте комнаты рядом.');
+      return;
+    }
+    const shownBy = [...new Set([...addedBy(s, selectedTile.name), ...addedBy(s, neighbour.name)])];
+    let created = '';
+    change((sc) => {
+      let [next, name] = addComponent(sc, 'Door', { xposition: fmt(at.x), yposition: fmt(at.y), ...(at.rot ? { rotation: String(at.rot) } : {}) });
+      created = name;
+      for (const e of shownBy) next = setAddedBy(next, name, [...addedBy(next, name), e]);
+      return setText(setText(next, lang, name + '.text', ''), lang, name + '.button1', 'Продолжить');
+    });
+    select(created);
+  };
+
   const gridStep = SQUARE;
   const startX = Math.floor(view.x / gridStep) * gridStep;
   const startY = Math.floor(view.y / gridStep) * gridStep;
@@ -254,6 +297,9 @@ export function MapView({ embedded = false, only }: { embedded?: boolean; only?:
         )}
         <button onClick={() => create('Token', { type: 'TokenSearch' })}>+ 🔍 Жетон</button>
         <button onClick={() => create('Door')}>+ 🚪 Дверь</button>
+        <button onClick={addDoorAtJunction} disabled={!selectedTile} title="Дверь в середине стены между выбранной комнатой и соседней">
+          🚪 На стык
+        </button>
         <button onClick={() => create('MPlace')}>+ 📍 Место монстра</button>
         <button onClick={rotateSelected} disabled={!pieces.some((p) => p.name === selected)} title="Клавиша R">
           ⟳ Повернуть
@@ -272,7 +318,8 @@ export function MapView({ embedded = false, only }: { embedded?: boolean; only?:
       {palette && !embedded && !only && (
         <TilePalette
           onClose={() => setPalette(false)}
-          onPick={(side, shownBy) => create('Tile', { side }, shownBy)}
+          canDock={!!selectedTile}
+          onPick={(side, shownBy, dir) => createTileBeside(side, shownBy, dir)}
         />
       )}
       <svg

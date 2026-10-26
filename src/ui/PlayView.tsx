@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
-import { isEventLike } from '../format/scenario';
+import { isEventLike, type Scenario } from '../format/scenario';
+import { testsPass, type Vars } from '../model/facts';
 import { buttonLabel, buttonsOf, getText, resolveText } from '../model/ops';
-import { fire, startPlay, type PlayState } from '../model/play';
+import { factLabel } from '../model/facts';
+import { buttonState, fire, startPlay, type PlayState } from '../model/play';
 import { useStore } from '../store';
 import { TYPE_ICON } from './labels';
 import { MapView } from './MapView';
@@ -12,6 +14,7 @@ export function PlayView() {
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const select = useStore((st) => st.select);
+  const facts = useStore((st) => st.facts);
   const setView = useStore((st) => st.setView);
   const [state, setState] = useState<PlayState>(() => startPlay(s));
   const [history, setHistory] = useState<PlayState[]>([]);
@@ -48,7 +51,7 @@ export function PlayView() {
           </button>
         </div>
         <div className="hint" style={{ marginBottom: 10 }}>
-          Нажимайте кнопки, как это сделают игроки. Справа видно, что в этот момент лежит на карте. Раунды и переменные здесь не считаются.
+          Нажимайте кнопки, как это сделают игроки. Справа видно, что в этот момент лежит на карте. Раунды и кубики здесь не считаются, а «память игры» считается.
         </div>
         {state.ended && <div className="info ok">Сценарий завершён (сработало «конец игры»).</div>}
         {state.note && <div className="info">{state.note}</div>}
@@ -68,12 +71,16 @@ export function PlayView() {
             </div>
             <div className="preview-text" dangerouslySetInnerHTML={{ __html: previewHtml(resolveText(s, lang, getText(s, lang, current.name + '.text'))) || '<i>Текст не написан</i>' }} />
             <div className="play-buttons">
-              {buttonsOf(current).map((b) => (
-                <button key={b.index} className="primary" disabled={!b.targets.length} title={b.targets.length ? '' : 'Эта кнопка пока никуда не ведёт'} onClick={() => go(b.targets[0])}>
+              {buttonsOf(current).map((b) => {
+                const st = buttonState(current, b.index, state.vars);
+                if (st === 'hidden') return null;
+                return (
+                <button key={b.index} className="primary" disabled={!b.targets.length || st === 'disabled'} title={st === 'disabled' ? 'Условие кнопки не выполнено' : b.targets.length ? '' : 'Эта кнопка пока никуда не ведёт'} onClick={() => go(b.targets.find((n) => testsPassFor(s, n, state.vars)) ?? b.targets[0])}>
                   {plainText(buttonLabel(s, lang, b), 60) || 'Продолжить'}
                   {b.targets.length > 1 ? ' 🎲' : ''}
                 </button>
-              ))}
+                );
+              })}
               {!buttonsOf(current).length && <span className="hint">У события нет кнопок.</span>}
             </div>
           </div>
@@ -105,6 +112,16 @@ export function PlayView() {
             </div>
           </details>
         )}
+        {Object.keys(state.vars).length > 0 && (
+          <div className="card">
+            <b>Что запомнила игра</b>
+            <div className="hint" style={{ marginTop: 6 }}>
+              {Object.entries(state.vars)
+                .map(([k, v]) => `${factLabel(facts, k)}: ${v}`)
+                .join(' · ')}
+            </div>
+          </div>
+        )}
         <div className="hint" style={{ marginTop: 12 }}>
           Путь: {state.path.length ? state.path.join(' → ') : 'пока пусто'}
         </div>
@@ -115,4 +132,8 @@ export function PlayView() {
       </div>
     </div>
   );
+}
+
+function testsPassFor(s: Scenario, name: string, vars: Vars): boolean {
+  return testsPass(s.components.find((c) => c.name === name)?.data.vartests, vars);
 }

@@ -53,3 +53,20 @@ describe('fixes', () => {
     expect(validate(fixed).some((i) => i.fix?.kind === 'dropReference')).toBe(false);
   });
 });
+
+describe('locked door', () => {
+  it('opens only after the key is found', async () => {
+    const { buttonState } = await import('./play');
+    const base = newScenario('Russian');
+    const built = buildTemplate(base, 'Russian', 'locked-door', { event: 'EventStart', button: 1 }, {})!;
+    const s = built.scenario;
+    const door = built.first;
+    let st = startPlay(s);
+    expect(st.visible).toContain(door);
+    expect(buttonState(s.components.find((c) => c.name === door)!, 1, st.vars)).toBe('disabled');
+    st = fire(s, st, 'TokenKey');
+    expect(buttonState(s.components.find((c) => c.name === door)!, 1, st.vars)).toBe('ok');
+    st = fire(s, st, 'EventDoorOpen');
+    expect(st.visible).not.toContain(door);
+  });
+});

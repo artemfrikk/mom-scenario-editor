@@ -7,7 +7,27 @@ import { clear, createStore, entries, set as idbSet } from 'idb-keyval';
 import { create } from 'zustand';
 import catalog from './content/catalog.json';
 
-export const IMPORT_PATH_HINT = '%APPDATA%\\Valkyrie\\MoM\\import\\img';
+const ROOT_KEY = 'mse-valkyrie-root';
+const DEFAULT_ROOT = '%APPDATA%\\Valkyrie';
+
+// Valkyrie keeps its data in %APPDATA%\\Valkyrie unless the person picked another root folder.
+export const valkyrieRoot = (() => {
+  try {
+    return localStorage.getItem(ROOT_KEY) || DEFAULT_ROOT;
+  } catch {
+    return DEFAULT_ROOT;
+  }
+})();
+
+export function importPath(root: string): string {
+  const clean = root.trim().replace(/[\\/]+$/, '') || DEFAULT_ROOT;
+  try {
+    localStorage.setItem(ROOT_KEY, clean);
+  } catch {
+    // remembering is optional
+  }
+  return clean + '\\MoM\\import\\img';
+}
 
 const store = createStore('mse-images', 'files');
 const IMAGE_EXT = /\.(png|jpe?g|webp)$/i;

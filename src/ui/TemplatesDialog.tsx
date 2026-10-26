@@ -13,6 +13,8 @@ export function TemplatesDialog({ onClose }: { onClose: () => void }) {
   const change = useStore((st) => st.change);
   const select = useStore((st) => st.select);
   const flash = useStore((st) => st.flash);
+  const facts = useStore((st) => st.facts);
+  const setFact = useStore((st) => st.setFact);
 
   const hooks = useMemo(
     () =>
@@ -32,12 +34,15 @@ export function TemplatesDialog({ onClose }: { onClose: () => void }) {
   const build = (id: string) => {
     const [event, button] = hook.split(':');
     let first = '';
+    let newFacts: Record<string, string> = {};
     change((sc) => {
-      const built = buildTemplate(sc, lang, id, event ? { event, button: Number(button) } : undefined);
+      const built = buildTemplate(sc, lang, id, event ? { event, button: Number(button) } : undefined, facts);
       if (!built) return sc;
       first = built.first;
+      newFacts = built.facts;
       return built.scenario;
     });
+    for (const [k, v] of Object.entries(newFacts)) setFact(k, v);
     if (first) select(first);
     flash('Добавлено. Замените тексты-заготовки на свои, Ctrl+Z отменяет.');
     onClose();

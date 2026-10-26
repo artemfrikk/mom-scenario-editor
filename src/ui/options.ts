@@ -33,6 +33,9 @@ export function previewHtml(text: string): string {
     .replace(/&lt;(\/?)(b|i)&gt;/g, '<$1$2>')
     .replace(/\{ffg:([A-Z0-9_]+)\}/g, (_, k: string) => `<i>${k.replace(/_MAD\d+$/, '').replace(/^TILE_/, '').toLowerCase().replace(/_/g, ' ')}</i>`)
     .replace(/\{c:([^}]+)\}/g, '<b>$1</b>')
+    .replace(/\{rnd:hero\}/g, '<i>[случайный сыщик]</i>')
+    .replace(/\{var:([^}]+)\}/g, '<i>[число: $1]</i>')
+    .replace(/\\n/g, '<br>')
     .replace(/\{([a-z]+)\}/g, (m, k: string) => ICON_TEXT[k] ?? m);
 }
 

@@ -3,6 +3,7 @@
 
 import catalog from '../content/catalog.json';
 import { newScenario, type Scenario } from '../format/scenario';
+import { factId } from './facts';
 import { addComponent, buttonsOf, fmt, getComponent, setButtonTargets, setText, SNAP_TOKEN, updateData } from './ops';
 
 export interface WizardAnswers {
@@ -95,7 +96,7 @@ export const TEMPLATES: Template[] = [
     id: 'locked-door',
     icon: '🚪',
     title: 'Запертая дверь и ключ',
-    what: 'Дверь на карте и жетон с ключом. Когда игроки находят ключ, дверь исчезает с карты.',
+    what: 'Дверь на карте и жетон с ключом. Пока ключ не найден, кнопка «Открыть дверь» серая. Когда ключ найден, дверь можно открыть, и она исчезнет с карты.',
     needsEvent: false,
   },
   {
@@ -137,6 +138,7 @@ export interface Built {
   scenario: Scenario;
   first: string; // component to select afterwards
   events: string[]; // new event-like components, for the story graph
+  facts: Record<string, string>; // names of new facts, to be remembered by the editor
 }
 
 function freeSpot(s: Scenario): { xposition: string; yposition: string } {
@@ -158,7 +160,7 @@ function link(s: Scenario, hook: Hook | undefined, target: string): Scenario {
   return b ? setButtonTargets(s, c.name, b.index, [...b.targets, target]) : s;
 }
 
-export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook): Built | null {
+export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook, labels: Record<string, string> = {}): Built | null {
   const firstMonster = catalog.monsters[0]?.id ?? '';
   const t = (sc: Scenario, name: string, text: string, button?: string) => {
     let out = setText(sc, lang, name + '.text', text);
@@ -173,17 +175,24 @@ export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook
       out = t(out, token, 'Вы осматриваете это место. Опишите, что видят сыщики.', 'Искать дальше');
       out = t(out, found, 'Вы нашли что-то важное. Опишите находку.', 'Забрать');
       out = showFrom(out, hook, [token]);
-      return { scenario: out, first: token, events: [token, found] };
+      return { scenario: out, first: token, events: [token, found], facts: {} };
     }
     case 'locked-door': {
-      let out: Scenario, door: string, key: string;
-      [out, key] = addComponent(s, 'Token', { type: 'TokenSearch', ...freeSpot(s) }, 'Key');
-      [out, door] = addComponent(out, 'Door', { ...freeSpot(out) }, 'Locked');
-      out = updateData(out, key, { remove: door });
-      out = t(out, door, 'Дверь заперта. Здесь нужен ключ.', 'Отойти');
-      out = t(out, key, 'Вы нашли ключ. Теперь дверь можно открыть.', 'Забрать');
+      let out: Scenario, door: string, key: string, open: string;
+      const taken = Object.keys(labels);
+      const fact = factId('Есть ключ', taken);
+      const label = fact === 'est_klyuch' ? 'Есть ключ' : 'Есть ключ ' + fact.split('_').pop();
+      [out, key] = addComponent(s, 'Token', { type: 'TokenSearch', ...freeSpot(s), operations: `${fact},=,1` }, 'Key');
+      [out, door] = addComponent(out, 'Door', { ...freeSpot(out), buttons: '2', event1: '', event2: '' }, 'Locked');
+      [out, open] = addComponent(out, 'Event', { remove: door }, 'DoorOpen');
+      out = setButtonTargets(out, door, 1, [open]);
+      out = updateData(out, door, { event1Condition: `VarOperation:${fact},>,0` });
+      out = t(out, door, 'Дверь заперта. Здесь нужен ключ.');
+      out = setText(setText(out, lang, door + '.button1', 'Открыть дверь'), lang, door + '.button2', 'Отойти');
+      out = t(out, open, 'Ключ подошёл, и дверь открывается.', 'Продолжить');
+      out = t(out, key, 'Вы нашли ключ. Теперь им можно открыть запертую дверь.', 'Забрать');
       out = showFrom(out, hook, [door, key]);
-      return { scenario: out, first: door, events: [door, key] };
+      return { scenario: out, first: door, events: [door, key, open], facts: { [fact]: label } };
     }
     case 'ambush': {
       let out: Scenario, ev: string, spawn: string;
@@ -192,7 +201,7 @@ export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook
       out = updateData(out, ev, { add: spawn });
       out = t(out, ev, 'Из темноты на вас бросается чудовище!', 'К бою');
       out = link(out, hook, ev);
-      return { scenario: out, first: ev, events: [ev] };
+      return { scenario: out, first: ev, events: [ev], facts: {} };
     }
     case 'choice': {
       let out: Scenario, ev: string, a: string, b: string;
@@ -205,7 +214,7 @@ export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook
       out = t(out, a, 'Что происходит, если выбран вариант А?', 'Продолжить');
       out = t(out, b, 'Что происходит, если выбран вариант Б?', 'Продолжить');
       out = link(out, hook, ev);
-      return { scenario: out, first: ev, events: [ev, a, b] };
+      return { scenario: out, first: ev, events: [ev, a, b], facts: {} };
     }
     case 'win':
     case 'lose': {
@@ -214,7 +223,7 @@ export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook
       [out, ev] = addComponent(s, 'Event', { operations: '$end,=,1', ...(hook ? {} : win ? {} : { trigger: 'Eliminated' }) }, win ? 'Win' : 'Lose');
       out = t(out, ev, win ? 'Сыщики победили. Опишите финал.' : 'Сыщики потерпели поражение. Опишите финал.', 'Завершить');
       out = link(out, hook, ev);
-      return { scenario: out, first: ev, events: [ev] };
+      return { scenario: out, first: ev, events: [ev], facts: {} };
     }
   }
   return null;

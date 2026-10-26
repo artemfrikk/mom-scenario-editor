@@ -41,6 +41,8 @@ interface StoryData extends Record<string, unknown> {
   buttons: { index: number; label: string; linked: boolean }[];
   onAdd: (name: string, index: number) => void;
   adds: number;
+  remembers: number;
+  conditional: boolean;
   selected: boolean;
 }
 
@@ -58,6 +60,8 @@ const StoryNode = memo(function StoryNode({ data }: NodeProps<Node<StoryData>>) 
         {data.shown ? data.text || 'Нет текста' : 'Скрытое событие (без окна)'}
       </div>
       {data.adds > 0 && <div className="nadd">🗺 показывает на карте: {data.adds}</div>}
+      {data.remembers > 0 && <div className="nadd">🧠 запоминает: {data.remembers}</div>}
+      {data.conditional && <div className="nadd">❓ срабатывает при условии</div>}
       {data.buttons.map((b) => (
         <div className="nbtn" key={b.index}>
           <span>{data.shown ? b.label || 'Продолжить' : 'Далее'}</span>
@@ -204,6 +208,8 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
               buttons: buttonsOf(c).map((b) => ({ index: b.index, label: plainText(buttonLabel(s, lang, b), 60), linked: b.targets.length > 0 })),
               onAdd: addNext,
               adds: (c.data.add ?? '').split(/\s+/).filter(Boolean).length,
+              remembers: (c.data.operations ?? '').split(/\s+/).filter(Boolean).length,
+              conditional: !!c.data.vartests,
               selected: c.name === selected,
             },
           };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { canPickFolder, IMPORT_PATH_HINT, pickFolder, useImages } from '../images';
+import { canPickFolder, importPath, pickFolder, useImages, valkyrieRoot } from '../images';
 import { useImagesDialog } from './imagesDialogStore';
 
 // The toolbar button that shows the state of the pictures and reopens the dialog.
@@ -33,6 +33,8 @@ export function ImagesDialog({ auto }: { auto: boolean }) {
   const dismissed = useImagesDialog((s) => s.dismissed);
   const hide = useImagesDialog((s) => s.hide);
   const [copied, setCopied] = useState(false);
+  const [root, setRoot] = useState(valkyrieRoot);
+  const imgPath = importPath(root);
   const [otherChosen, setOther] = useState(false);
   const other = otherChosen || !canPickFolder() || !!error;
 
@@ -47,7 +49,7 @@ export function ImagesDialog({ auto }: { auto: boolean }) {
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(IMPORT_PATH_HINT);
+      await navigator.clipboard.writeText(imgPath);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -66,14 +68,18 @@ export function ImagesDialog({ auto }: { auto: boolean }) {
         <ol>
           <li>Нажмите «Выбрать папку с картинками».</li>
           <li>
-            В окне выбора вставьте в адресную строку этот путь и нажмите Enter, затем «Выбор папки»:
+            В окне выбора вставьте в адресную строку путь к папке картинок и нажмите Enter, затем «Выбор папки». Папка Valkyrie
+            может лежать в AppData (по умолчанию) или в той, которую вы выбрали сами, например D:\Valkyrie. Впишите сюда свою:
             <div className="path">
-              <code>{IMPORT_PATH_HINT}</code>
+              <input value={root} onChange={(e) => setRoot(e.target.value)} aria-label="Папка Valkyrie" />
+            </div>
+            <div className="path">
+              <code>{imgPath}</code>
               <button className="small" onClick={copy}>
                 {copied ? 'Скопировано' : 'Копировать'}
               </button>
             </div>
-            <div className="hint">Это та же папка, что C:\Users\ваше имя\AppData\Roaming\Valkyrie\MoM\import\img</div>
+            <div className="hint">Нужна именно папка img внутри MoM\import. Если такой нет, проверьте второй вариант.</div>
           </li>
         </ol>
         {status === 'loading' && <div className="hint">Копирую картинки… найдено {found}</div>}
