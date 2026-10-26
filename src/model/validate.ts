@@ -1,11 +1,14 @@
 import catalog from '../content/catalog.json';
 import { defaultLanguage, isEventLike, type Scenario } from '../format/scenario';
+import { firstEvent, startEvent, type Fix } from './fixes';
+import { parseOps, parseTests } from './facts';
 import { BOARD_TYPES, buttonsOf, getText } from './ops';
 
 export interface Issue {
   level: 'error' | 'warning';
   component?: string;
   message: string;
+  fix?: Fix; // a repair the person can apply with one click
 }
 
 export const BUILTIN_TRIGGERS = ['EventStart', 'NoMorale', 'Eliminated', 'EndRound', 'StartRound', 'Mythos', 'EndInvestigatorTurn', 'BeforeMonsterActivation', 'StartFinalRound'];
@@ -20,21 +23,26 @@ export function validate(s: Scenario): Issue[] {
 
   if (!getText(s, lang, 'quest.name').trim()) issues.push({ level: 'warning', message: 'У сценария нет названия.' });
   if (!s.components.some((c) => c.data.trigger === 'EventStart')) {
-    issues.push({ level: 'error', message: 'Нет события, которое запускается в начале игры (запуск: «Начало сценария»).' });
+    const first = firstEvent(s);
+    issues.push({
+      level: 'error',
+      message: 'Нет события, которое запускается в начале игры (запуск: «Начало сценария»).',
+      fix: first ? { kind: 'makeStart', target: first } : undefined,
+    });
   }
 
   for (const c of s.components) {
     for (const key of ['add', 'remove']) {
       for (const ref of (c.data[key] ?? '').split(/\s+/).filter(Boolean)) {
         referenced.add(ref);
-        if (!names.has(ref)) issues.push({ level: 'error', component: c.name, message: `${c.name}: ${key === 'add' ? 'показывает' : 'убирает'} несуществующий объект «${ref}».` });
+        if (!names.has(ref)) issues.push({ level: 'error', component: c.name, message: `${c.name}: ${key === 'add' ? 'показывает' : 'убирает'} несуществующий объект «${ref}».`, fix: { kind: 'dropReference', ref } });
       }
     }
     if (isEventLike(c.type)) {
       for (const b of buttonsOf(c)) {
         for (const t of b.targets) {
           referenced.add(t);
-          if (!names.has(t)) issues.push({ level: 'error', component: c.name, message: `${c.name}: кнопка ${b.index} ведёт к несуществующему событию «${t}».` });
+          if (!names.has(t)) issues.push({ level: 'error', component: c.name, message: `${c.name}: кнопка ${b.index} ведёт к несуществующему событию «${t}».`, fix: { kind: 'dropReference', ref: t } });
         }
       }
       const shown = c.data.display !== 'false';
@@ -55,8 +63,9 @@ export function validate(s: Scenario): Issue[] {
 
   const added = new Set(s.components.flatMap((c) => (c.data.add ?? '').split(/\s+/).filter(Boolean)));
   for (const c of s.components) {
-    if (BOARD_TYPES.includes(c.type) && !added.has(c.name)) {
-      issues.push({ level: 'warning', component: c.name, message: `${c.name}: ни одно событие не показывает его на карте, игроки его не увидят.` });
+    // MPlace only marks where a monster stands; nothing has to show it.
+    if (BOARD_TYPES.includes(c.type) && c.type !== 'MPlace' && !added.has(c.name)) {
+      issues.push({ level: 'warning', component: c.name, message: `${c.name}: ни одно событие не показывает его на карте, игроки его не увидят.`, fix: startEvent(s) ? { kind: 'showAtStart', target: c.name } : undefined });
     }
   }
 
@@ -64,7 +73,7 @@ export function validate(s: Scenario): Issue[] {
   for (const c of s.components) {
     if (c.type !== 'Event') continue;
     if (referenced.has(c.name) || c.data.trigger) continue;
-    issues.push({ level: 'warning', component: c.name, message: `${c.name}: к этому событию нельзя попасть (ни одна кнопка не ведёт сюда и нет запуска).` });
+    issues.push({ level: 'warning', component: c.name, message: `${c.name}: к этому событию нельзя попасть (ни одна кнопка не ведёт сюда и нет запуска).`, fix: { kind: 'deleteEvent', target: c.name } });
   }
 
   for (const c of s.components) {
@@ -72,6 +81,24 @@ export function validate(s: Scenario): Issue[] {
     if (!t || BUILTIN_TRIGGERS.includes(t) || /^EndRound\d+$/.test(t) || /^Defeated/.test(t) || t.startsWith('Var')) continue;
     // Custom triggers are allowed but commonly mistyped.
     if (!names.has(t)) issues.push({ level: 'warning', component: c.name, message: `${c.name}: необычный запуск «${t}».` });
+  }
+
+  // A condition on something that nothing ever remembers can never come true.
+  const isFact = (n: string) => !n.startsWith('$') && !n.startsWith('#');
+  const written = new Set<string>();
+  for (const c of s.components) for (const o of parseOps(c.data.operations)) if (!('raw' in o)) written.add(o.name);
+  for (const c of s.components) {
+    for (const key of Object.keys(c.data)) {
+      if (key !== 'vartests' && !/^event\d+Condition$/.test(key)) continue;
+      for (const cond of parseTests(c.data[key]).conds) {
+        if (isFact(cond.name) && !written.has(cond.name)) {
+          issues.push({ level: 'warning', component: c.name, message: `${c.name}: условие проверяет «${cond.name}», но ни одно событие этого не запоминает.` });
+        }
+      }
+    }
+  }
+  if (!s.components.some((c) => parseOps(c.data.operations).some((o) => !('raw' in o) && o.name === '$end'))) {
+    issues.push({ level: 'warning', message: 'В сценарии нет ни одной концовки: ни одно событие не завершает игру.' });
   }
   return issues;
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { imageUrl, useImages } from '../images';
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
@@ -10,10 +11,18 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
   );
 }
 
+// A picture from the player's own game files, if they have been connected.
+export function Thumb({ path, className = 'thumb' }: { path: string | undefined; className?: string }) {
+  const urls = useImages((st) => st.urls);
+  const url = imageUrl(urls, path);
+  return url ? <img className={className} src={url} alt="" loading="lazy" /> : null;
+}
+
 export interface Option {
   value: string;
   label: string;
   note?: string;
+  image?: string; // catalog image path; shown as a thumbnail once the game pictures are connected
 }
 
 // A searchable drop-down. Shows the chosen option's label; typing filters the list.
@@ -24,6 +33,7 @@ export function Picker({
   placeholder = 'Выберите…',
   allowCustom = false,
   autoFocus = false,
+  describe,
 }: {
   options: Option[];
   value: string;
@@ -31,20 +41,27 @@ export function Picker({
   placeholder?: string;
   allowCustom?: boolean;
   autoFocus?: boolean;
+  // Explains the highlighted option, so a beginner knows what they are choosing.
+  describe?: (value: string) => string;
 }) {
+  const urls = useImages((st) => st.urls);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [hl, setHl] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
+  // Names arrive later, when the player's texts are connected: redo the list then.
+  const names = useImages((st) => st.names);
   const current = options.find((o) => o.value === value);
   const filtered = useMemo(() => {
+    void names; // option labels read the names, so a change of names must redo the list
     const q = query.trim().toLowerCase();
     const list = q
       ? options.filter((o) => (o.label + ' ' + o.value + ' ' + (o.note ?? '')).toLowerCase().includes(q))
       : options;
     return list.slice(0, 200);
-  }, [options, query]);
+  }, [options, query, names]);
 
   useEffect(() => {
     if (!open) return;
@@ -54,6 +71,11 @@ export function Picker({
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, [open]);
+
+  // Keep the highlighted option visible when moving with the arrow keys.
+  useEffect(() => {
+    (listRef.current?.children[hl] as HTMLElement | undefined)?.scrollIntoView({ block: 'nearest' });
+  }, [hl, open]);
 
   const choose = (v: string) => {
     onChange(v);
@@ -86,13 +108,18 @@ export function Picker({
         }}
       />
       {open && (
-        <div className="picker-list">
-          {filtered.map((o, i) => (
-            <div key={o.value} className={i === hl ? 'hl' : ''} onMouseDown={() => choose(o.value)}>
-              <span>{o.label}</span>
-              {o.note && <small>{o.note}</small>}
-            </div>
-          ))}
+        <div className="picker-pop">
+        <div className="picker-list" ref={listRef}>
+          {filtered.map((o, i) => {
+            const thumb = imageUrl(urls, o.image);
+            return (
+              <div key={o.value} className={i === hl ? 'hl' : ''} onMouseDown={() => choose(o.value)} onMouseEnter={() => setHl(i)}>
+                {thumb && <img className="thumb" src={thumb} alt="" loading="lazy" />}
+                <span className="grow">{o.label}</span>
+                {o.note && <small>{o.note}</small>}
+              </div>
+            );
+          })}
           {allowCustom && query.trim() && !options.some((o) => o.value === query.trim()) && (
             <div onMouseDown={() => choose(query.trim())}>
               <span>Использовать «{query.trim()}»</span>
@@ -103,6 +130,8 @@ export function Picker({
               <small>Ничего не найдено</small>
             </div>
           )}
+        </div>
+          {describe && filtered[hl] && <div className="picker-help">{describe(filtered[hl].value)}</div>}
         </div>
       )}
     </div>
@@ -116,12 +145,14 @@ export function ChipList({
   onChange,
   onClickChip,
   addLabel = '+ добавить',
+  describe,
 }: {
   values: string[];
   options: Option[];
   onChange: (v: string[]) => void;
   onClickChip?: (v: string) => void;
   addLabel?: string;
+  describe?: (value: string) => string;
 }) {
   const [adding, setAdding] = useState(false);
   const label = (v: string) => options.find((o) => o.value === v)?.label ?? v;
@@ -130,6 +161,7 @@ export function ChipList({
       <div>
         {values.map((v, i) => (
           <span key={v + i} className="chip" onClick={() => onClickChip?.(v)} title={v}>
+            <Thumb path={options.find((o) => o.value === v)?.image} className="chip-img" />
             {label(v)}
             <span
               className="x"
@@ -154,6 +186,7 @@ export function ChipList({
             options={options.filter((o) => !values.includes(o.value))}
             value=""
             placeholder="Начните вводить…"
+            describe={describe}
             autoFocus
             onChange={(v) => {
               onChange([...values, v]);
@@ -163,5 +196,35 @@ export function ChipList({
         </div>
       )}
     </div>
+  );
+}
+
+// A collapsible "how does this work" box. Remembers if the person has closed it.
+export function Guide({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+  const key = 'mse-guide-' + id;
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(key) !== 'closed';
+    } catch {
+      return true;
+    }
+  });
+  return (
+    <details
+      className="info"
+      open={open}
+      onToggle={(e) => {
+        const now = (e.currentTarget as HTMLDetailsElement).open;
+        setOpen(now);
+        try {
+          localStorage.setItem(key, now ? 'open' : 'closed');
+        } catch {
+          // remembering is optional
+        }
+      }}
+    >
+      <summary>{title}</summary>
+      {children}
+    </details>
   );
 }

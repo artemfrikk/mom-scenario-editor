@@ -1,17 +1,32 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getText } from './model/ops';
+import { useSimple } from './mode';
+import { sampleScenario } from './model/sample';
 import { validate } from './model/validate';
 import { restoreAutosave, useStore, type View } from './store';
+import { useImages } from './images';
+import { ImagesDialog } from './ui/ImagesDialog';
 import { Inspector } from './ui/Inspector';
 import { LANGUAGE_LABEL } from './ui/labels';
 import { MapView } from './ui/MapView';
 import { CheckPage, QuestPage, TextsPage } from './ui/Pages';
+import { RoomsView } from './ui/RoomsView';
 import { StoryView } from './ui/StoryView';
+import { GameView } from './ui/GameView';
+import { tourSeen } from './tour';
+import { Tour } from './ui/Tour';
+import { Wizard } from './ui/Wizard';
+import { FolderSave } from './ui/FolderSave';
+import { snapshotNow } from './versions';
+import { PrintSheet } from './ui/PrintSheet';
+import { VersionsDialog } from './ui/VersionsDialog';
 
 const NAV: { view: View; icon: string; label: string }[] = [
   { view: 'quest', icon: '📖', label: 'Сценарий' },
   { view: 'story', icon: '🕸', label: 'Сюжет' },
+  { view: 'rooms', icon: '🏚', label: 'Комнаты' },
   { view: 'map', icon: '🗺', label: 'Карта' },
+  { view: 'play', icon: '▶', label: 'Играть' },
   { view: 'texts', icon: '🌐', label: 'Тексты' },
   { view: 'check', icon: '✔', label: 'Проверка' },
 ];
@@ -28,22 +43,41 @@ export default function App() {
   const future = useStore((st) => st.future);
   const { undo, redo, open, reset, save } = useStore.getState();
   const fileInput = useRef<HTMLInputElement>(null);
-  const [toast, setToast] = useState('');
+  const toast = useStore((st) => st.notice);
+  const flash = useStore((st) => st.flash);
   const [started, setStarted] = useState(false);
+  const simple = useSimple((st) => st.simple);
+  const toggleSimple = useSimple((st) => st.toggle);
+  const [wizard, setWizard] = useState(false);
+  const [tour, setTour] = useState(false);
+  const [versions, setVersions] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const issues = useMemo(() => validate(s), [s]);
   const errors = issues.filter((i) => i.level === 'error').length;
 
   useEffect(() => {
-    restoreAutosave().then((ok) => setStarted(ok));
+    restoreAutosave().then((ok) => {
+      setStarted(ok);
+      if (!tourSeen()) setTour(true);
+    });
+    void useImages.getState().restore();
   }, []);
 
-  const flash = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3500);
-  };
+  // Every few minutes of work leaves a snapshot in the version history.
+  useEffect(() => {
+    let last = useStore.getState().scenario;
+    const timer = window.setInterval(() => {
+      const now = useStore.getState().scenario;
+      if (now === last) return;
+      last = now;
+      void snapshotNow('', true);
+    }, 5 * 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const doSave = async () => {
     const blob = await save();
+    void snapshotNow('Сохранение файла', true);
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = fileName;
@@ -87,7 +121,7 @@ export default function App() {
 
   const languages = Object.keys(s.texts);
   const title = getText(s, lang, 'quest.name') || 'Без названия';
-  const withInspector = view === 'story' || view === 'map';
+  const withInspector = view === 'story' || view === 'map' || view === 'rooms';
 
   return (
     <div className="app">
@@ -117,13 +151,25 @@ export default function App() {
         <button
           onClick={() => {
             if (dirty && !confirm('Начать новый сценарий? Несохранённые изменения пропадут.')) return;
-            reset();
-            setStarted(true);
+            setWizard(true);
           }}
         >
           Новый
         </button>
         <button onClick={() => fileInput.current?.click()}>Открыть…</button>
+        <button className="ghost" onClick={() => setVersions(true)} title="Вернуться к более раннему состоянию сценария">
+          🕘 Версии
+        </button>
+        <button className="ghost" onClick={() => setPrinting(true)} title="Весь сюжет одним документом: для вычитки и тестирования">
+          🖨 Печать
+        </button>
+        <FolderSave getBlob={() => save()} fileName={fileName} onDone={flash} />
+        <button className="ghost" onClick={toggleSimple} title="Простой режим прячет редкие настройки. Полный показывает всё, что умеет Valkyrie.">
+          {simple ? 'Режим: простой' : 'Режим: полный'}
+        </button>
+        <button className="ghost" onClick={() => setTour(true)} title="Показать знакомство с редактором">
+          ?
+        </button>
         <button className="primary" onClick={doSave} title="Ctrl+S">
           Сохранить .valkyrie
         </button>
@@ -131,11 +177,13 @@ export default function App() {
       </header>
       {!started ? (
         <Welcome
-          onNew={() => {
-            reset();
+          onNew={() => setWizard(true)}
+          onOpen={() => fileInput.current?.click()}
+          onSample={() => {
+            const sm = sampleScenario('Russian');
+            useStore.getState().startWith(sm.scenario, sm.notes, sm.facts);
             setStarted(true);
           }}
-          onOpen={() => fileInput.current?.click()}
           onDrop={doOpen}
         />
       ) : (
@@ -156,19 +204,38 @@ export default function App() {
           <main className="workspace">
             {view === 'quest' && <QuestPage />}
             {view === 'story' && <StoryView />}
+            {view === 'rooms' && <RoomsView />}
             {view === 'map' && <MapView />}
+            {view === 'play' && <GameView />}
             {view === 'texts' && <TextsPage />}
             {view === 'check' && <CheckPage />}
           </main>
           {withInspector && <Inspector />}
         </div>
       )}
+      {started && <ImagesDialog auto={view === 'map' || view === 'story'} />}
+      {wizard && (
+        <Wizard
+          onClose={() => {
+            setWizard(false);
+            setStarted(true);
+          }}
+          onEmpty={() => {
+            reset();
+            setWizard(false);
+            setStarted(true);
+          }}
+        />
+      )}
+      {printing && <PrintSheet onClose={() => setPrinting(false)} />}
+      {versions && <VersionsDialog onClose={() => setVersions(false)} />}
+      {tour && <Tour onClose={() => setTour(false)} />}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
 }
 
-function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => void; onDrop: (f: File | undefined) => void }) {
+function Welcome({ onNew, onOpen, onSample, onDrop }: { onNew: () => void; onOpen: () => void; onSample: () => void; onDrop: (f: File | undefined) => void }) {
   return (
     <div
       className="page"
@@ -191,6 +258,10 @@ function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => v
           <button onClick={onOpen}>
             <b>📂 Открыть .valkyrie</b>
             <span>Продолжите свой сценарий или изучите чужой. Можно перетащить файл сюда.</span>
+          </button>
+          <button onClick={onSample}>
+            <b>📖 Открыть образец</b>
+            <span>Готовая маленькая история про маяк. Сыграйте в ней и посмотрите, как она устроена.</span>
           </button>
         </div>
         <div className="card">

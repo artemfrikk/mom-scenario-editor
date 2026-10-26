@@ -20,10 +20,15 @@ import {
   updateData,
 } from '../model/ops';
 import { BUILTIN_TRIGGERS } from '../model/validate';
+import { useSimple } from '../mode';
 import { useStore } from '../store';
-import { TRIGGER_LABEL, TYPE_HELP, TYPE_ICON, TYPE_LABEL } from './labels';
-import { AUDIO_OPTIONS, ITEM_OPTIONS, packName, previewHtml, TILE_OPTIONS, TOKEN_OPTIONS } from './options';
-import { ChipList, Field, Picker, type Option } from './widgets';
+import { TRIGGER_LABEL, TYPE_ICON, TYPE_LABEL } from './labels';
+import { describeComponent, triggerHelp, TYPE_EXPLAIN } from './help';
+import { AUDIO_OPTIONS, ITEM_OPTIONS, MONSTER_OPTIONS, previewHtml, TILE_OPTIONS, TOKEN_OPTIONS } from './options';
+import { ActionMenu } from './ActionMenu';
+import { CondEditor, OpsEditor } from './Facts';
+import { TextEditor } from './TextEditor';
+import { ChipList, Field, Guide, Picker, Thumb, type Option } from './widgets';
 
 function componentOptions(s: Scenario, filter: (c: QComponent) => boolean = () => true): Option[] {
   return s.components.filter(filter).map((c) => ({ value: c.name, label: c.name, note: TYPE_LABEL[c.type] }));
@@ -46,6 +51,7 @@ export function Inspector() {
   const selected = useStore((st) => st.selected);
   const s = useStore((st) => st.scenario);
   const c = selected ? getComponent(s, selected) : undefined;
+  const simple = useSimple((st) => st.simple);
   if (!c) {
     return (
       <aside className="inspector">
@@ -66,7 +72,7 @@ export function Inspector() {
       {c.type === 'Spawn' && <SpawnFields c={c} />}
       {c.type === 'QItem' && <ItemFields c={c} />}
       {isEventLike(c.type) && <EventFields c={c} />}
-      <RawFields c={c} key={rawText(c)} />
+      {!simple && <RawFields c={c} key={rawText(c)} />}
     </aside>
   );
 }
@@ -82,14 +88,17 @@ function Header({ c }: { c: QComponent }) {
   const s = useStore((st) => st.scenario);
   const full = c.type + name.replace(/[^A-Za-z0-9_]/g, '');
   const taken = full !== c.name && !!getComponent(s, full);
+  const simple = useSimple((st) => st.simple);
 
   return (
     <>
       <h2>
         <span>{TYPE_ICON[c.type]}</span> {TYPE_LABEL[c.type]}
       </h2>
-      <div className="hint help">{TYPE_HELP[c.type]}</div>
-      <Field label="Идентификатор" hint={taken ? 'Такое имя уже занято.' : 'Латиница и цифры. Все ссылки обновятся автоматически.'}>
+      <div className="info">
+        <b>Что это.</b> {TYPE_EXPLAIN[c.type]}
+      </div>
+      {!simple && <Field label="Идентификатор" hint={taken ? 'Такое имя уже занято.' : 'Латиница и цифры. Все ссылки обновятся автоматически.'}>
         <div className="row">
           <span className="auto hint">{c.type}</span>
           <input
@@ -104,7 +113,7 @@ function Header({ c }: { c: QComponent }) {
             onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
           />
         </div>
-      </Field>
+      </Field>}
       <div className="row" style={{ marginBottom: 8 }}>
         <button
           onClick={() => {
@@ -140,11 +149,7 @@ function TextArea({ textKey, label, hint, rows = 5 }: { textKey: string; label: 
   const change = useChange();
   return (
     <Field label={label} hint={hint}>
-      <textarea
-        rows={rows}
-        value={getText(s, lang, textKey)}
-        onChange={(e) => change((sc) => setText(sc, lang, textKey, e.target.value), 'text:' + textKey)}
-      />
+      <TextEditor rows={rows} value={getText(s, lang, textKey)} onChange={(v) => change((sc) => setText(sc, lang, textKey, v), 'text:' + textKey)} />
     </Field>
   );
 }
@@ -212,6 +217,7 @@ function AppearsWhen({ c }: { c: QComponent }) {
   const s = useStore((st) => st.scenario);
   const change = useChange();
   const select = useStore((st) => st.select);
+  const lang = useStore((st) => st.lang);
   const events = useMemo(() => componentOptions(s, (x) => isEventLike(x.type) && x.name !== c.name), [s, c.name]);
   const by = addedBy(s, c.name);
   return (
@@ -221,7 +227,7 @@ function AppearsWhen({ c }: { c: QComponent }) {
         label="Показывается после события"
         hint={by.length ? undefined : 'Пока ни одно событие не показывает этот объект, игроки его не увидят. Для стартовой комнаты выберите стартовое событие.'}
       >
-        <ChipList values={by} options={events} onClickChip={select} addLabel="+ выбрать событие" onChange={(v) => change((sc) => setAddedBy(sc, c.name, v))} />
+        <ChipList values={by} options={events} onClickChip={select} addLabel="+ выбрать событие" describe={(n) => describeComponent(s, lang, n)} onChange={(v) => change((sc) => setAddedBy(sc, c.name, v))} />
       </Field>
     </>
   );
@@ -264,7 +270,7 @@ function SpawnFields({ c }: { c: QComponent }) {
   const s = useStore((st) => st.scenario);
   const options = useMemo(
     () => [
-      ...catalog.monsters.map((m) => ({ value: m.id, label: m.name, note: packName[m.pack] })),
+      ...MONSTER_OPTIONS,
       ...s.components.filter((x) => x.type === 'CustomMonster').map((x) => ({ value: x.name, label: x.name, note: 'свой монстр' })),
     ],
     [s.components],
@@ -276,6 +282,7 @@ function SpawnFields({ c }: { c: QComponent }) {
       <Field label="Какой монстр" hint="Если выбрать несколько, игра возьмёт одного случайного.">
         <ChipList values={monsters} options={options} onChange={(v) => change((sc) => updateData(sc, c.name, { monster: v.join(' ') || undefined }))} />
       </Field>
+      {monsters[0] && <Thumb path={catalog.monsters.find((m) => m.id === monsters[0])?.image} className="preview-img" />}
       <DataCheck c={c} k="unique" label="Уникальный монстр (со своим именем и описанием)" />
       {c.data.unique === 'true' && (
         <>
@@ -305,6 +312,7 @@ function ItemFields({ c }: { c: QComponent }) {
 }
 
 function EventFields({ c }: { c: QComponent }) {
+  const simple = useSimple((st) => st.simple);
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const change = useChange();
@@ -315,9 +323,29 @@ function EventFields({ c }: { c: QComponent }) {
   const all = useMemo(() => componentOptions(s, (x) => x.name !== c.name), [s, c.name]);
   const triggers = useMemo(() => triggerOptions(s), [s]);
   const list = (k: string) => (c.data[k] ?? '').split(/\s+/).filter(Boolean);
+  const describe = (n: string) => describeComponent(s, lang, n);
 
   return (
     <>
+      <Guide id="event" title="Как собрать событие">
+        <ol>
+          <li>
+            <b>Текст</b>: что прочитают игроки в окне.
+          </li>
+          <li>
+            <b>Кнопки</b>: варианты, которые выбирают игроки. Каждая кнопка ведёт к следующему событию. Если кнопка никуда не ведёт, сценарий на ней закончится.
+          </li>
+          <li>
+            <b>Показать на карте</b>: комнаты, жетоны и монстры, которые появятся, когда событие сработает.
+          </li>
+          <li>
+            <b>Запуск</b>: нужен, только если событие должно сработать само, без кнопки. Например, вступление в начале игры.
+          </li>
+        </ol>
+      </Guide>
+      <h3>Что может случиться</h3>
+      <div className="hint">Нажмите на то, что должно произойти. Нужные поля заполнятся сами.</div>
+      <ActionMenu event={c.name} />
       <h3>Что видят игроки</h3>
       <DataCheck c={c} k="display" label="Показывать окно с текстом" defaultOn />
       {shown && (
@@ -364,10 +392,31 @@ function EventFields({ c }: { c: QComponent }) {
               options={targets}
               onClickChip={select}
               addLabel={b.targets.length ? '+ ещё' : '+ выбрать событие'}
+              describe={describe}
               onChange={(v) => change((sc) => setButtonTargets(sc, c.name, b.index, v))}
             />
           </Field>
-          {b.condition && <div className="hint">Условие: {b.condition}</div>}
+          <details open={!!b.condition} className="cond-box">
+            <summary className="hint">Показывать кнопку, только если…</summary>
+            <CondEditor
+              raw={b.condition}
+              empty="Кнопка видна всегда."
+              onChange={(v) =>
+                change((sc) => updateData(sc, c.name, { [`event${b.index}Condition`]: v, ...(v ? {} : { [`event${b.index}ConditionAction`]: undefined }) }))
+              }
+            />
+            {b.condition && (
+              <Field label="Если условие не выполнено">
+                <select
+                  value={c.data[`event${b.index}ConditionAction`] ?? 'disable'}
+                  onChange={(e) => change((sc) => updateData(sc, c.name, { [`event${b.index}ConditionAction`]: e.target.value === 'disable' ? undefined : e.target.value }))}
+                >
+                  <option value="disable">кнопка серая, нажать нельзя</option>
+                  <option value="hide">кнопки не видно совсем</option>
+                </select>
+              </Field>
+            )}
+          </details>
         </div>
       ))}
       <button className="small" onClick={() => change((sc) => addButton(sc, c.name, '', lang))}>
@@ -378,9 +427,11 @@ function EventFields({ c }: { c: QComponent }) {
           Если кнопка ведёт к нескольким событиям, сработает первое, чьи условия выполнены.
         </div>
       )}
-      <div style={{ marginTop: 10 }}>
-        <DataCheck c={c} k="randomevents" label="Выбирать следующее событие случайно" />
-      </div>
+      {!simple && (
+        <div style={{ marginTop: 10 }}>
+          <DataCheck c={c} k="randomevents" label="Выбирать следующее событие случайно" />
+        </div>
+      )}
 
       {shown && (
         <>
@@ -398,22 +449,30 @@ function EventFields({ c }: { c: QComponent }) {
 
       <h3>Что происходит</h3>
       <Field label="Запуск" hint="Когда событие срабатывает само, без кнопки.">
-        <Picker options={triggers} value={c.data.trigger ?? ''} allowCustom onChange={(v) => change((sc) => updateData(sc, c.name, { trigger: v || undefined }))} />
+        <Picker options={triggers} value={c.data.trigger ?? ''} describe={triggerHelp} allowCustom onChange={(v) => change((sc) => updateData(sc, c.name, { trigger: v || undefined }))} />
       </Field>
       <Field label="Показать на карте" hint="Тайлы, жетоны и монстры, которые появятся.">
-        <ChipList values={list('add')} options={all} onClickChip={select} onChange={(v) => change((sc) => updateData(sc, c.name, { add: v.join(' ') || undefined }))} />
+        <ChipList values={list('add')} options={all} onClickChip={select} describe={describe} onChange={(v) => change((sc) => updateData(sc, c.name, { add: v.join(' ') || undefined }))} />
       </Field>
       <Field label="Убрать с карты">
-        <ChipList values={list('remove')} options={all} onClickChip={select} onChange={(v) => change((sc) => updateData(sc, c.name, { remove: v.join(' ') || undefined }))} />
+        <ChipList values={list('remove')} options={all} onClickChip={select} describe={describe} onChange={(v) => change((sc) => updateData(sc, c.name, { remove: v.join(' ') || undefined }))} />
       </Field>
-      <Field label="Звук">
+      {!simple && <Field label="Звук">
         <Picker options={[{ value: '', label: 'Без звука' }, ...AUDIO_OPTIONS]} value={c.data.audio ?? ''} allowCustom onChange={(v) => change((sc) => updateData(sc, c.name, { audio: v || undefined }))} />
+      </Field>}
+      {!simple && <DataCheck c={c} k="highlight" label="Подсветить место на карте" />}
+
+      <h3>Память игры</h3>
+      <Field label="Игра запомнит" hint="Например, «Есть ключ» становится известным. Потом это можно проверить в условиях.">
+        <OpsEditor raw={c.data.operations} onChange={(v) => change((sc) => updateData(sc, c.name, { operations: v }))} />
       </Field>
-      <DataCheck c={c} k="highlight" label="Подсветить место на карте" />
+      <Field label="Событие сработает, только если…" hint="Если условие не выполнено, событие пропускается.">
+        <CondEditor raw={c.data.vartests} empty="Срабатывает всегда." onChange={(v) => change((sc) => updateData(sc, c.name, { vartests: v }))} />
+      </Field>
 
       <details>
         <summary className="hint" style={{ cursor: 'pointer', margin: '14px 0 10px' }}>
-          Переменные и условия (для опытных)
+          То же самое текстом (для опытных)
         </summary>
         <DataInput c={c} k="operations" label="Операции" hint="Через пробел: имя,операция,значение. Например: clues,+,1 $end,=,1" />
         <DataInput c={c} k="vartests" label="Условия срабатывания" hint="Например: VarOperation:clues,>=,3" />

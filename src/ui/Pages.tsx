@@ -1,10 +1,14 @@
 import { useMemo, useState } from 'react';
 import catalog from '../content/catalog.json';
 import { defaultLanguage } from '../format/scenario';
+import { applyFix, fixLabel } from '../model/fixes';
 import { getText, setText } from '../model/ops';
+import { notesToStory, storyParagraphs } from '../model/story';
 import { validate } from '../model/validate';
 import { useStore } from '../store';
 import { LANGUAGE_LABEL, LANGUAGES, TYPE_ICON } from './labels';
+import { TextEditor } from './TextEditor';
+import { PathCheck, Readiness } from './PathCheck';
 import { Field } from './widgets';
 
 export function QuestPage() {
@@ -27,9 +31,12 @@ export function QuestPage() {
   const boxes = catalog.packs.filter((p) => p.id !== 'MoMBase');
 
   return (
-    <div className="page">
+    <div className="page quest-page">
       <h1>Сценарий</h1>
-      <div className="lead">Как сценарий будет выглядеть в списке Valkyrie.</div>
+      <div className="lead">Как сценарий будет выглядеть в списке Valkyrie, и ваши заметки о сюжете.</div>
+      <div className="quest-grid">
+      <div className="quest-form">
+      <Readiness />
       <div className="card">
         <Field label="Название">
           <input value={text('quest.name')} onChange={(e) => setT('quest.name', e.target.value)} />
@@ -38,7 +45,7 @@ export function QuestPage() {
           <input value={text('quest.synopsys')} onChange={(e) => setT('quest.synopsys', e.target.value)} />
         </Field>
         <Field label="Вступление и описание">
-          <textarea rows={6} value={text('quest.description')} onChange={(e) => setT('quest.description', e.target.value)} />
+          <TextEditor rows={6} value={text('quest.description')} onChange={(v) => setT('quest.description', v)} />
         </Field>
         <div className="row">
           <Field label="Авторы (кратко)">
@@ -84,6 +91,99 @@ export function QuestPage() {
         </Field>
       </div>
       <LanguagesCard />
+      </div>
+      <NotesCard />
+      </div>
+    </div>
+  );
+}
+
+const NOTES_TEMPLATE = `# Сюжет
+
+## Завязка
+Кто главные герои и почему они оказались здесь?
+
+## Место действия
+Где всё происходит? Какие комнаты и места важны?
+
+## Главная цель
+Что нужно сделать игрокам, чтобы победить?
+
+## Тайна
+Что на самом деле происходит? Что игроки узнают постепенно?
+
+## Ход сюжета
+1.
+2.
+3.
+
+## Персонажи и монстры
+-
+
+## Концовки
+- Победа:
+- Поражение:
+`;
+
+// Free-form plot notes of the author. They are saved inside the .valkyrie file but never shown in the game.
+function NotesCard() {
+  const notes = useStore((st) => st.notes);
+  const setNotes = useStore((st) => st.setNotes);
+  const words = notes.trim() ? notes.trim().split(/\s+/).length : 0;
+  const lang = useStore((st) => st.lang);
+  const change = useStore((st) => st.change);
+  const select = useStore((st) => st.select);
+  const setView = useStore((st) => st.setView);
+  const flash = useStore((st) => st.flash);
+  const paragraphs = useMemo(() => storyParagraphs(notes), [notes]);
+  return (
+    <div className="notes-card">
+      <div className="notes-head">
+        <b>Сюжет и заметки автора</b>
+        <span className="hint">{words} слов</span>
+      </div>
+      <div className="hint" style={{ marginBottom: 8 }}>
+        Запишите здесь всю историю: завязку, тайну, ход событий, концовки. Игроки этого не увидят. Заметки сохраняются внутри файла сценария.
+      </div>
+      <textarea
+        className="notes-text"
+        value={notes}
+        placeholder="Например: «Сыщиков вызвал в старый дом профессор Блэквуд. Он пропал, а в подвале слышны шаги…»"
+        onChange={(e) => setNotes(e.target.value)}
+      />
+      <div className="row" style={{ marginTop: 8 }}>
+        <button
+          className="small auto"
+          onClick={() => {
+            if (!notes.trim() || confirm('Добавить шаблон в конец ваших заметок?')) setNotes((notes.trim() ? notes.trimEnd() + '\n\n' : '') + NOTES_TEMPLATE);
+          }}
+        >
+          Вставить шаблон сюжета
+        </button>
+        <button
+          className="small auto"
+          disabled={!paragraphs.length}
+          title="Каждый абзац заметок станет отдельным событием, события свяжутся цепочкой"
+          onClick={() => {
+            if (!confirm(`Создать ${paragraphs.length} событий из абзацев заметок? Заметки останутся как есть.`)) return;
+            let first = '';
+            change((sc) => {
+              const r = notesToStory(sc, lang, paragraphs);
+              if (!r) return sc;
+              first = r.first;
+              return r.scenario;
+            });
+            if (first) {
+              select(first);
+              setView('story');
+              flash('События созданы. Протяните стрелку от нужной кнопки к первому из них, чтобы подключить цепочку.');
+            }
+          }}
+        >
+          Разбить заметки на события
+        </button>
+        <span className="auto hint">Подсказка для начала: вопросы в шаблоне помогут ничего не забыть.</span>
+      </div>
     </div>
   );
 }
@@ -232,12 +332,15 @@ export function CheckPage() {
   const s = useStore((st) => st.scenario);
   const select = useStore((st) => st.select);
   const setView = useStore((st) => st.setView);
+  const change = useStore((st) => st.change);
+  const flash = useStore((st) => st.flash);
   const issues = useMemo(() => validate(s), [s]);
+  const fixable = issues.filter((i) => i.fix);
   const counts = s.components.reduce<Record<string, number>>((m, c) => ((m[c.type] = (m[c.type] ?? 0) + 1), m), {});
   return (
     <div className="page">
       <h1>Проверка</h1>
-      <div className="lead">Ошибки, из-за которых сценарий может сломаться в Valkyrie.</div>
+      <div className="lead">Ошибки, из-за которых сценарий может сломаться в Valkyrie. Рядом с проблемой есть кнопка быстрого исправления.</div>
       <div className="card">
         {Object.entries(counts).map(([t, n]) => (
           <span key={t} className="chip" style={{ cursor: 'default' }}>
@@ -245,6 +348,28 @@ export function CheckPage() {
           </span>
         ))}
       </div>
+      <PathCheck />
+      {fixable.length > 1 && (
+        <div className="row" style={{ marginBottom: 10 }}>
+          <button
+            onClick={() => {
+              change((sc) => {
+                // Fix one at a time on the current scenario: an earlier fix can resolve later ones.
+                let out = sc;
+                for (const i of fixable) {
+                  const now = validate(out).find((x) => x.message === i.message && x.fix);
+                  if (now?.fix) out = applyFix(out, now.fix);
+                }
+                return out;
+              });
+              flash('Исправлено. Ctrl+Z вернёт всё как было.');
+            }}
+            title="Применить все исправления из списка"
+          >
+            Исправить всё сразу ({fixable.length})
+          </button>
+        </div>
+      )}
       <div className="card" style={{ padding: 0 }}>
         {issues.length === 0 ? (
           <div style={{ padding: 18, color: 'var(--ok)' }}>✓ Проблем не найдено.</div>
@@ -261,7 +386,20 @@ export function CheckPage() {
                 }}
               >
                 <span className={'dot ' + i.level} />
-                <span>{i.message}</span>
+                <span style={{ flex: 1 }}>{i.message}</span>
+                {i.fix && (
+                  <button
+                    className="small auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const fix = i.fix!;
+                      change((sc) => applyFix(sc, fix));
+                      flash('Исправлено. Ctrl+Z отменяет.');
+                    }}
+                  >
+                    {fixLabel(i.fix)}
+                  </button>
+                )}
               </li>
             ))}
           </ul>

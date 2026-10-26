@@ -16,10 +16,12 @@ import {
 import '@xyflow/react/dist/style.css';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isEventLike, type ComponentType, type Scenario } from '../format/scenario';
-import { addComponent, buttonLabel, buttonsOf, getText, resolveText, setButtonTargets, setText } from '../model/ops';
+import { addComponent, buttonLabel, buttonsOf, deleteComponent, getText, resolveText, setButtonTargets, setText } from '../model/ops';
 import { useStore, type Layout } from '../store';
 import { TRIGGER_LABEL, TYPE_ICON } from './labels';
+import { MapView } from './MapView';
 import { plainText } from './options';
+import { TemplatesDialog } from './TemplatesDialog';
 
 const TYPE_COLOR: Partial<Record<ComponentType, string>> = {
   Event: 'var(--event)',
@@ -36,8 +38,11 @@ interface StoryData extends Record<string, unknown> {
   text: string;
   shown: boolean;
   trigger: string;
-  buttons: { index: number; label: string }[];
+  buttons: { index: number; label: string; linked: boolean }[];
+  onAdd: (name: string, index: number) => void;
   adds: number;
+  remembers: number;
+  conditional: boolean;
   selected: boolean;
 }
 
@@ -55,9 +60,23 @@ const StoryNode = memo(function StoryNode({ data }: NodeProps<Node<StoryData>>) 
         {data.shown ? data.text || 'Нет текста' : 'Скрытое событие (без окна)'}
       </div>
       {data.adds > 0 && <div className="nadd">🗺 показывает на карте: {data.adds}</div>}
+      {data.remembers > 0 && <div className="nadd">🧠 запоминает: {data.remembers}</div>}
+      {data.conditional && <div className="nadd">❓ срабатывает при условии</div>}
       {data.buttons.map((b) => (
         <div className="nbtn" key={b.index}>
           <span>{data.shown ? b.label || 'Продолжить' : 'Далее'}</span>
+          {!b.linked && (
+            <button
+              className="nbtn-add nodrag nopan"
+              title="Создать следующее событие для этой кнопки"
+              onClick={(e) => {
+                e.stopPropagation();
+                data.onAdd(data.name, b.index);
+              }}
+            >
+              + Далее
+            </button>
+          )}
           <Handle type="source" position={Position.Right} id={'b' + b.index} />
         </div>
       ))}
@@ -91,7 +110,7 @@ function autoLayout(s: Scenario, layout: Layout): Layout {
   return out;
 }
 
-function Story() {
+function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => void }) {
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const selected = useStore((st) => st.selected);
@@ -101,6 +120,35 @@ function Story() {
   const setLayout = useStore((st) => st.setLayout);
   const flow = useReactFlow();
   const [dragPos, setDragPos] = useState<Layout>({});
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
+  const [templates, setTemplates] = useState(false);
+  const flash = useStore((st) => st.flash);
+
+  // Delete / Backspace removes the chosen arrow, or the chosen block with everything that points to it.
+  // Ctrl+Z brings it back.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+      if (selectedEdge) {
+        const [source, index, target] = selectedEdge.split(':');
+        change((sc) => {
+          const c = sc.components.find((x) => x.name === source);
+          const b = c && buttonsOf(c).find((x) => x.index === Number(index));
+          return b ? setButtonTargets(sc, source, Number(index), b.targets.filter((t) => t !== target)) : sc;
+        });
+        setSelectedEdge(null);
+        e.preventDefault();
+      } else if (selected && s.components.some((c) => c.name === selected && isEventLike(c.type))) {
+        e.preventDefault();
+        change((sc) => deleteComponent(sc, selected));
+        select(null);
+        flash(`Удалено: ${selected}. Ctrl+Z возвращает обратно.`);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selected, selectedEdge, s.components, change, select, flash]);
 
   // Give every new node a place once; later the user moves them by hand.
   useEffect(() => {
@@ -121,6 +169,26 @@ function Story() {
     }, 0);
   }, [layout, s.components, flow]);
 
+  // The "+ Далее" button on a block: a new event, already linked to that button and placed to its right.
+  const addNext = useCallback(
+    (from: string, index: number) => {
+      let created = '';
+      change((sc) => {
+        const [next, name] = addComponent(sc, 'Event');
+        created = name;
+        const c = next.components.find((x) => x.name === from);
+        const b = c && buttonsOf(c).find((x) => x.index === index);
+        let out = setText(next, lang, name + '.text', '');
+        out = setText(out, lang, name + '.button1', 'Продолжить');
+        return b ? setButtonTargets(out, from, index, [...b.targets, name]) : out;
+      });
+      const at = useStore.getState().layout[from];
+      if (at) setLayout({ ...useStore.getState().layout, [created]: { x: at.x + 300, y: at.y + (index - 1) * 110 } });
+      select(created);
+    },
+    [change, lang, select, setLayout],
+  );
+
   const nodes: Node<StoryData>[] = useMemo(
     () =>
       s.components
@@ -130,8 +198,6 @@ function Story() {
           return {
             id: c.name,
             type: 'story',
-            // nodes are deleted from the inspector, with confirmation
-            deletable: false,
             position: dragPos[c.name] ?? layout[c.name] ?? { x: 0, y: 0 },
             data: {
               name: c.name,
@@ -139,13 +205,16 @@ function Story() {
               shown,
               text: plainText(resolveText(s, lang, getText(s, lang, c.name + '.text'))),
               trigger: c.data.trigger ?? '',
-              buttons: buttonsOf(c).map((b) => ({ index: b.index, label: plainText(buttonLabel(s, lang, b), 60) })),
+              buttons: buttonsOf(c).map((b) => ({ index: b.index, label: plainText(buttonLabel(s, lang, b), 60), linked: b.targets.length > 0 })),
+              onAdd: addNext,
               adds: (c.data.add ?? '').split(/\s+/).filter(Boolean).length,
+              remembers: (c.data.operations ?? '').split(/\s+/).filter(Boolean).length,
+              conditional: !!c.data.vartests,
               selected: c.name === selected,
             },
           };
         }),
-    [s, lang, layout, dragPos, selected],
+    [s, lang, layout, dragPos, selected, addNext],
   );
 
   const edges: Edge[] = useMemo(() => {
@@ -163,13 +232,17 @@ function Story() {
             target: t,
             targetHandle: 'in',
             animated: c.name === selected || t === selected,
-            style: { stroke: c.name === selected || t === selected ? 'var(--accent)' : '#7d7488', strokeWidth: 2 },
+            selected: `${c.name}:${b.index}:${t}` === selectedEdge,
+            style: {
+              stroke: `${c.name}:${b.index}:${t}` === selectedEdge ? 'var(--err)' : c.name === selected || t === selected ? 'var(--accent)' : '#7d7488',
+              strokeWidth: `${c.name}:${b.index}:${t}` === selectedEdge ? 3 : 2,
+            },
           });
         }
       }
     }
     return out;
-  }, [s, nodes, selected]);
+  }, [s, nodes, selected, selectedEdge]);
 
   const link = useCallback(
     (source: string, handle: string, target: string) => {
@@ -228,6 +301,9 @@ function Story() {
         <button onClick={() => create('Event')}>+ {TYPE_ICON.Event} Событие</button>
         <button onClick={() => create('Token')}>+ {TYPE_ICON.Token} Жетон</button>
         <button onClick={() => create('Spawn')}>+ {TYPE_ICON.Spawn} Монстр</button>
+        <button onClick={() => setTemplates(true)} title="Жетон с находкой, запертая дверь, засада, развилка, концовки">
+          ✨ Заготовки
+        </button>
         <button
           onClick={() => {
             setLayout(autoLayout(s, {}));
@@ -237,13 +313,24 @@ function Story() {
         >
           Упорядочить
         </button>
+        <button className={mapOpen ? 'primary' : ''} onClick={onToggleMap} title="Показать или скрыть карту рядом со схемой">
+          🗺 Карта
+        </button>
+        <span className="hint tb-hint">Delete: удалить выбранное</span>
       </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
-        onNodeClick={(_, n) => select(n.id)}
-        onPaneClick={() => select(null)}
+        onNodeClick={(_, n) => {
+          setSelectedEdge(null);
+          select(n.id);
+        }}
+        onEdgeClick={(_, e) => setSelectedEdge(e.id)}
+        onPaneClick={() => {
+          setSelectedEdge(null);
+          select(null);
+        }}
         onNodesChange={(changes) => {
           for (const ch of changes) {
             if (ch.type === 'position' && ch.position) {
@@ -261,19 +348,7 @@ function Story() {
         }}
         onConnect={(c) => c.sourceHandle && link(c.source, c.sourceHandle, c.target)}
         onConnectEnd={onConnectEnd}
-        onEdgesDelete={(list) => {
-          change((sc) => {
-            let out = sc;
-            for (const e of list) {
-              const index = Number(e.sourceHandle?.substring(1));
-              const c = out.components.find((x) => x.name === e.source);
-              const b = c && buttonsOf(c).find((x) => x.index === index);
-              if (b) out = setButtonTargets(out, e.source, index, b.targets.filter((t) => t !== e.target));
-            }
-            return out;
-          });
-        }}
-        deleteKeyCode={['Delete', 'Backspace']}
+        deleteKeyCode={null}
         minZoom={0.1}
         colorMode="dark"
         proOptions={{ hideAttribution: true }}
@@ -282,6 +357,7 @@ function Story() {
         <Controls showInteractive={false} />
         <MiniMap pannable zoomable nodeColor={(n) => TYPE_COLOR[(n.data as StoryData).type] ?? '#555'} maskColor="#0009" style={{ background: '#1e1b24' }} />
       </ReactFlow>
+      {templates && <TemplatesDialog onClose={() => setTemplates(false)} />}
       {nodes.length === 0 && (
         <div className="empty-state" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           Добавьте первое событие кнопкой «+ Событие».
@@ -291,11 +367,66 @@ function Story() {
   );
 }
 
-export function StoryView() {
-  return (
-    <ReactFlowProvider>
-      <Story />
-    </ReactFlowProvider>
-  );
+const SPLIT_KEY = 'mse-story-map';
+
+function loadSplit(): { open: boolean; width: number } {
+  try {
+    const v = JSON.parse(localStorage.getItem(SPLIT_KEY) ?? '');
+    return { open: v.open !== false, width: Math.max(260, Number(v.width) || 460) };
+  } catch {
+    return { open: true, width: 460 };
+  }
 }
 
+// The story graph with the live map on its right: the divider drags, the map can be hidden.
+export function StoryView() {
+  const [split, setSplit] = useState(loadSplit);
+  const box = useRef<HTMLDivElement>(null);
+  const update = (next: { open: boolean; width: number }) => {
+    setSplit(next);
+    try {
+      localStorage.setItem(SPLIT_KEY, JSON.stringify(next));
+    } catch {
+      // remembering the layout is optional
+    }
+  };
+
+  const startDrag = (e: React.PointerEvent) => {
+    const el = box.current;
+    if (!el) return;
+    e.preventDefault();
+    const rect = el.getBoundingClientRect();
+    const move = (ev: PointerEvent) => {
+      const width = Math.min(rect.width - 320, Math.max(240, rect.right - ev.clientX));
+      setSplit((sp) => ({ ...sp, width }));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      setSplit((sp) => {
+        update(sp);
+        return sp;
+      });
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <div className="split" ref={box}>
+      <div className="split-left">
+        <ReactFlowProvider>
+          <Story mapOpen={split.open} onToggleMap={() => update({ ...split, open: !split.open })} />
+        </ReactFlowProvider>
+      </div>
+      {split.open && (
+        <>
+          <div className="split-bar" onPointerDown={startDrag} title="Потяните, чтобы изменить размер" />
+          <div className="split-right" style={{ width: split.width }}>
+            <MapView embedded />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

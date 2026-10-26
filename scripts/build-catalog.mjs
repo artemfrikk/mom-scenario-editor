@@ -34,6 +34,10 @@ function parseIni(text) {
   return out;
 }
 
+// The key of the official text, e.g. "{ffg:TILE_ALLEY_1_MAD20}" -> "TILE_ALLEY_1_MAD20".
+// The words themselves live in the player's own Valkyrie import, so they are not copied here.
+const nameKey = (name) => /\{ffg:([A-Z0-9_]+)\}/.exec(name ?? '')?.[1];
+
 function prettyName(id, name, prefixes) {
   const m = /\{ffg:([A-Z0-9_]+)\}/.exec(name ?? '');
   let s = m ? m[1] : id;
@@ -59,20 +63,21 @@ for (const pack of readdirSync(dir)) {
 
   for (const [id, d] of Object.entries(read('tiles.ini'))) {
     catalog.tiles.push({
-      id, pack: packId, name: prettyName(id, d.name, ['TILE_', 'TileSide']), traits: traits(d.traits),
+      id, pack: packId, name: prettyName(id, d.name, ['TILE_', 'TileSide']), nameKey: nameKey(d.name), traits: traits(d.traits),
       reverse: d.reverse || undefined, image: d.image?.replace('{import}/', '') || undefined,
     });
   }
   for (const [id, d] of Object.entries(read('monsters.ini'))) {
     catalog.monsters.push({
-      id, pack: packId, name: prettyName(id, d.name, ['MONSTER_', 'Monster']), traits: traits(d.traits),
+      id, pack: packId, name: prettyName(id, d.name, ['MONSTER_', 'Monster']), nameKey: nameKey(d.name), traits: traits(d.traits),
       health: Number(d.health ?? 0), healthperhero: Number(d.healthperhero ?? 0),
+      image: d.image?.replace('{import}/', '') || undefined,
     });
   }
   for (const [id, d] of Object.entries(read('items.ini'))) {
     catalog.items.push({
-      id, pack: packId, name: prettyName(id, d.name, ['COMMON_ITEM_', 'UNIQUE_ITEM_', 'SPELL_', 'ItemCommon', 'ItemUnique', 'ItemSpell', 'Item']),
-      traits: traits(d.traits),
+      id, pack: packId, name: prettyName(id, d.name, ['COMMON_ITEM_', 'UNIQUE_ITEM_', 'SPELL_', 'ItemCommon', 'ItemUnique', 'ItemSpell', 'Item']), nameKey: nameKey(d.name),
+      traits: traits(d.traits), image: d.image?.replace('{import}/', '') || undefined,
     });
   }
   for (const [id] of Object.entries(read('tokens.ini'))) {
