@@ -2,6 +2,7 @@
 
 import type { ComponentType } from '../format/scenario';
 import type { TranslationPackage } from './package';
+import { unitsOf } from './units';
 
 export interface Row {
   key: string;
@@ -53,22 +54,22 @@ export function fieldLabel(group: string, field: string): string {
 
 export function buildGroups(pkg: TranslationPackage, source: string, target: string): Group[] {
   const groups = new Map<string, Group>();
-  const keys = [...(pkg.texts[source]?.keys() ?? [])];
+  const units = unitsOf(pkg, source);
   // Keys that only exist in the old translation stay visible too.
-  for (const k of pkg.texts[target]?.keys() ?? []) if (!pkg.texts[source]?.has(k)) keys.push(k);
+  if (!pkg.multi) for (const k of pkg.texts[target]?.keys() ?? []) if (!pkg.texts[source]?.has(k)) units.push({ id: k, key: k, source: '' });
 
-  for (const key of keys) {
+  for (const { id: rowKey, key, source: text } of units) {
     const dot = key.indexOf('.');
     const owner = dot === -1 ? key : key.substring(0, dot);
     const field = dot === -1 ? '' : key.substring(dot + 1);
     const type = owner === 'quest' ? 'quest' : (pkg.types.get(owner) ?? 'other');
-    const id = type === 'other' ? 'other' : owner;
-    let g = groups.get(id);
+    const gid = type === 'other' ? 'other' : owner;
+    let g = groups.get(gid);
     if (!g) {
-      g = { id, type, title: type === 'quest' ? 'О сценарии' : type === 'other' ? 'Прочее' : owner.substring(type.length) || owner, rows: [] };
-      groups.set(id, g);
+      g = { id: gid, type, title: type === 'quest' ? 'О сценарии' : type === 'other' ? 'Прочее' : owner.substring(type.length) || owner, rows: [] };
+      groups.set(gid, g);
     }
-    g.rows.push({ key, group: id, field: type === 'other' ? key : fieldLabel(owner, field), source: pkg.texts[source]?.get(key) ?? '' });
+    g.rows.push({ key: rowKey, group: gid, field: type === 'other' ? key : fieldLabel(owner, field), source: text });
   }
 
   const order = (g: Group) => (g.type === 'quest' ? 0 : g.type === 'other' ? 2 : 1);
