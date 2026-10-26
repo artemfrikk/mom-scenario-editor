@@ -24,7 +24,7 @@ import { useSimple } from '../mode';
 import { useStore } from '../store';
 import { TRIGGER_LABEL, TYPE_ICON, TYPE_LABEL } from './labels';
 import { describeComponent, triggerHelp, TYPE_EXPLAIN } from './help';
-import { AUDIO_OPTIONS, ITEM_OPTIONS, MONSTER_OPTIONS, previewHtml, TILE_OPTIONS, TOKEN_OPTIONS } from './options';
+import { AUDIO_OPTIONS, ITEM_OPTIONS, MONSTER_OPTIONS, freeTileOptions, previewHtml, TOKEN_OPTIONS } from './options';
 import { ActionMenu } from './ActionMenu';
 import { CondEditor, OpsEditor } from './Facts';
 import { TextEditor } from './TextEditor';
@@ -235,11 +235,13 @@ function AppearsWhen({ c }: { c: QComponent }) {
 
 function TileFields({ c }: { c: QComponent }) {
   const change = useChange();
+  const s = useStore((st) => st.scenario);
+  const options = useMemo(() => freeTileOptions(s, c.name), [s, c.name]);
   return (
     <>
       <h3>Тайл</h3>
       <Field label="Какой тайл">
-        <Picker options={TILE_OPTIONS} value={c.data.side ?? ''} onChange={(v) => change((sc) => updateData(sc, c.name, { side: v }))} />
+        <Picker options={options} value={c.data.side ?? ''} onChange={(v) => change((sc) => updateData(sc, c.name, { side: v }))} />
       </Field>
       <Rotation c={c} />
       <Position c={c} />

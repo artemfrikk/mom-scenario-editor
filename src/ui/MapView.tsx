@@ -5,7 +5,7 @@ import { addComponent, addedBy, deleteComponent, fmt, position, setAddedBy, setT
 import { imageKey, useImages } from '../images';
 import { junction, placeBeside, tileBox, type Side } from '../model/geometry';
 import { useStore } from '../store';
-import { TILE_OPTIONS } from './options';
+import { freeTileOptions } from './options';
 import { tokenIcon } from './labels';
 import { ImagesButton } from './ImagesDialog';
 import { Picker } from './widgets';
@@ -285,7 +285,7 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
         {addingTile ? (
           <div style={{ width: 320 }}>
             <Picker
-              options={TILE_OPTIONS}
+              options={freeTileOptions(s)}
               value=""
               autoFocus
               placeholder="Название тайла, например Hall"

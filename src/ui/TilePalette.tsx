@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import catalog from '../content/catalog.json';
 import { isEventLike } from '../format/scenario';
 import type { Side } from '../model/geometry';
+import { takenSides } from '../model/tiles';
 import { useStore } from '../store';
 import { useImages } from '../images';
 import { labelOf, packName } from './options';
@@ -16,6 +17,7 @@ export function TilePalette({ onPick, onClose, canDock }: { onPick: (side: strin
   const [shownBy, setShownBy] = useState(() =>
     events.includes(selected ?? '') ? selected! : (s.components.find((c) => c.data.trigger === 'EventStart')?.name ?? events[0] ?? ''),
   );
+  const taken = useMemo(() => takenSides(s), [s]);
   const [dir, setDir] = useState<Side>('right');
   useImages((st) => st.names); // redraw when the official names arrive
   const [q, setQ] = useState('');
@@ -67,9 +69,22 @@ export function TilePalette({ onPick, onClose, canDock }: { onPick: (side: strin
       </select>
       <div className="palette-grid">
         {tiles.map((t) => (
-          <button key={t.id} className="palette-tile" onClick={() => onPick(t.id, shownBy, dir)} title={`${labelOf(t.name, t.nameKey)} · ${packName[t.pack] ?? t.pack}`}>
+          <button
+            key={t.id}
+            className={'palette-tile' + (taken.has(t.id) ? ' taken' : '')}
+            disabled={taken.has(t.id)}
+            onClick={() => onPick(t.id, shownBy, dir)}
+            title={
+              taken.get(t.id) === 'used'
+                ? 'Эта комната уже на карте'
+                : taken.get(t.id) === 'back'
+                  ? 'Обратная сторона уже на карте: карточка двусторонняя'
+                  : `${labelOf(t.name, t.nameKey)} · ${packName[t.pack] ?? t.pack}`
+            }
+          >
             <Thumb path={t.image} className="palette-img" />
             <span>{labelOf(t.name, t.nameKey)}</span>
+            {taken.has(t.id) && <small className="hint">{taken.get(t.id) === 'used' ? 'уже на карте' : 'обратная сторона занята'}</small>}
           </button>
         ))}
         {tiles.length === 0 && <div className="hint">Ничего не найдено.</div>}
