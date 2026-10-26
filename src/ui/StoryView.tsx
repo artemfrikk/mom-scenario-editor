@@ -7,6 +7,7 @@ import {
   Position,
   ReactFlow,
   ReactFlowProvider,
+  applyNodeChanges,
   useReactFlow,
   type Edge,
   type Node,
@@ -154,7 +155,6 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
   const layout = useStore((st) => st.layout);
   const setLayout = useStore((st) => st.setLayout);
   const flow = useReactFlow();
-  const [dragPos, setDragPos] = useState<Layout>({});
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   const [templates, setTemplates] = useState(false);
   const [palette, setPalette] = useState(true);
@@ -227,7 +227,8 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
     [change, lang, select, setLayout],
   );
 
-  const nodes: Node<StoryData>[] = useMemo(
+  // Everything but the position is built once per change of the scenario, so that dragging a block only moves it.
+  const baseNodes: Node<StoryData>[] = useMemo(
     () =>
       s.components
         .filter((c) => isEventLike(c.type))
@@ -236,7 +237,7 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
           return {
             id: c.name,
             type: 'story',
-            position: dragPos[c.name] ?? layout[c.name] ?? { x: 0, y: 0 },
+            position: { x: 0, y: 0 },
             data: {
               name: c.name,
               type: c.type,
@@ -252,11 +253,28 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
             },
           };
         }),
-    [s, lang, layout, dragPos, selected, addNext],
+    [s, lang, selected, addNext],
   );
 
+  // The canvas keeps its own copy of the blocks while one is dragged (React Flow moves them itself),
+  // and the position is written to the layout once, when the block is let go.
+  const mix = (prev: Node<StoryData>[]) => {
+    const old = new Map(prev.map((n) => [n.id, n]));
+    return baseNodes.map((n) => {
+      const o = old.get(n.id);
+      return { ...n, position: layout[n.id] ?? o?.position ?? n.position, measured: o?.measured, width: o?.width, height: o?.height };
+    });
+  };
+  const [nodes, setNodes] = useState<Node<StoryData>[]>(() => mix([]));
+  const [synced, setSynced] = useState({ baseNodes, layout });
+  if (synced.baseNodes !== baseNodes || synced.layout !== layout) {
+    // Adjusting state while rendering: the canvas never shows a stale frame.
+    setSynced({ baseNodes, layout });
+    setNodes(mix(nodes));
+  }
+
   const edges: Edge[] = useMemo(() => {
-    const names = new Set(nodes.map((n) => n.id));
+    const names = new Set(baseNodes.map((n) => n.id));
     const out: Edge[] = [];
     for (const c of s.components) {
       if (!isEventLike(c.type)) continue;
@@ -280,7 +298,7 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
       }
     }
     return out;
-  }, [s, nodes, selected, selectedEdge]);
+  }, [s, baseNodes, selected, selectedEdge]);
 
   const link = useCallback(
     (source: string, handle: string, target: string) => {
@@ -417,20 +435,11 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
           setSelectedEdge(null);
           select(null);
         }}
-        onNodesChange={(changes) => {
-          for (const ch of changes) {
-            if (ch.type === 'position' && ch.position) {
-              const p = ch.position;
-              if (ch.dragging) setDragPos((d) => ({ ...d, [ch.id]: p }));
-              else {
-                setLayout({ ...useStore.getState().layout, [ch.id]: ch.position });
-                setDragPos((d) => {
-                  const { [ch.id]: _, ...rest } = d;
-                  return rest;
-                });
-              }
-            }
-          }
+        onNodesChange={(changes) => setNodes((ns) => applyNodeChanges(changes, ns))}
+        onNodeDragStop={(_, node, dragged) => {
+          const next = { ...useStore.getState().layout };
+          for (const n of dragged.length ? dragged : [node]) next[n.id] = n.position;
+          setLayout(next);
         }}
         onConnect={(c) => c.sourceHandle && link(c.source, c.sourceHandle, c.target)}
         onConnectEnd={onConnectEnd}
