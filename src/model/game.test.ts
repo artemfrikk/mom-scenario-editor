@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newScenario } from '../format/scenario';
-import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, newGame, newRound, nextPhase, touch, windowText } from './game';
+import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, adjustClues, newGame, newRound, nextPhase, randomItems, touch, windowText } from './game';
 import { addComponent, setButtonTargets, setText, updateData } from './ops';
 import { buildTemplate, WIZARD_DEFAULTS, wizardScenario } from './templates';
 
@@ -138,5 +138,21 @@ describe('window text', () => {
     expect(st.current).toBe(a);
     st = choose(s, st, 0, rng);
     expect(st.current).toBeNull();
+  });
+
+  it('starts with the chosen clues and items, at most six', () => {
+    const s = newScenario('Russian');
+    const st = newGame(s, heroes, rng, { clues: 9, items: ['A', 'B', 'C', 'D', 'E', 'F', 'G'] });
+    expect(st.clues).toBe(6);
+    expect(st.startItems).toHaveLength(6);
+    expect(adjustClues(st, -10).clues).toBe(0);
+  });
+
+  it('draws distinct random items', () => {
+    let n = 0;
+    const items = randomItems(4, () => ((n += 7) % 100) / 100);
+    expect(items).toHaveLength(4);
+    expect(new Set(items).size).toBe(4);
+    expect(randomItems(99)).toHaveLength(6);
   });
 });

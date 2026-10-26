@@ -525,3 +525,6 @@ button.tk.add { cursor: pointer; border-style: dashed; color: var(--err); }
 .btn-label { display: inline-block; padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); cursor: pointer; font-size: 13px; text-align: center; }
 .btn-label.primary { background: var(--accent); color: #1a1408; border-color: var(--accent); font-weight: 600; }
 .btn-label.disabled { opacity: .5; pointer-events: none; }
+
+.object-panel { position: absolute; bottom: 12px; right: 12px; width: 290px; max-height: 62%; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 5; box-shadow: 0 8px 30px #0008; }
+.door-mode { text-align: left; }

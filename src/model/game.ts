@@ -22,6 +22,8 @@ export interface GameState {
   vars: Vars;
   visible: string[]; // tiles, doors, tokens and pictures on the board
   items: string[]; // quest items the investigators received
+  clues: number; // clues the investigators hold
+  startItems: string[]; // catalog items the investigators began with
   monsters: Monster[];
   stack: string[]; // events waiting; the last one goes first
   current: string | null; // event whose window is open
@@ -44,12 +46,36 @@ function withVar(st: GameState, name: string, value: number): GameState {
 
 const note = (st: GameState, text: string): GameState => ({ ...st, log: [...st.log, text] });
 
-export function newGame(s: Scenario, heroes: string[], rng: Rng = Math.random): GameState {
+export const MAX_START = 6;
+
+// How the investigators begin: some clues and some items from the game, chosen by the players or at random.
+export interface Start {
+  clues: number;
+  items: string[];
+}
+
+export const NO_START: Start = { clues: 0, items: [] };
+
+// Everyday items (not unique to one scenario) that make a fair random start.
+export function randomItems(count: number, rng: Rng = Math.random): string[] {
+  const pool = catalog.items.filter((i) => i.traits.includes('common')).map((i) => i.id);
+  const out: string[] = [];
+  while (out.length < Math.min(MAX_START, count) && out.length < pool.length) {
+    const id = pick(pool, rng);
+    if (!out.includes(id)) out.push(id);
+  }
+  return out;
+}
+
+export function newGame(s: Scenario, heroes: string[], rng: Rng = Math.random, start: Start = NO_START): GameState {
+  const given = s.components.filter((c) => c.type === 'QItem' && (c.data.starting ?? '').toLowerCase() === 'true').map((c) => c.name);
   let st: GameState = {
     heroes,
     vars: { '#round': 1, '#heroes': heroes.length, '#monsters': 0 },
     visible: [],
-    items: [],
+    items: given,
+    clues: Math.max(0, Math.min(MAX_START, Math.floor(start.clues))),
+    startItems: start.items.slice(0, MAX_START),
     monsters: [],
     stack: [],
     current: null,
@@ -170,6 +196,9 @@ export function next(s: Scenario, st: GameState, rng: Rng = Math.random, depth =
   if (!c || isDisabled(s, out, name)) return next(s, out, rng, depth + 1);
 
   out = { ...out, vars: runOps(c.data.operations, out.vars) };
+  // The variable "clues" is the constructor's way of handing the investigators a clue.
+  const found = (out.vars.clues ?? 0) - (st.vars.clues ?? 0);
+  if (found) out = { ...out, clues: Math.max(0, out.clues + found) };
   if (c.type === 'Spawn') out = spawnMonster(s, out, c, rng);
   out = addComponents(s, out, c);
   out = { ...out, log: [...out.log, name], hero: out.heroes.length ? pick(out.heroes, rng) : '' };
@@ -243,6 +272,10 @@ export function eliminated(s: Scenario, st: GameState, rng: Rng = Math.random): 
   if (st.current || st.ended) return st;
   const out = queueTrigger(s, note(st, 'Все сыщики выбыли.'), 'Eliminated');
   return out.stack.length === st.stack.length ? { ...out, ended: true } : next(s, out, rng);
+}
+
+export function adjustClues(st: GameState, delta: number): GameState {
+  return { ...st, clues: Math.max(0, st.clues + delta) };
 }
 
 export function adjustHp(st: GameState, index: number, delta: number): GameState {

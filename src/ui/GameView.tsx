@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { factLabel } from '../model/facts';
 import {
+  adjustClues,
   adjustHp,
   buttonState,
   closable,
@@ -8,8 +9,10 @@ import {
   defeat,
   eliminated,
   endInvestigatorPhase,
+  MAX_START,
   newGame,
   nextPhase,
+  randomItems,
   newRound,
   touch,
   windowText,
@@ -19,7 +22,8 @@ import { buttonLabel, buttonsOf, getComponent, getText, resolveText } from '../m
 import type { QComponent } from '../format/scenario';
 import catalog from '../content/catalog.json';
 import { useStore } from '../store';
-import { Thumb } from './widgets';
+import { Picker, Thumb } from './widgets';
+import { ITEM_OPTIONS } from './options';
 import { TYPE_LABEL } from './labels';
 import { MapView } from './MapView';
 import { labelOf, plainText, previewHtml } from './options';
@@ -52,6 +56,10 @@ export function GameView() {
   const [names, setNames] = useState<string[]>(() => Array.from({ length: Math.min(max, Math.max(min, 2)) }, (_, i) => `Сыщик ${i + 1}`));
   const [game, setGame] = useState<GameState | null>(null);
   const [history, setHistory] = useState<GameState[]>([]);
+  const [clues, setClues] = useState(1);
+  const [kit, setKit] = useState<'none' | 'random' | 'pick'>('random');
+  const [kitCount, setKitCount] = useState(3);
+  const [picked, setPicked] = useState<string[]>([]);
 
   const act = (fn: (g: GameState) => GameState) => {
     if (!game) return;
@@ -83,11 +91,62 @@ export function GameView() {
           <div className="hint" style={{ margin: '8px 0 12px' }}>
             Число сыщиков влияет на здоровье монстров и на условия «#heroes». Имена подставляются вместо {'{rnd:hero}'} в текстах.
           </div>
+          <b>С чем начинают сыщики?</b>
+          <div className="hint" style={{ margin: '6px 0' }}>Улики и предметы, которые у сыщиков уже есть к началу игры. Не больше {MAX_START}.</div>
+          <div className="row" style={{ margin: '6px 0', alignItems: 'center' }}>
+            Улики:
+            {Array.from({ length: MAX_START + 1 }, (_, n) => (
+              <button key={n} className={clues === n ? 'primary' : ''} onClick={() => setClues(n)}>
+                {n}
+              </button>
+            ))}
+          </div>
+          <div className="row" style={{ margin: '6px 0', alignItems: 'center' }}>
+            Предметы:
+            <button className={kit === 'none' ? 'primary' : ''} onClick={() => setKit('none')}>
+              Без предметов
+            </button>
+            <button className={kit === 'random' ? 'primary' : ''} onClick={() => setKit('random')}>
+              Случайные
+            </button>
+            <button className={kit === 'pick' ? 'primary' : ''} onClick={() => setKit('pick')}>
+              Выбрать самим
+            </button>
+          </div>
+          {kit === 'random' && (
+            <div className="row" style={{ margin: '6px 0', alignItems: 'center' }}>
+              Сколько:
+              {Array.from({ length: MAX_START }, (_, i) => i + 1).map((n) => (
+                <button key={n} className={kitCount === n ? 'primary' : ''} onClick={() => setKitCount(n)}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          )}
+          {kit === 'pick' && (
+            <div style={{ margin: '6px 0' }}>
+              {picked.map((id) => (
+                <div className="row" key={id} style={{ marginBottom: 4 }}>
+                  <span style={{ flex: 1 }}>{ITEM_OPTIONS.find((o) => o.value === id)?.label ?? id}</span>
+                  <button className="small ghost" onClick={() => setPicked(picked.filter((x) => x !== id))}>
+                    Убрать
+                  </button>
+                </div>
+              ))}
+              {picked.length < MAX_START ? (
+                <Picker options={ITEM_OPTIONS.filter((o) => !picked.includes(o.value))} value="" placeholder="Добавить предмет: начните вводить название…" onChange={(v) => v && setPicked([...picked, v])} />
+              ) : (
+                <div className="hint">Набрано {MAX_START}, это максимум.</div>
+              )}
+            </div>
+          )}
           <button
             className="primary"
+            style={{ marginTop: 8 }}
             onClick={() => {
               setHistory([]);
-              setGame(newGame(s, names.map((n, i) => n.trim() || `Сыщик ${i + 1}`)));
+              const items = kit === 'random' ? randomItems(kitCount) : kit === 'pick' ? picked : [];
+              setGame(newGame(s, names.map((n, i) => n.trim() || `Сыщик ${i + 1}`), Math.random, { clues, items }));
             }}
           >
             ▶ Начать игру
@@ -101,7 +160,9 @@ export function GameView() {
   const spawned = current?.type === 'Spawn' ? game.monsters.find((m) => m.spawn === current.name) : undefined;
   const busy = !!game.current;
   const itemName = (q: string) => {
-    const id = (getComponent(s, q)?.data.itemname ?? '').split(/\s+/)[0];
+    const qi = getComponent(s, q);
+    if (qi && !qi.data.itemname && (qi.data.traits ?? '').includes('weapon')) return 'случайное оружие';
+    const id = (qi?.data.itemname ?? '').split(/\s+/)[0];
     const it = catalog.items.find((x) => x.id === id);
     return it ? labelOf(it.name, it.nameKey) : q;
   };
@@ -217,12 +278,25 @@ export function GameView() {
           ))}
         </div>
 
-        {game.items.length > 0 && (
-          <div className="card">
-            <b>Получено сыщиками</b>
-            <div className="hint">{game.items.map(itemName).join(', ')}</div>
+        <div className="card">
+          <b>Улики: {game.clues}</b>
+          <div className="row" style={{ margin: '6px 0' }}>
+            <button className="small" disabled={game.clues <= 0} onClick={() => act((g) => adjustClues(g, -1))}>
+              −
+            </button>
+            <button className="small" onClick={() => act((g) => adjustClues(g, 1))}>
+              +
+            </button>
           </div>
-        )}
+          {(game.startItems.length > 0 || game.items.length > 0) && (
+            <>
+              <b>Предметы сыщиков</b>
+              <div className="hint">
+                {[...game.startItems.map((id) => ITEM_OPTIONS.find((o) => o.value === id)?.label ?? id), ...game.items.map(itemName)].join(', ')}
+              </div>
+            </>
+          )}
+        </div>
 
         <details className="card" open>
           <summary>
