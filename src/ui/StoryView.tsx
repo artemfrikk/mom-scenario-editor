@@ -46,8 +46,32 @@ interface StoryData extends Record<string, unknown> {
   selected: boolean;
 }
 
+// Double-click on a card writes its text right there; the inspector shows the same text.
+function NodeText({ name, onDone }: { name: string; onDone: () => void }) {
+  const lang = useStore((st) => st.lang);
+  const value = useStore((st) => getText(st.scenario, st.lang, name + '.text'));
+  const change = useStore((st) => st.change);
+  return (
+    <textarea
+      className="nb-edit nodrag nopan nowheel"
+      autoFocus
+      rows={Math.min(10, Math.max(3, Math.ceil(value.length / 34) + 1))}
+      value={value}
+      placeholder="Что прочитают игроки…"
+      onFocus={(e) => e.target.setSelectionRange(value.length, value.length)}
+      onChange={(e) => change((sc) => setText(sc, lang, name + '.text', e.target.value), 'text:' + name + '.text')}
+      onBlur={onDone}
+      onKeyDown={(e) => {
+        e.stopPropagation(); // Delete and R must not act on the card while typing
+        if (e.key === 'Escape') onDone();
+      }}
+    />
+  );
+}
+
 const StoryNode = memo(function StoryNode({ data }: NodeProps<Node<StoryData>>) {
   const icon = TYPE_ICON[data.type];
+  const [editing, setEditing] = useState(false);
   return (
     <div className={'story-node' + (data.selected ? ' selected' : '')}>
       <Handle type="target" position={Position.Left} id="in" style={{ top: 16 }} />
@@ -56,9 +80,17 @@ const StoryNode = memo(function StoryNode({ data }: NodeProps<Node<StoryData>>) 
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.name}</span>
         {data.trigger && <span className="trig">⚡ {TRIGGER_LABEL[data.trigger] ?? data.trigger}</span>}
       </div>
-      <div className={'nb' + (data.text ? '' : ' empty')}>
-        {data.shown ? data.text || 'Нет текста' : 'Скрытое событие (без окна)'}
-      </div>
+      {editing && data.shown ? (
+        <NodeText name={data.name} onDone={() => setEditing(false)} />
+      ) : (
+        <div className={'nb' + (data.text ? '' : ' empty')} title={data.shown ? 'Двойной щелчок: написать текст здесь' : undefined} onDoubleClick={() => {
+            if (!data.shown) return;
+            useStore.getState().select(data.name);
+            setEditing(true);
+          }}>
+          {data.shown ? data.text || 'Нет текста' : 'Скрытое событие (без окна)'}
+        </div>
+      )}
       {data.adds > 0 && <div className="nadd">🗺 показывает на карте: {data.adds}</div>}
       {data.remembers > 0 && <div className="nadd">🧠 запоминает: {data.remembers}</div>}
       {data.conditional && <div className="nadd">❓ срабатывает при условии</div>}

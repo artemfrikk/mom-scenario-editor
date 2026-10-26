@@ -96,11 +96,20 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
       maxY = -Infinity;
     for (const c of pieces) {
       const p = position(c) ?? { x: 0, y: 0 };
-      const ext = c.type === 'Tile' ? Math.max(tileGeom(c).w, tileGeom(c).h) : 1;
+      if (c.type === 'Tile') {
+        // a turned tile covers other ground than an upright one
+        const g = tileGeom(c);
+        const box = tileBox(p.x, p.y, g.w, g.h, Number(c.data.rotation ?? 0) || 0);
+        minX = Math.min(minX, box.minX - 1);
+        maxX = Math.max(maxX, box.maxX + 1);
+        minY = Math.min(minY, -box.maxY - 1);
+        maxY = Math.max(maxY, -box.minY + 1);
+        continue;
+      }
       minX = Math.min(minX, p.x - 1);
       minY = Math.min(minY, -p.y - 1);
-      maxX = Math.max(maxX, p.x + ext);
-      maxY = Math.max(maxY, -p.y + ext);
+      maxX = Math.max(maxX, p.x + 1);
+      maxY = Math.max(maxY, -p.y + 1);
     }
     if (!isFinite(minX)) {
       minX = -10;
