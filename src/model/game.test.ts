@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newScenario } from '../format/scenario';
-import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, newGame, newRound, touch, windowText } from './game';
+import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, newGame, newRound, nextPhase, touch, windowText } from './game';
 import { addComponent, setButtonTargets, setText, updateData } from './ops';
 import { buildTemplate, WIZARD_DEFAULTS, wizardScenario } from './templates';
 
@@ -113,5 +113,30 @@ describe('window text', () => {
     const st = newGame(s, ['A'], () => 0);
     expect(windowText(s, st, 'Russian', sp, () => 'Глубоководный')).toBe('Появляется <color=Cyan>Глубоководный</color>.');
     expect(windowText(s, st, 'Russian', sp)).toBe(`Появляется <color=Cyan>${sp}</color>.`);
+  });
+
+  it('walks the Valkyrie round: sleuths, mythos, monsters, horror, new round', () => {
+    const s = newScenario('Russian');
+    let st = newGame(s, heroes, rng);
+    st = choose(s, st, 1, rng);
+    st = endInvestigatorPhase(s, st, rng);
+    st = nextPhase(st);
+    expect(st.phase).toBe('monsters');
+    st = nextPhase(st);
+    expect(st.phase).toBe('horror');
+    st = newRound(s, st, rng);
+    expect(st.phase).toBe('investigator');
+    expect(st.round).toBe(2);
+  });
+
+  it('closes a cancelable window without going on', () => {
+    let s = newScenario('Russian');
+    let a: string;
+    [s, a] = addComponent(s, 'Event', { trigger: 'StartRound', cancelable: 'true' }, 'A');
+    let st = newGame(s, heroes, rng);
+    st = choose(s, st, 1, rng); // the intro
+    expect(st.current).toBe(a);
+    st = choose(s, st, 0, rng);
+    expect(st.current).toBeNull();
   });
 });

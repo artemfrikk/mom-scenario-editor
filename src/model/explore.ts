@@ -78,7 +78,7 @@ export function explore(s: Scenario, heroes = ['Сыщик 1', 'Сыщик 2']):
           if (c && pressable && isEventLike(c.type)) moves.push([`нажать ${n}`, (rng) => touch(s, st, n, rng)]);
         }
         if (st.phase === 'investigator') moves.push(['конец хода сыщиков', (rng) => endInvestigatorPhase(s, st, rng)]);
-        if (st.phase === 'mythos' && st.round < MAX_ROUND) moves.push(['новый раунд', (rng) => newRound(s, st, rng)]);
+        if (st.phase !== 'investigator' && st.round < MAX_ROUND) moves.push(['новый раунд', (rng) => newRound(s, st, rng)]);
         moves.push(['все сыщики выбыли', (rng) => eliminated(s, st, rng)]);
         st.monsters.forEach((m, i) => moves.push([`победить ${m.name}`, (rng) => defeat(s, st, i, rng)]));
       }
