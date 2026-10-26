@@ -158,9 +158,12 @@ export function OpsEditor({ raw, onChange }: { raw: string | undefined; onChange
           );
         }
         const kind = opKind(o);
+        const isEnd = o.name === '$end' && o.op === '=' && o.value === '1';
         return (
           <div className="cond-row" key={i}>
-            {kind ? (
+            {isEnd ? (
+              <b style={{ flex: 1 }}>🏁 Игра заканчивается</b>
+            ) : kind ? (
               <>
                 <FactPicker value={o.name} onChange={(name) => update(i, (x) => ({ ...x, name }))} />
                 <select value={kind} onChange={(e) => update(i, (x) => withOpKind(x, e.target.value as never))}>

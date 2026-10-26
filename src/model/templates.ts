@@ -114,6 +114,13 @@ export const TEMPLATES: Template[] = [
     needsEvent: true,
   },
   {
+    id: 'check',
+    icon: '🎲',
+    title: 'Проверка навыка',
+    what: 'Событие, где игроки бросают кубики и нажимают «Успех» или «Провал». Каждый исход ведёт к своему продолжению.',
+    needsEvent: true,
+  },
+  {
     id: 'win',
     icon: '🏆',
     title: 'Победа',
@@ -217,6 +224,19 @@ export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook
       out = t(out, b, 'Что происходит, если выбран вариант Б?', 'Продолжить');
       out = link(out, hook, ev);
       return { scenario: out, first: ev, events: [ev, a, b], facts: {} };
+    }
+    case 'check': {
+      let out: Scenario, ev: string, pass: string, fail: string;
+      [out, ev] = addComponent(s, 'Event', { buttons: '2', event1: '', event2: '' }, 'Check');
+      [out, pass] = addComponent(out, 'Event', {}, 'CheckPass');
+      [out, fail] = addComponent(out, 'Event', {}, 'CheckFail');
+      out = setButtonTargets(setButtonTargets(out, ev, 1, [pass]), ev, 2, [fail]);
+      out = t(out, ev, 'Проверьте {will}. Опишите, что нужно преодолеть. Бросьте кубики и нажмите нужную кнопку.');
+      out = setText(setText(out, lang, ev + '.button1', 'Успех'), lang, ev + '.button2', 'Провал');
+      out = t(out, pass, 'Проверка пройдена. Что происходит?', 'Продолжить');
+      out = t(out, fail, 'Проверка провалена. Что происходит?', 'Продолжить');
+      out = link(out, hook, ev);
+      return { scenario: out, first: ev, events: [ev, pass, fail], facts: {} };
     }
     case 'win':
     case 'lose': {

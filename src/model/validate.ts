@@ -1,6 +1,7 @@
 import catalog from '../content/catalog.json';
 import { defaultLanguage, isEventLike, type Scenario } from '../format/scenario';
 import { firstEvent, startEvent, type Fix } from './fixes';
+import { parseOps, parseTests } from './facts';
 import { BOARD_TYPES, buttonsOf, getText } from './ops';
 
 export interface Issue {
@@ -80,6 +81,24 @@ export function validate(s: Scenario): Issue[] {
     if (!t || BUILTIN_TRIGGERS.includes(t) || /^EndRound\d+$/.test(t) || /^Defeated/.test(t) || t.startsWith('Var')) continue;
     // Custom triggers are allowed but commonly mistyped.
     if (!names.has(t)) issues.push({ level: 'warning', component: c.name, message: `${c.name}: необычный запуск «${t}».` });
+  }
+
+  // A condition on something that nothing ever remembers can never come true.
+  const isFact = (n: string) => !n.startsWith('$') && !n.startsWith('#');
+  const written = new Set<string>();
+  for (const c of s.components) for (const o of parseOps(c.data.operations)) if (!('raw' in o)) written.add(o.name);
+  for (const c of s.components) {
+    for (const key of Object.keys(c.data)) {
+      if (key !== 'vartests' && !/^event\d+Condition$/.test(key)) continue;
+      for (const cond of parseTests(c.data[key]).conds) {
+        if (isFact(cond.name) && !written.has(cond.name)) {
+          issues.push({ level: 'warning', component: c.name, message: `${c.name}: условие проверяет «${cond.name}», но ни одно событие этого не запоминает.` });
+        }
+      }
+    }
+  }
+  if (!s.components.some((c) => parseOps(c.data.operations).some((o) => !('raw' in o) && o.name === '$end'))) {
+    issues.push({ level: 'warning', message: 'В сценарии нет ни одной концовки: ни одно событие не завершает игру.' });
   }
   return issues;
 }

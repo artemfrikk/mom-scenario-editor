@@ -3,10 +3,12 @@ import catalog from '../content/catalog.json';
 import { defaultLanguage } from '../format/scenario';
 import { applyFix, fixLabel } from '../model/fixes';
 import { getText, setText } from '../model/ops';
+import { notesToStory, storyParagraphs } from '../model/story';
 import { validate } from '../model/validate';
 import { useStore } from '../store';
 import { LANGUAGE_LABEL, LANGUAGES, TYPE_ICON } from './labels';
 import { TextEditor } from './TextEditor';
+import { PathCheck, Readiness } from './PathCheck';
 import { Field } from './widgets';
 
 export function QuestPage() {
@@ -34,6 +36,7 @@ export function QuestPage() {
       <div className="lead">Как сценарий будет выглядеть в списке Valkyrie, и ваши заметки о сюжете.</div>
       <div className="quest-grid">
       <div className="quest-form">
+      <Readiness />
       <div className="card">
         <Field label="Название">
           <input value={text('quest.name')} onChange={(e) => setT('quest.name', e.target.value)} />
@@ -127,6 +130,12 @@ function NotesCard() {
   const notes = useStore((st) => st.notes);
   const setNotes = useStore((st) => st.setNotes);
   const words = notes.trim() ? notes.trim().split(/\s+/).length : 0;
+  const lang = useStore((st) => st.lang);
+  const change = useStore((st) => st.change);
+  const select = useStore((st) => st.select);
+  const setView = useStore((st) => st.setView);
+  const flash = useStore((st) => st.flash);
+  const paragraphs = useMemo(() => storyParagraphs(notes), [notes]);
   return (
     <div className="notes-card">
       <div className="notes-head">
@@ -150,6 +159,28 @@ function NotesCard() {
           }}
         >
           Вставить шаблон сюжета
+        </button>
+        <button
+          className="small auto"
+          disabled={!paragraphs.length}
+          title="Каждый абзац заметок станет отдельным событием, события свяжутся цепочкой"
+          onClick={() => {
+            if (!confirm(`Создать ${paragraphs.length} событий из абзацев заметок? Заметки останутся как есть.`)) return;
+            let first = '';
+            change((sc) => {
+              const r = notesToStory(sc, lang, paragraphs);
+              if (!r) return sc;
+              first = r.first;
+              return r.scenario;
+            });
+            if (first) {
+              select(first);
+              setView('story');
+              flash('События созданы. Протяните стрелку от нужной кнопки к первому из них, чтобы подключить цепочку.');
+            }
+          }}
+        >
+          Разбить заметки на события
         </button>
         <span className="auto hint">Подсказка для начала: вопросы в шаблоне помогут ничего не забыть.</span>
       </div>
@@ -317,6 +348,7 @@ export function CheckPage() {
           </span>
         ))}
       </div>
+      <PathCheck />
       {fixable.length > 1 && (
         <div className="row" style={{ marginBottom: 10 }}>
           <button

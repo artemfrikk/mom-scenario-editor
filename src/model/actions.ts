@@ -29,7 +29,7 @@ export const ACTIONS: Action[] = [
 
 const SIZES = new Map(catalog.tiles.map((t) => [t.id, t.traits]));
 
-function tileSize(side: string): [number, number] {
+export function tileSize(side: string): [number, number] {
   const traits = SIZES.get(side) ?? [];
   if (traits.includes('big')) return [10.5, 7];
   if (traits.includes('medium')) return [7, 7];

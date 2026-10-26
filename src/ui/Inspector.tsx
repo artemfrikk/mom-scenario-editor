@@ -20,10 +20,12 @@ import {
   updateData,
 } from '../model/ops';
 import { BUILTIN_TRIGGERS } from '../model/validate';
+import { useSimple } from '../mode';
 import { useStore } from '../store';
 import { TRIGGER_LABEL, TYPE_ICON, TYPE_LABEL } from './labels';
 import { describeComponent, triggerHelp, TYPE_EXPLAIN } from './help';
 import { AUDIO_OPTIONS, ITEM_OPTIONS, MONSTER_OPTIONS, previewHtml, TILE_OPTIONS, TOKEN_OPTIONS } from './options';
+import { ActionMenu } from './ActionMenu';
 import { CondEditor, OpsEditor } from './Facts';
 import { TextEditor } from './TextEditor';
 import { ChipList, Field, Guide, Picker, Thumb, type Option } from './widgets';
@@ -49,6 +51,7 @@ export function Inspector() {
   const selected = useStore((st) => st.selected);
   const s = useStore((st) => st.scenario);
   const c = selected ? getComponent(s, selected) : undefined;
+  const simple = useSimple((st) => st.simple);
   if (!c) {
     return (
       <aside className="inspector">
@@ -69,7 +72,7 @@ export function Inspector() {
       {c.type === 'Spawn' && <SpawnFields c={c} />}
       {c.type === 'QItem' && <ItemFields c={c} />}
       {isEventLike(c.type) && <EventFields c={c} />}
-      <RawFields c={c} key={rawText(c)} />
+      {!simple && <RawFields c={c} key={rawText(c)} />}
     </aside>
   );
 }
@@ -85,6 +88,7 @@ function Header({ c }: { c: QComponent }) {
   const s = useStore((st) => st.scenario);
   const full = c.type + name.replace(/[^A-Za-z0-9_]/g, '');
   const taken = full !== c.name && !!getComponent(s, full);
+  const simple = useSimple((st) => st.simple);
 
   return (
     <>
@@ -94,7 +98,7 @@ function Header({ c }: { c: QComponent }) {
       <div className="info">
         <b>Что это.</b> {TYPE_EXPLAIN[c.type]}
       </div>
-      <Field label="Идентификатор" hint={taken ? 'Такое имя уже занято.' : 'Латиница и цифры. Все ссылки обновятся автоматически.'}>
+      {!simple && <Field label="Идентификатор" hint={taken ? 'Такое имя уже занято.' : 'Латиница и цифры. Все ссылки обновятся автоматически.'}>
         <div className="row">
           <span className="auto hint">{c.type}</span>
           <input
@@ -109,7 +113,7 @@ function Header({ c }: { c: QComponent }) {
             onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
           />
         </div>
-      </Field>
+      </Field>}
       <div className="row" style={{ marginBottom: 8 }}>
         <button
           onClick={() => {
@@ -308,6 +312,7 @@ function ItemFields({ c }: { c: QComponent }) {
 }
 
 function EventFields({ c }: { c: QComponent }) {
+  const simple = useSimple((st) => st.simple);
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const change = useChange();
@@ -338,6 +343,9 @@ function EventFields({ c }: { c: QComponent }) {
           </li>
         </ol>
       </Guide>
+      <h3>Что может случиться</h3>
+      <div className="hint">Нажмите на то, что должно произойти. Нужные поля заполнятся сами.</div>
+      <ActionMenu event={c.name} />
       <h3>Что видят игроки</h3>
       <DataCheck c={c} k="display" label="Показывать окно с текстом" defaultOn />
       {shown && (
@@ -419,9 +427,11 @@ function EventFields({ c }: { c: QComponent }) {
           Если кнопка ведёт к нескольким событиям, сработает первое, чьи условия выполнены.
         </div>
       )}
-      <div style={{ marginTop: 10 }}>
-        <DataCheck c={c} k="randomevents" label="Выбирать следующее событие случайно" />
-      </div>
+      {!simple && (
+        <div style={{ marginTop: 10 }}>
+          <DataCheck c={c} k="randomevents" label="Выбирать следующее событие случайно" />
+        </div>
+      )}
 
       {shown && (
         <>
@@ -447,10 +457,10 @@ function EventFields({ c }: { c: QComponent }) {
       <Field label="Убрать с карты">
         <ChipList values={list('remove')} options={all} onClickChip={select} describe={describe} onChange={(v) => change((sc) => updateData(sc, c.name, { remove: v.join(' ') || undefined }))} />
       </Field>
-      <Field label="Звук">
+      {!simple && <Field label="Звук">
         <Picker options={[{ value: '', label: 'Без звука' }, ...AUDIO_OPTIONS]} value={c.data.audio ?? ''} allowCustom onChange={(v) => change((sc) => updateData(sc, c.name, { audio: v || undefined }))} />
-      </Field>
-      <DataCheck c={c} k="highlight" label="Подсветить место на карте" />
+      </Field>}
+      {!simple && <DataCheck c={c} k="highlight" label="Подсветить место на карте" />}
 
       <h3>Память игры</h3>
       <Field label="Игра запомнит" hint="Например, «Есть ключ» становится известным. Потом это можно проверить в условиях.">

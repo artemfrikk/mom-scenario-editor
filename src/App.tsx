@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getText } from './model/ops';
+import { useSimple } from './mode';
+import { sampleScenario } from './model/sample';
 import { validate } from './model/validate';
 import { restoreAutosave, useStore, type View } from './store';
 import { useImages } from './images';
@@ -8,6 +10,7 @@ import { Inspector } from './ui/Inspector';
 import { LANGUAGE_LABEL } from './ui/labels';
 import { MapView } from './ui/MapView';
 import { CheckPage, QuestPage, TextsPage } from './ui/Pages';
+import { RoomsView } from './ui/RoomsView';
 import { StoryView } from './ui/StoryView';
 import { GameView } from './ui/GameView';
 import { tourSeen } from './tour';
@@ -21,6 +24,7 @@ import { VersionsDialog } from './ui/VersionsDialog';
 const NAV: { view: View; icon: string; label: string }[] = [
   { view: 'quest', icon: '📖', label: 'Сценарий' },
   { view: 'story', icon: '🕸', label: 'Сюжет' },
+  { view: 'rooms', icon: '🏚', label: 'Комнаты' },
   { view: 'map', icon: '🗺', label: 'Карта' },
   { view: 'play', icon: '▶', label: 'Играть' },
   { view: 'texts', icon: '🌐', label: 'Тексты' },
@@ -42,6 +46,8 @@ export default function App() {
   const toast = useStore((st) => st.notice);
   const flash = useStore((st) => st.flash);
   const [started, setStarted] = useState(false);
+  const simple = useSimple((st) => st.simple);
+  const toggleSimple = useSimple((st) => st.toggle);
   const [wizard, setWizard] = useState(false);
   const [tour, setTour] = useState(false);
   const [versions, setVersions] = useState(false);
@@ -115,7 +121,7 @@ export default function App() {
 
   const languages = Object.keys(s.texts);
   const title = getText(s, lang, 'quest.name') || 'Без названия';
-  const withInspector = view === 'story' || view === 'map';
+  const withInspector = view === 'story' || view === 'map' || view === 'rooms';
 
   return (
     <div className="app">
@@ -158,6 +164,9 @@ export default function App() {
           🖨 Печать
         </button>
         <FolderSave getBlob={() => save()} fileName={fileName} onDone={flash} />
+        <button className="ghost" onClick={toggleSimple} title="Простой режим прячет редкие настройки. Полный показывает всё, что умеет Valkyrie.">
+          {simple ? 'Режим: простой' : 'Режим: полный'}
+        </button>
         <button className="ghost" onClick={() => setTour(true)} title="Показать знакомство с редактором">
           ?
         </button>
@@ -170,6 +179,11 @@ export default function App() {
         <Welcome
           onNew={() => setWizard(true)}
           onOpen={() => fileInput.current?.click()}
+          onSample={() => {
+            const sm = sampleScenario('Russian');
+            useStore.getState().startWith(sm.scenario, sm.notes, sm.facts);
+            setStarted(true);
+          }}
           onDrop={doOpen}
         />
       ) : (
@@ -190,6 +204,7 @@ export default function App() {
           <main className="workspace">
             {view === 'quest' && <QuestPage />}
             {view === 'story' && <StoryView />}
+            {view === 'rooms' && <RoomsView />}
             {view === 'map' && <MapView />}
             {view === 'play' && <GameView />}
             {view === 'texts' && <TextsPage />}
@@ -220,7 +235,7 @@ export default function App() {
   );
 }
 
-function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => void; onDrop: (f: File | undefined) => void }) {
+function Welcome({ onNew, onOpen, onSample, onDrop }: { onNew: () => void; onOpen: () => void; onSample: () => void; onDrop: (f: File | undefined) => void }) {
   return (
     <div
       className="page"
@@ -243,6 +258,10 @@ function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => v
           <button onClick={onOpen}>
             <b>📂 Открыть .valkyrie</b>
             <span>Продолжите свой сценарий или изучите чужой. Можно перетащить файл сюда.</span>
+          </button>
+          <button onClick={onSample}>
+            <b>📖 Открыть образец</b>
+            <span>Готовая маленькая история про маяк. Сыграйте в ней и посмотрите, как она устроена.</span>
           </button>
         </div>
         <div className="card">
