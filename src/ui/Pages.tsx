@@ -27,9 +27,11 @@ export function QuestPage() {
   const boxes = catalog.packs.filter((p) => p.id !== 'MoMBase');
 
   return (
-    <div className="page">
+    <div className="page quest-page">
       <h1>Сценарий</h1>
-      <div className="lead">Как сценарий будет выглядеть в списке Valkyrie.</div>
+      <div className="lead">Как сценарий будет выглядеть в списке Valkyrie, и ваши заметки о сюжете.</div>
+      <div className="quest-grid">
+      <div className="quest-form">
       <div className="card">
         <Field label="Название">
           <input value={text('quest.name')} onChange={(e) => setT('quest.name', e.target.value)} />
@@ -84,6 +86,71 @@ export function QuestPage() {
         </Field>
       </div>
       <LanguagesCard />
+      </div>
+      <NotesCard />
+      </div>
+    </div>
+  );
+}
+
+const NOTES_TEMPLATE = `# Сюжет
+
+## Завязка
+Кто главные герои и почему они оказались здесь?
+
+## Место действия
+Где всё происходит? Какие комнаты и места важны?
+
+## Главная цель
+Что нужно сделать игрокам, чтобы победить?
+
+## Тайна
+Что на самом деле происходит? Что игроки узнают постепенно?
+
+## Ход сюжета
+1.
+2.
+3.
+
+## Персонажи и монстры
+-
+
+## Концовки
+- Победа:
+- Поражение:
+`;
+
+// Free-form plot notes of the author. They are saved inside the .valkyrie file but never shown in the game.
+function NotesCard() {
+  const notes = useStore((st) => st.notes);
+  const setNotes = useStore((st) => st.setNotes);
+  const words = notes.trim() ? notes.trim().split(/\s+/).length : 0;
+  return (
+    <div className="notes-card">
+      <div className="notes-head">
+        <b>Сюжет и заметки автора</b>
+        <span className="hint">{words} слов</span>
+      </div>
+      <div className="hint" style={{ marginBottom: 8 }}>
+        Запишите здесь всю историю: завязку, тайну, ход событий, концовки. Игроки этого не увидят. Заметки сохраняются внутри файла сценария.
+      </div>
+      <textarea
+        className="notes-text"
+        value={notes}
+        placeholder="Например: «Сыщиков вызвал в старый дом профессор Блэквуд. Он пропал, а в подвале слышны шаги…»"
+        onChange={(e) => setNotes(e.target.value)}
+      />
+      <div className="row" style={{ marginTop: 8 }}>
+        <button
+          className="small auto"
+          onClick={() => {
+            if (!notes.trim() || confirm('Добавить шаблон в конец ваших заметок?')) setNotes((notes.trim() ? notes.trimEnd() + '\n\n' : '') + NOTES_TEMPLATE);
+          }}
+        >
+          Вставить шаблон сюжета
+        </button>
+        <span className="auto hint">Подсказка для начала: вопросы в шаблоне помогут ничего не забыть.</span>
+      </div>
     </div>
   );
 }

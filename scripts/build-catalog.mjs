@@ -67,12 +67,13 @@ for (const pack of readdirSync(dir)) {
     catalog.monsters.push({
       id, pack: packId, name: prettyName(id, d.name, ['MONSTER_', 'Monster']), traits: traits(d.traits),
       health: Number(d.health ?? 0), healthperhero: Number(d.healthperhero ?? 0),
+      image: d.image?.replace('{import}/', '') || undefined,
     });
   }
   for (const [id, d] of Object.entries(read('items.ini'))) {
     catalog.items.push({
       id, pack: packId, name: prettyName(id, d.name, ['COMMON_ITEM_', 'UNIQUE_ITEM_', 'SPELL_', 'ItemCommon', 'ItemUnique', 'ItemSpell', 'Item']),
-      traits: traits(d.traits),
+      traits: traits(d.traits), image: d.image?.replace('{import}/', '') || undefined,
     });
   }
   for (const [id] of Object.entries(read('tokens.ini'))) {

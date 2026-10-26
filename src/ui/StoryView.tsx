@@ -16,9 +16,10 @@ import {
 import '@xyflow/react/dist/style.css';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isEventLike, type ComponentType, type Scenario } from '../format/scenario';
-import { addComponent, buttonLabel, buttonsOf, getText, resolveText, setButtonTargets, setText } from '../model/ops';
+import { addComponent, buttonLabel, buttonsOf, deleteComponent, getText, resolveText, setButtonTargets, setText } from '../model/ops';
 import { useStore, type Layout } from '../store';
 import { TRIGGER_LABEL, TYPE_ICON } from './labels';
+import { MapView } from './MapView';
 import { plainText } from './options';
 
 const TYPE_COLOR: Partial<Record<ComponentType, string>> = {
@@ -91,7 +92,7 @@ function autoLayout(s: Scenario, layout: Layout): Layout {
   return out;
 }
 
-function Story() {
+function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => void }) {
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const selected = useStore((st) => st.selected);
@@ -101,6 +102,34 @@ function Story() {
   const setLayout = useStore((st) => st.setLayout);
   const flow = useReactFlow();
   const [dragPos, setDragPos] = useState<Layout>({});
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
+  const flash = useStore((st) => st.flash);
+
+  // Delete / Backspace removes the chosen arrow, or the chosen block with everything that points to it.
+  // Ctrl+Z brings it back.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+      if (selectedEdge) {
+        const [source, index, target] = selectedEdge.split(':');
+        change((sc) => {
+          const c = sc.components.find((x) => x.name === source);
+          const b = c && buttonsOf(c).find((x) => x.index === Number(index));
+          return b ? setButtonTargets(sc, source, Number(index), b.targets.filter((t) => t !== target)) : sc;
+        });
+        setSelectedEdge(null);
+        e.preventDefault();
+      } else if (selected && s.components.some((c) => c.name === selected && isEventLike(c.type))) {
+        e.preventDefault();
+        change((sc) => deleteComponent(sc, selected));
+        select(null);
+        flash(`Удалено: ${selected}. Ctrl+Z возвращает обратно.`);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selected, selectedEdge, s.components, change, select, flash]);
 
   // Give every new node a place once; later the user moves them by hand.
   useEffect(() => {
@@ -130,8 +159,6 @@ function Story() {
           return {
             id: c.name,
             type: 'story',
-            // nodes are deleted from the inspector, with confirmation
-            deletable: false,
             position: dragPos[c.name] ?? layout[c.name] ?? { x: 0, y: 0 },
             data: {
               name: c.name,
@@ -163,13 +190,17 @@ function Story() {
             target: t,
             targetHandle: 'in',
             animated: c.name === selected || t === selected,
-            style: { stroke: c.name === selected || t === selected ? 'var(--accent)' : '#7d7488', strokeWidth: 2 },
+            selected: `${c.name}:${b.index}:${t}` === selectedEdge,
+            style: {
+              stroke: `${c.name}:${b.index}:${t}` === selectedEdge ? 'var(--err)' : c.name === selected || t === selected ? 'var(--accent)' : '#7d7488',
+              strokeWidth: `${c.name}:${b.index}:${t}` === selectedEdge ? 3 : 2,
+            },
           });
         }
       }
     }
     return out;
-  }, [s, nodes, selected]);
+  }, [s, nodes, selected, selectedEdge]);
 
   const link = useCallback(
     (source: string, handle: string, target: string) => {
@@ -237,13 +268,24 @@ function Story() {
         >
           Упорядочить
         </button>
+        <button className={mapOpen ? 'primary' : ''} onClick={onToggleMap} title="Показать или скрыть карту рядом со схемой">
+          🗺 Карта
+        </button>
+        <span className="hint tb-hint">Delete: удалить выбранное</span>
       </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
-        onNodeClick={(_, n) => select(n.id)}
-        onPaneClick={() => select(null)}
+        onNodeClick={(_, n) => {
+          setSelectedEdge(null);
+          select(n.id);
+        }}
+        onEdgeClick={(_, e) => setSelectedEdge(e.id)}
+        onPaneClick={() => {
+          setSelectedEdge(null);
+          select(null);
+        }}
         onNodesChange={(changes) => {
           for (const ch of changes) {
             if (ch.type === 'position' && ch.position) {
@@ -261,19 +303,7 @@ function Story() {
         }}
         onConnect={(c) => c.sourceHandle && link(c.source, c.sourceHandle, c.target)}
         onConnectEnd={onConnectEnd}
-        onEdgesDelete={(list) => {
-          change((sc) => {
-            let out = sc;
-            for (const e of list) {
-              const index = Number(e.sourceHandle?.substring(1));
-              const c = out.components.find((x) => x.name === e.source);
-              const b = c && buttonsOf(c).find((x) => x.index === index);
-              if (b) out = setButtonTargets(out, e.source, index, b.targets.filter((t) => t !== e.target));
-            }
-            return out;
-          });
-        }}
-        deleteKeyCode={['Delete', 'Backspace']}
+        deleteKeyCode={null}
         minZoom={0.1}
         colorMode="dark"
         proOptions={{ hideAttribution: true }}
@@ -291,11 +321,66 @@ function Story() {
   );
 }
 
-export function StoryView() {
-  return (
-    <ReactFlowProvider>
-      <Story />
-    </ReactFlowProvider>
-  );
+const SPLIT_KEY = 'mse-story-map';
+
+function loadSplit(): { open: boolean; width: number } {
+  try {
+    const v = JSON.parse(localStorage.getItem(SPLIT_KEY) ?? '');
+    return { open: v.open !== false, width: Math.max(260, Number(v.width) || 460) };
+  } catch {
+    return { open: true, width: 460 };
+  }
 }
 
+// The story graph with the live map on its right: the divider drags, the map can be hidden.
+export function StoryView() {
+  const [split, setSplit] = useState(loadSplit);
+  const box = useRef<HTMLDivElement>(null);
+  const update = (next: { open: boolean; width: number }) => {
+    setSplit(next);
+    try {
+      localStorage.setItem(SPLIT_KEY, JSON.stringify(next));
+    } catch {
+      // remembering the layout is optional
+    }
+  };
+
+  const startDrag = (e: React.PointerEvent) => {
+    const el = box.current;
+    if (!el) return;
+    e.preventDefault();
+    const rect = el.getBoundingClientRect();
+    const move = (ev: PointerEvent) => {
+      const width = Math.min(rect.width - 320, Math.max(240, rect.right - ev.clientX));
+      setSplit((sp) => ({ ...sp, width }));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      setSplit((sp) => {
+        update(sp);
+        return sp;
+      });
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <div className="split" ref={box}>
+      <div className="split-left">
+        <ReactFlowProvider>
+          <Story mapOpen={split.open} onToggleMap={() => update({ ...split, open: !split.open })} />
+        </ReactFlowProvider>
+      </div>
+      {split.open && (
+        <>
+          <div className="split-bar" onPointerDown={startDrag} title="Потяните, чтобы изменить размер" />
+          <div className="split-right" style={{ width: split.width }}>
+            <MapView embedded />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

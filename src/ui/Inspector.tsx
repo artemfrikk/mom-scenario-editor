@@ -21,9 +21,10 @@ import {
 } from '../model/ops';
 import { BUILTIN_TRIGGERS } from '../model/validate';
 import { useStore } from '../store';
-import { TRIGGER_LABEL, TYPE_HELP, TYPE_ICON, TYPE_LABEL } from './labels';
-import { AUDIO_OPTIONS, ITEM_OPTIONS, packName, previewHtml, TILE_OPTIONS, TOKEN_OPTIONS } from './options';
-import { ChipList, Field, Picker, type Option } from './widgets';
+import { TRIGGER_LABEL, TYPE_ICON, TYPE_LABEL } from './labels';
+import { describeComponent, triggerHelp, TYPE_EXPLAIN } from './help';
+import { AUDIO_OPTIONS, ITEM_OPTIONS, MONSTER_OPTIONS, previewHtml, TILE_OPTIONS, TOKEN_OPTIONS } from './options';
+import { ChipList, Field, Guide, Picker, Thumb, type Option } from './widgets';
 
 function componentOptions(s: Scenario, filter: (c: QComponent) => boolean = () => true): Option[] {
   return s.components.filter(filter).map((c) => ({ value: c.name, label: c.name, note: TYPE_LABEL[c.type] }));
@@ -88,7 +89,9 @@ function Header({ c }: { c: QComponent }) {
       <h2>
         <span>{TYPE_ICON[c.type]}</span> {TYPE_LABEL[c.type]}
       </h2>
-      <div className="hint help">{TYPE_HELP[c.type]}</div>
+      <div className="info">
+        <b>Что это.</b> {TYPE_EXPLAIN[c.type]}
+      </div>
       <Field label="Идентификатор" hint={taken ? 'Такое имя уже занято.' : 'Латиница и цифры. Все ссылки обновятся автоматически.'}>
         <div className="row">
           <span className="auto hint">{c.type}</span>
@@ -212,6 +215,7 @@ function AppearsWhen({ c }: { c: QComponent }) {
   const s = useStore((st) => st.scenario);
   const change = useChange();
   const select = useStore((st) => st.select);
+  const lang = useStore((st) => st.lang);
   const events = useMemo(() => componentOptions(s, (x) => isEventLike(x.type) && x.name !== c.name), [s, c.name]);
   const by = addedBy(s, c.name);
   return (
@@ -221,7 +225,7 @@ function AppearsWhen({ c }: { c: QComponent }) {
         label="Показывается после события"
         hint={by.length ? undefined : 'Пока ни одно событие не показывает этот объект, игроки его не увидят. Для стартовой комнаты выберите стартовое событие.'}
       >
-        <ChipList values={by} options={events} onClickChip={select} addLabel="+ выбрать событие" onChange={(v) => change((sc) => setAddedBy(sc, c.name, v))} />
+        <ChipList values={by} options={events} onClickChip={select} addLabel="+ выбрать событие" describe={(n) => describeComponent(s, lang, n)} onChange={(v) => change((sc) => setAddedBy(sc, c.name, v))} />
       </Field>
     </>
   );
@@ -264,7 +268,7 @@ function SpawnFields({ c }: { c: QComponent }) {
   const s = useStore((st) => st.scenario);
   const options = useMemo(
     () => [
-      ...catalog.monsters.map((m) => ({ value: m.id, label: m.name, note: packName[m.pack] })),
+      ...MONSTER_OPTIONS,
       ...s.components.filter((x) => x.type === 'CustomMonster').map((x) => ({ value: x.name, label: x.name, note: 'свой монстр' })),
     ],
     [s.components],
@@ -276,6 +280,7 @@ function SpawnFields({ c }: { c: QComponent }) {
       <Field label="Какой монстр" hint="Если выбрать несколько, игра возьмёт одного случайного.">
         <ChipList values={monsters} options={options} onChange={(v) => change((sc) => updateData(sc, c.name, { monster: v.join(' ') || undefined }))} />
       </Field>
+      {monsters[0] && <Thumb path={catalog.monsters.find((m) => m.id === monsters[0])?.image} className="preview-img" />}
       <DataCheck c={c} k="unique" label="Уникальный монстр (со своим именем и описанием)" />
       {c.data.unique === 'true' && (
         <>
@@ -315,9 +320,26 @@ function EventFields({ c }: { c: QComponent }) {
   const all = useMemo(() => componentOptions(s, (x) => x.name !== c.name), [s, c.name]);
   const triggers = useMemo(() => triggerOptions(s), [s]);
   const list = (k: string) => (c.data[k] ?? '').split(/\s+/).filter(Boolean);
+  const describe = (n: string) => describeComponent(s, lang, n);
 
   return (
     <>
+      <Guide id="event" title="Как собрать событие">
+        <ol>
+          <li>
+            <b>Текст</b>: что прочитают игроки в окне.
+          </li>
+          <li>
+            <b>Кнопки</b>: варианты, которые выбирают игроки. Каждая кнопка ведёт к следующему событию. Если кнопка никуда не ведёт, сценарий на ней закончится.
+          </li>
+          <li>
+            <b>Показать на карте</b>: комнаты, жетоны и монстры, которые появятся, когда событие сработает.
+          </li>
+          <li>
+            <b>Запуск</b>: нужен, только если событие должно сработать само, без кнопки. Например, вступление в начале игры.
+          </li>
+        </ol>
+      </Guide>
       <h3>Что видят игроки</h3>
       <DataCheck c={c} k="display" label="Показывать окно с текстом" defaultOn />
       {shown && (
@@ -364,6 +386,7 @@ function EventFields({ c }: { c: QComponent }) {
               options={targets}
               onClickChip={select}
               addLabel={b.targets.length ? '+ ещё' : '+ выбрать событие'}
+              describe={describe}
               onChange={(v) => change((sc) => setButtonTargets(sc, c.name, b.index, v))}
             />
           </Field>
@@ -398,13 +421,13 @@ function EventFields({ c }: { c: QComponent }) {
 
       <h3>Что происходит</h3>
       <Field label="Запуск" hint="Когда событие срабатывает само, без кнопки.">
-        <Picker options={triggers} value={c.data.trigger ?? ''} allowCustom onChange={(v) => change((sc) => updateData(sc, c.name, { trigger: v || undefined }))} />
+        <Picker options={triggers} value={c.data.trigger ?? ''} describe={triggerHelp} allowCustom onChange={(v) => change((sc) => updateData(sc, c.name, { trigger: v || undefined }))} />
       </Field>
       <Field label="Показать на карте" hint="Тайлы, жетоны и монстры, которые появятся.">
-        <ChipList values={list('add')} options={all} onClickChip={select} onChange={(v) => change((sc) => updateData(sc, c.name, { add: v.join(' ') || undefined }))} />
+        <ChipList values={list('add')} options={all} onClickChip={select} describe={describe} onChange={(v) => change((sc) => updateData(sc, c.name, { add: v.join(' ') || undefined }))} />
       </Field>
       <Field label="Убрать с карты">
-        <ChipList values={list('remove')} options={all} onClickChip={select} onChange={(v) => change((sc) => updateData(sc, c.name, { remove: v.join(' ') || undefined }))} />
+        <ChipList values={list('remove')} options={all} onClickChip={select} describe={describe} onChange={(v) => change((sc) => updateData(sc, c.name, { remove: v.join(' ') || undefined }))} />
       </Field>
       <Field label="Звук">
         <Picker options={[{ value: '', label: 'Без звука' }, ...AUDIO_OPTIONS]} value={c.data.audio ?? ''} allowCustom onChange={(v) => change((sc) => updateData(sc, c.name, { audio: v || undefined }))} />

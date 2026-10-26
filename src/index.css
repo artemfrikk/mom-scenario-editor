@@ -116,10 +116,11 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 
 /* picker */
 .picker { position: relative; }
-.picker-list {
-  position: absolute; z-index: 30; left: 0; right: 0; top: 100%; margin-top: 4px; max-height: 280px; overflow-y: auto;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 30px #0008;
+.picker-pop {
+  position: absolute; z-index: 30; left: 0; right: 0; top: 100%; margin-top: 4px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 10px 30px #0008; overflow: hidden;
 }
+.picker-list { max-height: 240px; overflow-y: auto; }
 .picker-list div { padding: 7px 10px; cursor: pointer; display: flex; gap: 8px; justify-content: space-between; }
 .picker-list div:hover, .picker-list div.hl { background: var(--panel-2); }
 .picker-list small { color: var(--muted); }
@@ -188,3 +189,59 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
   .main.no-inspector { grid-template-columns: 64px 1fr; }
   .nav button .lbl { display: none; }
 }
+
+/* quest page: form on the left, plot notes on the right */
+.quest-page { max-width: none; }
+.quest-grid { display: grid; grid-template-columns: minmax(380px, 760px) minmax(320px, 1fr); gap: 24px; align-items: start; }
+.quest-grid .card { max-width: none; }
+.notes-card {
+  position: sticky; top: 0; display: flex; flex-direction: column; min-height: 420px; height: calc(100vh - 170px);
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px;
+}
+.notes-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.notes-text { flex: 1; resize: none; font-size: 15px; line-height: 1.6; font-family: Georgia, 'Times New Roman', serif; }
+@media (max-width: 1200px) {
+  .quest-grid { grid-template-columns: 1fr; }
+  .notes-card { position: static; height: 480px; }
+}
+
+/* story + map split */
+.split { display: flex; height: 100%; }
+.split-left { position: relative; flex: 1; min-width: 0; }
+.split-bar { flex: 0 0 8px; cursor: col-resize; background: var(--line); transition: background 0.12s; position: relative; }
+.split-bar::after { content: '⋮'; position: absolute; top: 50%; left: 0; width: 8px; text-align: center; color: var(--muted); font-size: 14px; }
+.split-bar:hover { background: var(--accent); }
+.split-right { position: relative; flex: 0 0 auto; min-width: 240px; background: var(--bg); }
+.tb-hint { align-self: center; padding: 0 6px; }
+
+/* pickers: thumbnails and the explanation of the highlighted option */
+.picker-list div .grow { flex: 1; min-width: 0; }
+.picker-list .thumb { width: 44px; height: 32px; object-fit: contain; flex: 0 0 auto; background: #0006; border-radius: 3px; }
+.picker-list div { align-items: center; }
+.picker-list div small { text-align: right; max-width: 45%; }
+.picker-pop .picker-help {
+  white-space: pre-line; line-height: 1.45; max-height: 180px; overflow-y: auto;
+  background: #2d2838; border-top: 1px solid var(--accent); color: var(--text); font-size: 12px; padding: 10px 12px;
+}
+.chip-img { width: 28px; height: 20px; object-fit: contain; border-radius: 2px; }
+.preview-img { display: block; max-width: 100%; max-height: 160px; margin: 0 auto 12px; border-radius: 6px; }
+
+/* explanations */
+.info { background: #2a2634; border: 1px solid #4a4259; border-left: 3px solid var(--accent); border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; font-size: 12.5px; line-height: 1.5; color: #d8d1c2; }
+.info summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.info ol { margin: 8px 0 0; padding-left: 18px; }
+.info li { margin-bottom: 4px; }
+
+/* map: pieces that the selected event shows */
+.map-svg .hl .outline { stroke: #7fd6a0; stroke-width: 0.15; fill: none; }
+.map-svg .tok.hl circle { stroke: #7fd6a0; stroke-width: 0.15; }
+
+/* dialog */
+.modal-backdrop { position: fixed; inset: 0; background: #000a; display: grid; place-items: center; z-index: 200; padding: 20px; }
+.modal { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 26px; max-width: 560px; width: 100%; box-shadow: 0 20px 60px #000c; }
+.modal h2 { margin: 0 0 10px; font-size: 20px; }
+.modal p, .modal li { line-height: 1.55; }
+.modal ol { padding-left: 20px; }
+.modal .path { display: flex; gap: 8px; align-items: center; margin: 8px 0 4px; }
+.modal .path code { flex: 1; background: #120f16; border: 1px solid var(--line); padding: 7px 10px; border-radius: 6px; overflow-x: auto; white-space: nowrap; }
+.modal .error { color: var(--err); margin-top: 10px; line-height: 1.5; }

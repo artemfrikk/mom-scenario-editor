@@ -8,9 +8,11 @@ export const TILE_OPTIONS: Option[] = catalog.tiles.map((t) => ({
   value: t.id,
   label: t.name,
   note: `${packName[t.pack] ?? t.pack} · ${t.traits.filter((x) => x !== 'inside' && x !== 'outside').join(', ')}`,
+  image: t.image,
 }));
 export const TOKEN_OPTIONS: Option[] = catalog.tokens.map((t) => ({ value: t.id, label: tokenLabel(t.id), note: packName[t.pack] }));
-export const ITEM_OPTIONS: Option[] = catalog.items.map((t) => ({ value: t.id, label: t.name, note: t.traits.join(', ') }));
+export const ITEM_OPTIONS: Option[] = catalog.items.map((t) => ({ value: t.id, label: t.name, note: t.traits.join(', '), image: t.image }));
+export const MONSTER_OPTIONS: Option[] = catalog.monsters.map((m) => ({ value: m.id, label: m.name, note: packName[m.pack], image: m.image }));
 export const AUDIO_OPTIONS: Option[] = catalog.audio.map((a) => ({ value: a.id, label: a.id.replace(/^Audio/, ''), note: a.traits.join(', ') }));
 
 export const ICON_TEXT: Record<string, string> = {

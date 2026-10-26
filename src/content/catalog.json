@@ -2111,7 +2111,8 @@
     "humanoid"
    ],
    "health": 1,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Cultist"
   },
   {
    "id": "MonsterDeepOne",
@@ -2121,7 +2122,8 @@
     "humanoid"
    ],
    "health": 2,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Deep_One"
   },
   {
    "id": "MonsterDeepOneHybrid",
@@ -2131,7 +2133,8 @@
     "humanoid"
    ],
    "health": 2,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Deep_One_Hybrid"
   },
   {
    "id": "MonsterGhost",
@@ -2141,7 +2144,8 @@
     "spirit"
    ],
    "health": 1,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Ghost"
   },
   {
    "id": "MonsterHuntingHorror",
@@ -2151,7 +2155,8 @@
     "beast"
    ],
    "health": 3,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Hunting_Horror"
   },
   {
    "id": "MonsterRiot",
@@ -2161,7 +2166,8 @@
     "humanoid"
    ],
    "health": 5,
-   "healthperhero": 3
+   "healthperhero": 3,
+   "image": "img/Monster_Riot"
   },
   {
    "id": "MonsterStarSpawn",
@@ -2171,7 +2177,8 @@
     "beast"
    ],
    "health": 9,
-   "healthperhero": 3
+   "healthperhero": 3,
+   "image": "img/Monster_Star_Spawn"
   },
   {
    "id": "MonsterChildOfDagon",
@@ -2181,7 +2188,8 @@
     "humanoid"
    ],
    "health": 1,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Child_Of_Dagon"
   },
   {
    "id": "MonsterPriestOfDagon",
@@ -2191,7 +2199,8 @@
     "humanoid"
    ],
    "health": 2,
-   "healthperhero": 2
+   "healthperhero": 2,
+   "image": "img/Monster_Priest_Of_Dagon"
   },
   {
    "id": "MonsterThrall",
@@ -2201,7 +2210,8 @@
     "humanoid"
    ],
    "health": 2,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Thrall"
   },
   {
    "id": "MonsterWarlock",
@@ -2211,7 +2221,8 @@
     "humanoid"
    ],
    "health": 1,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Warlock"
   },
   {
    "id": "MonsterDimensionalShambler",
@@ -2221,7 +2232,8 @@
     "beast"
    ],
    "health": 6,
-   "healthperhero": 2
+   "healthperhero": 2,
+   "image": "img/Monster_Dimensional_Shambler"
   },
   {
    "id": "MonsterHuntingDeepOne",
@@ -2231,7 +2243,8 @@
     "humanoid"
    ],
    "health": 3,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Hunting_Deep_One"
   },
   {
    "id": "MonsterFormlessSpawn",
@@ -2241,7 +2254,8 @@
     "beast"
    ],
    "health": 48,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Formless_Spawn"
   },
   {
    "id": "MonsterFeatheredSerpent",
@@ -2251,7 +2265,8 @@
     "beast"
    ],
    "health": 2,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Feathered_Serpent"
   },
   {
    "id": "MonsterTempleGuardian",
@@ -2261,7 +2276,8 @@
     "beast"
    ],
    "health": 3,
-   "healthperhero": 2
+   "healthperhero": 2,
+   "image": "img/Monster_Temple_Guard"
   },
   {
    "id": "MonsterSerpentPerson",
@@ -2271,7 +2287,8 @@
     "snakeperson"
    ],
    "health": 2,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_SerpentPerson"
   },
   {
    "id": "MonsterAncientBasilisk",
@@ -2281,7 +2298,8 @@
     "beast"
    ],
    "health": 20,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Ancient_Basilisk"
   },
   {
    "id": "MonsterSkeleton",
@@ -2291,7 +2309,8 @@
     "fleshless"
    ],
    "health": 1,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Skeleton"
   },
   {
    "id": "MonsterHiredGun",
@@ -2301,7 +2320,8 @@
     "humanoid"
    ],
    "health": 2,
-   "healthperhero": 1
+   "healthperhero": 1,
+   "image": "img/Monster_Hired_Gun"
   },
   {
    "id": "MonsterLloigor",
@@ -2311,7 +2331,8 @@
     "beast"
    ],
    "health": 1,
-   "healthperhero": 2
+   "healthperhero": 2,
+   "image": "img/Monster_Lloiger"
   },
   {
    "id": "MonsterStarVampire",
@@ -2321,7 +2342,8 @@
     "beast"
    ],
    "health": 9,
-   "healthperhero": 3
+   "healthperhero": 3,
+   "image": "img/Monster_Star_Vampire"
   },
   {
    "id": "MonsterWraith",
@@ -2331,7 +2353,8 @@
     "spirit"
    ],
    "health": 2,
-   "healthperhero": 2
+   "healthperhero": 2,
+   "image": "img/Monster_Wraith"
   }
  ],
  "items": [
@@ -2343,7 +2366,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_18Derringer"
   },
   {
    "id": "ItemCommon38Revolver",
@@ -2353,7 +2377,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_38Revolver"
   },
   {
    "id": "ItemCommon45Automatic",
@@ -2363,7 +2388,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_45Automatics"
   },
   {
    "id": "ItemCommon2x4",
@@ -2373,7 +2399,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_2x4"
   },
   {
    "id": "ItemCommonArcaneManuscript",
@@ -2382,7 +2409,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_ArcaneManuscript"
   },
   {
    "id": "ItemCommonAxe",
@@ -2392,7 +2420,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Axe"
   },
   {
    "id": "ItemCommonBandages",
@@ -2401,7 +2430,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Bandages"
   },
   {
    "id": "ItemCommonBrassKnuckles",
@@ -2410,7 +2440,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_BrassKnuckles"
   },
   {
    "id": "ItemCommonBullseyeLantern",
@@ -2419,7 +2450,8 @@
    "traits": [
     "lightsource",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_BullseyeLantern"
   },
   {
    "id": "ItemCommonCandles",
@@ -2428,7 +2460,8 @@
    "traits": [
     "lightsource",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Candles"
   },
   {
    "id": "ItemCommonCarbineRifle",
@@ -2438,7 +2471,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_CarbineRifle"
   },
   {
    "id": "ItemCommonCrowbar",
@@ -2448,7 +2482,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Crowbar"
   },
   {
    "id": "ItemCommonDynamite",
@@ -2457,7 +2492,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Dynamite"
   },
   {
    "id": "ItemCommonElderSignPendant",
@@ -2466,7 +2502,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_ElderSignPendant"
   },
   {
    "id": "ItemCommonElderWard",
@@ -2475,7 +2512,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_ElderWard"
   },
   {
    "id": "ItemCommonFireExtinguisher",
@@ -2485,7 +2523,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_FireExtinguisher"
   },
   {
    "id": "ItemCommonFlareGun",
@@ -2494,7 +2533,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_FlareGun"
   },
   {
    "id": "ItemCommonHolyCross",
@@ -2503,7 +2543,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Crucifix"
   },
   {
    "id": "ItemCommonHolyWater",
@@ -2512,7 +2553,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_HolyWater"
   },
   {
    "id": "ItemCommonKeroseneLantern",
@@ -2521,7 +2563,8 @@
    "traits": [
     "lightsource",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_KeroseneLantern"
   },
   {
    "id": "ItemCommonKingJamesBible",
@@ -2530,7 +2573,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_KingJamesBible"
   },
   {
    "id": "ItemCommonKnife",
@@ -2540,7 +2584,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Knife"
   },
   {
    "id": "ItemCommonLeadPipe",
@@ -2550,7 +2595,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_LeadPipe"
   },
   {
    "id": "ItemCommonLuckyCigaretteCase",
@@ -2559,7 +2605,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_LuckyCigaretteCase"
   },
   {
    "id": "ItemCommonLuckyRabbitsFoot",
@@ -2568,7 +2615,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_LuckyRabbitsFoot"
   },
   {
    "id": "ItemCommonMachete",
@@ -2578,7 +2626,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Machete"
   },
   {
    "id": "ItemCommonMagnifyingGlass",
@@ -2587,7 +2636,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MagnifyingGlass"
   },
   {
    "id": "ItemCommonMeatCleaver",
@@ -2597,7 +2647,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MeatCleaver"
   },
   {
    "id": "ItemCommonMedicalTextbook",
@@ -2606,7 +2657,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MedicalTextbook"
   },
   {
    "id": "ItemCommonPickaxe",
@@ -2616,7 +2668,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Pickaxe"
   },
   {
    "id": "ItemCommonPocketWatch",
@@ -2625,7 +2678,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_PocketWatch"
   },
   {
    "id": "ItemCommonRitualDagger",
@@ -2635,7 +2689,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_RitualDagger"
   },
   {
    "id": "ItemCommonSedatives",
@@ -2644,7 +2699,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Sedative"
   },
   {
    "id": "ItemCommonShotgun",
@@ -2654,7 +2710,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Shotgun"
   },
   {
    "id": "ItemCommonShovel",
@@ -2664,7 +2721,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Shovel"
   },
   {
    "id": "ItemCommonSledgehammer",
@@ -2674,7 +2732,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Sledgehammer"
   },
   {
    "id": "ItemCommonTommyGun",
@@ -2684,7 +2743,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_TommyGun"
   },
   {
    "id": "ItemCommonTorch",
@@ -2695,7 +2755,8 @@
     "heavyweapon",
     "lightsource",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Torch"
   },
   {
    "id": "ItemCommonWhiskey",
@@ -2704,7 +2765,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Whiskey"
   },
   {
    "id": "ItemCommonWrench",
@@ -2714,7 +2776,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Wrench"
   },
   {
    "id": "ItemUniqueBrassKey",
@@ -2723,7 +2786,8 @@
    "traits": [
     "key",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_BrassKey"
   },
   {
    "id": "ItemUniqueCircumstantialEvidence",
@@ -2732,7 +2796,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_CircumstantialEvidence"
   },
   {
    "id": "ItemUniqueConclusiveEvidence",
@@ -2741,7 +2806,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_ConclusiveEvidence"
   },
   {
    "id": "ItemUniqueCultSigil",
@@ -2751,7 +2817,8 @@
     "evidence",
     "key",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_CultSigil"
   },
   {
    "id": "ItemUniqueForensicEvidence",
@@ -2760,7 +2827,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_ForensicEvidence"
   },
   {
    "id": "ItemUniqueHandcuffs",
@@ -2769,7 +2837,8 @@
    "traits": [
     "equipment",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_Handcuffs"
   },
   {
    "id": "ItemUniqueGoldKey",
@@ -2778,7 +2847,8 @@
    "traits": [
     "key",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_GoldKey"
   },
   {
    "id": "ItemUniqueGrotesqueStone",
@@ -2787,7 +2857,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_GrotesqueStone"
   },
   {
    "id": "ItemUniqueIncriminatingEvidence",
@@ -2796,7 +2867,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_IncriminatingEvidence"
   },
   {
    "id": "ItemUniqueOilLamp",
@@ -2805,7 +2877,8 @@
    "traits": [
     "lightsource",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_OilLamp"
   },
   {
    "id": "ItemUniqueOldJournal",
@@ -2814,7 +2887,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_OldJournal"
   },
   {
    "id": "ItemUniqueOldKeys",
@@ -2823,7 +2897,8 @@
    "traits": [
     "key",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_OldKeys"
   },
   {
    "id": "ItemUniqueMissingLink",
@@ -2832,7 +2907,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_MissingLink"
   },
   {
    "id": "ItemUniquePhotographicEvidence",
@@ -2841,7 +2917,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_PhotographicEvidence"
   },
   {
    "id": "ItemUniquePuzzleBox",
@@ -2850,7 +2927,8 @@
    "traits": [
     "equipment",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_PuzzleBox"
   },
   {
    "id": "ItemUniqueRitualComponents",
@@ -2859,7 +2937,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_RitualComponents"
   },
   {
    "id": "ItemUniqueRope",
@@ -2868,7 +2947,8 @@
    "traits": [
     "equipment",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_Rope"
   },
   {
    "id": "ItemUniqueSilverKey",
@@ -2877,7 +2957,8 @@
    "traits": [
     "key",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_SilverKey"
   },
   {
    "id": "ItemSpellFeedTheMind",
@@ -2886,7 +2967,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_FeedTheMind"
   },
   {
    "id": "ItemSpellFleshWard",
@@ -2895,7 +2977,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_FleshWard"
   },
   {
    "id": "ItemSpellInstillBravery",
@@ -2904,7 +2987,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_InstillBravery"
   },
   {
    "id": "ItemSpellShriveling",
@@ -2913,7 +2997,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_Shriveling"
   },
   {
    "id": "ItemSpellWither",
@@ -2922,7 +3007,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_Wither"
   },
   {
    "id": "ItemSpellWrack",
@@ -2931,7 +3017,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_Wrack"
   },
   {
    "id": "ItemCommon25Automatic",
@@ -2941,7 +3028,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_25_Automatic"
   },
   {
    "id": "ItemCommonBlackjack",
@@ -2951,7 +3039,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Blackjack"
   },
   {
    "id": "ItemCommonEnchantedBlade",
@@ -2961,7 +3050,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_EnchantedBlade"
   },
   {
    "id": "ItemCommonFineClothes",
@@ -2970,7 +3060,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_FineClothes"
   },
   {
    "id": "ItemCommonScribesJournal",
@@ -2979,7 +3070,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_ScribesJournal"
   },
   {
    "id": "ItemCommonRazor",
@@ -2989,7 +3081,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Razor"
   },
   {
    "id": "ItemCommonTomeOfHorrors",
@@ -2998,7 +3091,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_TomeOfHorrors"
   },
   {
    "id": "ItemCommonTomeOfSecrets",
@@ -3007,7 +3101,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_TomeOfSecrets"
   },
   {
    "id": "ItemUniqueCultistsJournal",
@@ -3017,7 +3112,8 @@
     "evidence",
     "tome",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_CultistsJournal"
   },
   {
    "id": "ItemSpellPoisonMist",
@@ -3026,7 +3122,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_PoisonMist"
   },
   {
    "id": "ItemSpellArcaneInsight",
@@ -3035,7 +3132,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_ArcaneInsight"
   },
   {
    "id": "ItemCommon41Derringer",
@@ -3045,7 +3143,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_41Derringer"
   },
   {
    "id": "ItemCommonAstronomyGuidebook",
@@ -3054,7 +3153,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_AstronomyGuideback"
   },
   {
    "id": "ItemCaptainsHat",
@@ -3063,7 +3163,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_CaptainsHat"
   },
   {
    "id": "ItemCommonCoalShovel",
@@ -3073,7 +3174,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_CoalShovel"
   },
   {
    "id": "ItemCommonDiversHelm",
@@ -3082,7 +3184,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_DiversHelm"
   },
   {
    "id": "ItemCommonDiversJournal",
@@ -3091,7 +3194,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_DiversJournal"
   },
   {
    "id": "ItemCommonGateBox",
@@ -3100,7 +3204,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_GateBox"
   },
   {
    "id": "ItemCommonGatlingGun",
@@ -3110,7 +3215,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_GatlingGun"
   },
   {
    "id": "ItemCommonHarpoon",
@@ -3120,7 +3226,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Harpoon"
   },
   {
    "id": "ItemCommonLifePreserver",
@@ -3130,7 +3237,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_LifePreserver"
   },
   {
    "id": "ItemCommonMapOfTheLeyLines",
@@ -3139,7 +3247,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MapoftheLeyLines"
   },
   {
    "id": "ItemCommonMysticSextant",
@@ -3148,7 +3257,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MysticSextant"
   },
   {
    "id": "ItemCommonSturdyLuggage",
@@ -3158,7 +3268,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SturdyLuggage"
   },
   {
    "id": "ItemUniqueFishingNet",
@@ -3167,7 +3278,8 @@
    "traits": [
     "equipment",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_Becky"
   },
   {
    "id": "ItemUniqueFuel",
@@ -3176,7 +3288,8 @@
    "traits": [
     "equipment",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_Fuel"
   },
   {
    "id": "ItemUniqueGoldenTrumpet",
@@ -3185,7 +3298,8 @@
    "traits": [
     "equipment",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_GoldenTrumpet"
   },
   {
    "id": "ItemUniqueSatchelOfTheVoid",
@@ -3194,7 +3308,8 @@
    "traits": [
     "equipment",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_SatcheloftheVoid"
   },
   {
    "id": "ItemUniqueTicket",
@@ -3203,7 +3318,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_Ticket"
   },
   {
    "id": "ItemSpellMistsOfRlyeh",
@@ -3212,7 +3328,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_MistsofRlyeh"
   },
   {
    "id": "ItemSpellStormOfSpirits",
@@ -3221,7 +3338,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_StormofSpirits"
   },
   {
    "id": "ItemSpellPlumbingTheVoid",
@@ -3230,7 +3348,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_PlumbingtheVoid"
   },
   {
    "id": "ItemCommonDiskOfItzamna",
@@ -3239,7 +3358,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_AncientTalisman"
   },
   {
    "id": "ItemCommonAntiVenom",
@@ -3248,7 +3368,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Antivenom"
   },
   {
    "id": "ItemCommonExpeditionLog",
@@ -3257,7 +3378,8 @@
    "traits": [
     "tome",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_ExpeditionLog"
   },
   {
    "id": "ItemCommonHedgeShears",
@@ -3267,7 +3389,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_HedgeShears"
   },
   {
    "id": "ItemCommonJeweledSkull",
@@ -3276,7 +3399,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_JeweledSkull"
   },
   {
    "id": "ItemCommonLuckyBandana",
@@ -3285,7 +3409,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_LuckyBandana"
   },
   {
    "id": "ItemCommonMatches",
@@ -3294,7 +3419,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Matches"
   },
   {
    "id": "ItemCommonOtherworldlyCompass",
@@ -3303,7 +3429,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_OtherworldlyCompass"
   },
   {
    "id": "ItemCommonPithHelmet",
@@ -3312,7 +3439,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_PithHelmet"
   },
   {
    "id": "ItemCommonSerpentBracelet",
@@ -3321,7 +3449,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SerpentBracelet"
   },
   {
    "id": "ItemCommonSurvivalKnife",
@@ -3331,7 +3460,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SurvivalKnife"
   },
   {
    "id": "ItemCommonSurvivalPack",
@@ -3341,7 +3471,8 @@
     "weapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SurvivalPack"
   },
   {
    "id": "ItemCommonTimewornBrand",
@@ -3351,7 +3482,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_TimeswornBrand"
   },
   {
    "id": "ItemCommonTorch",
@@ -3362,7 +3494,8 @@
     "heavyweapon",
     "lightsource",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Torch"
   },
   {
    "id": "ItemSpellCallTheStorm",
@@ -3371,7 +3504,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_CalltheStorm"
   },
   {
    "id": "ItemUniqueCitrineSnake",
@@ -3381,7 +3515,8 @@
     "evidence",
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_CitrineSnake"
   },
   {
    "id": "ItemUniqueJadeCrocodile",
@@ -3391,7 +3526,8 @@
     "evidence",
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_JadeCrocodile"
   },
   {
    "id": "ItemUniqueObsidianJaguar",
@@ -3401,7 +3537,8 @@
     "evidence",
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_ObsidianJaguar"
   },
   {
    "id": "ItemUniqueTurquoiseEagle",
@@ -3411,7 +3548,8 @@
     "evidence",
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_TurquoiseEagle"
   },
   {
    "id": "ItemUniqueMysteriousSerpent",
@@ -3420,7 +3558,8 @@
    "traits": [
     "ally",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_MysteriousSnake"
   },
   {
    "id": "ItemSpellBanishment",
@@ -3429,7 +3568,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_Banishing"
   },
   {
    "id": "ItemSpellSummoning",
@@ -3438,7 +3578,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_Summoning"
   },
   {
    "id": "ItemCommonBulletproofVest",
@@ -3447,7 +3588,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_BulletproofVest"
   },
   {
    "id": "ItemCommonEnhancingSerum",
@@ -3456,7 +3598,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_EnhancingSerum"
   },
   {
    "id": "ItemCommonFlask",
@@ -3465,7 +3608,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Flask"
   },
   {
    "id": "ItemCommonGamblersDice",
@@ -3474,7 +3618,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_GamblersDice"
   },
   {
    "id": "ItemCommonMentalStimulant",
@@ -3483,7 +3628,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MentalStimulant"
   },
   {
    "id": "ItemCommonMoonPotion",
@@ -3492,7 +3638,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MoonPotion"
   },
   {
    "id": "ItemCommonMutationJuice",
@@ -3501,7 +3648,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_MutationJuice"
   },
   {
    "id": "ItemCommonOcularExtract",
@@ -3510,7 +3658,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_OcularExtract"
   },
   {
    "id": "ItemCommonScalpel",
@@ -3520,7 +3669,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Scalpel"
   },
   {
    "id": "ItemCommonSnubnoseRevolver",
@@ -3530,7 +3680,8 @@
     "weapon",
     "firearm",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SnubnoseRevolver"
   },
   {
    "id": "ItemCommonThermos",
@@ -3539,7 +3690,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Thermos"
   },
   {
    "id": "ItemUniqueBecky",
@@ -3549,7 +3701,8 @@
     "weapon",
     "firearm",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_Becky"
   },
   {
    "id": "ItemUniqueBonePipes",
@@ -3558,7 +3711,8 @@
    "traits": [
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_BonePipes"
   },
   {
    "id": "ItemUniqueDeVermisMysteriis",
@@ -3568,7 +3722,8 @@
     "evidence",
     "tome",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_DeVermisMysteris"
   },
   {
    "id": "ItemUniqueLedger",
@@ -3578,7 +3733,8 @@
     "evidence",
     "tome",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_Ledger"
   },
   {
    "id": "ItemUniqueMysteriousIdol",
@@ -3587,7 +3743,8 @@
    "traits": [
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_MysteriousIdol"
   },
   {
    "id": "ItemUniqueOldMap",
@@ -3596,7 +3753,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_OldMap"
   },
   {
    "id": "ItemUniqueStarCalendar",
@@ -3605,7 +3763,8 @@
    "traits": [
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_StarCalendar"
   },
   {
    "id": "ItemUniqueStoneChest",
@@ -3614,7 +3773,8 @@
    "traits": [
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_StoneChest"
   },
   {
    "id": "ItemUniqueStrangeTablet",
@@ -3623,7 +3783,8 @@
    "traits": [
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_StrangeTablet"
   },
   {
    "id": "ItemSpellAzureFlame",
@@ -3632,7 +3793,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_AzureFlame"
   },
   {
    "id": "ItemSpellForcedLearning",
@@ -3641,7 +3803,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_ForcedLearning"
   },
   {
    "id": "ItemSpellImplantSuggestion",
@@ -3650,7 +3813,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_ImplantSuggestion"
   },
   {
    "id": "ItemElixir",
@@ -3658,7 +3822,8 @@
    "name": "Elixir",
    "traits": [
     "elixir"
-   ]
+   ],
+   "image": "img/UniqueItem_Elixir"
   },
   {
    "id": "ItemCommonPainkillers",
@@ -3667,7 +3832,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_Aspirin"
   },
   {
    "id": "ItemCommonBindingPowder",
@@ -3676,7 +3842,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_BindingPowder"
   },
   {
    "id": "ItemCommonConvincingDummy",
@@ -3685,7 +3852,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_ConvincingDummy"
   },
   {
    "id": "ItemCommonLuckyRing",
@@ -3694,7 +3862,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_LuckyRing"
   },
   {
    "id": "ItemCommonRiotWhistle",
@@ -3703,7 +3872,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_RiotWhistle"
   },
   {
    "id": "ItemCommonSensibleShoes",
@@ -3712,7 +3882,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SensibleShoes"
   },
   {
    "id": "ItemCommonSilverTwilightDagger",
@@ -3722,7 +3893,8 @@
     "weapon",
     "bladedweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SilverTwilightDagger"
   },
   {
    "id": "ItemCommonSwordCane",
@@ -3733,7 +3905,8 @@
     "bladedweapon",
     "heavyweapon",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_SwordCane"
   },
   {
    "id": "ItemCommonToteBag",
@@ -3742,7 +3915,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_ToteBag"
   },
   {
    "id": "ItemCommonTrackShoes",
@@ -3751,7 +3925,8 @@
    "traits": [
     "equipment",
     "common"
-   ]
+   ],
+   "image": "img/CommonItem_TrackShoes"
   },
   {
    "id": "ItemUniqueMembershipRing",
@@ -3760,7 +3935,8 @@
    "traits": [
     "evidence",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_MembershipRing"
   },
   {
    "id": "ItemUniqueTwilightDiadem",
@@ -3769,7 +3945,8 @@
    "traits": [
     "relic",
     "unique"
-   ]
+   ],
+   "image": "img/UniqueItem_TwilightDiadem"
   },
   {
    "id": "ItemSpellBinding",
@@ -3778,7 +3955,8 @@
    "traits": [
     "spell",
     "spelldefence"
-   ]
+   ],
+   "image": "img/Spell_Binding"
   },
   {
    "id": "ItemSpellSpectralRazor",
@@ -3787,7 +3965,8 @@
    "traits": [
     "spell",
     "spellattack"
-   ]
+   ],
+   "image": "img/Spell_SpectralRazor"
   }
  ],
  "tokens": [

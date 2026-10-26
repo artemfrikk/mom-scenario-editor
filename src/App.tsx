@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { getText } from './model/ops';
 import { validate } from './model/validate';
 import { restoreAutosave, useStore, type View } from './store';
+import { useImages } from './images';
+import { ImagesDialog } from './ui/ImagesDialog';
 import { Inspector } from './ui/Inspector';
 import { LANGUAGE_LABEL } from './ui/labels';
 import { MapView } from './ui/MapView';
@@ -28,19 +30,16 @@ export default function App() {
   const future = useStore((st) => st.future);
   const { undo, redo, open, reset, save } = useStore.getState();
   const fileInput = useRef<HTMLInputElement>(null);
-  const [toast, setToast] = useState('');
+  const toast = useStore((st) => st.notice);
+  const flash = useStore((st) => st.flash);
   const [started, setStarted] = useState(false);
   const issues = useMemo(() => validate(s), [s]);
   const errors = issues.filter((i) => i.level === 'error').length;
 
   useEffect(() => {
     restoreAutosave().then((ok) => setStarted(ok));
+    void useImages.getState().restore();
   }, []);
-
-  const flash = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3500);
-  };
 
   const doSave = async () => {
     const blob = await save();
@@ -163,6 +162,7 @@ export default function App() {
           {withInspector && <Inspector />}
         </div>
       )}
+      {started && <ImagesDialog auto={view === 'map' || view === 'story'} />}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
