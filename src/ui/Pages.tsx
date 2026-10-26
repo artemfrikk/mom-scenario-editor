@@ -1,3 +1,4 @@
+import { IntroCard } from './IntroCard';
 import { useMemo, useState } from 'react';
 import catalog from '../content/catalog.json';
 import { defaultLanguage } from '../format/scenario';
@@ -37,6 +38,7 @@ export function QuestPage() {
       <div className="quest-grid">
       <div className="quest-form">
       <Readiness />
+      <IntroCard />
       <div className="card">
         <Field label="Название">
           <input value={text('quest.name')} onChange={(e) => setT('quest.name', e.target.value)} />

@@ -7,6 +7,7 @@ import catalog from '../content/catalog.json';
 import { isEventLike, type QComponent, type Scenario } from '../format/scenario';
 import { runOps, testsPass, type Vars } from './facts';
 import { buttonsOf, getComponent, getText, resolveText } from './ops';
+import { newPuzzle, puzzleSolved, solvePuzzle, type PuzzleState } from './puzzles';
 
 export interface Monster {
   spawn: string; // the Spawn that brought it
@@ -24,6 +25,9 @@ export interface GameState {
   items: string[]; // quest items the investigators received
   clues: number; // clues the investigators hold
   startItems: string[]; // catalog items the investigators began with
+  cue: { id: number; audio: string; music: string } | null; // the newest sound an event asked for
+  puzzle: PuzzleState | null; // the puzzle on the table while its window is open
+  puzzles: Record<string, PuzzleState>; // puzzles put aside half way, by component name
   monsters: Monster[];
   stack: string[]; // events waiting; the last one goes first
   current: string | null; // event whose window is open
@@ -76,6 +80,9 @@ export function newGame(s: Scenario, heroes: string[], rng: Rng = Math.random, s
     items: given,
     clues: Math.max(0, Math.min(MAX_START, Math.floor(start.clues))),
     startItems: start.items.slice(0, MAX_START),
+    cue: null,
+    puzzle: null,
+    puzzles: {},
     monsters: [],
     stack: [],
     current: null,
@@ -201,14 +208,51 @@ export function next(s: Scenario, st: GameState, rng: Rng = Math.random, depth =
   if (found) out = { ...out, clues: Math.max(0, out.clues + found) };
   if (c.type === 'Spawn') out = spawnMonster(s, out, c, rng);
   out = addComponents(s, out, c);
+  // A sound or music the event asks for; the screen plays it.
+  if (c.data.audio || c.data.music) out = { ...out, cue: { id: (out.cue?.id ?? 0) + 1, audio: c.data.audio ?? '', music: c.data.music ?? '' } };
   out = { ...out, log: [...out.log, name], hero: out.heroes.length ? pick(out.heroes, rng) : '' };
 
-  if (c.data.display === 'false') {
+  if (c.type === 'Puzzle') {
+    // A puzzle always opens its window, whatever "display" says; one put aside earlier is picked up where it was left.
+    return { ...out, current: name, puzzle: out.puzzles[name] ?? newPuzzle(c, rng) };
+  }
+  if (c.data.display === 'false' || silent(s, c)) {
     // No window: the game goes on by itself through the first button that is enabled.
     const index = buttonsOf(c).findIndex((b) => buttonState(c, b.index, out.vars) !== 'disabled' && buttonState(c, b.index, out.vars) !== 'hidden');
     return choose(s, { ...out, current: name }, Math.max(0, index) + 1, rng, depth + 1);
   }
   return { ...out, current: name };
+}
+
+// A window with no words and one lone button says nothing to the players (like SmugglersPoint's start events): skip it.
+function silent(s: Scenario, c: QComponent): boolean {
+  if (c.type !== 'Event' || closable(c) || buttonsOf(c).length !== 1) return false;
+  return !Object.values(s.texts).some((t) => (t[c.name + '.text'] ?? '').trim());
+}
+
+// The players moved something on the puzzle table.
+export function puzzleSet(st: GameState, puzzle: PuzzleState): GameState {
+  return st.puzzle ? { ...st, puzzle } : st;
+}
+
+// "Close": the puzzle is put aside as it is, and the game goes on without pressing the button.
+export function puzzleClose(s: Scenario, st: GameState, rng: Rng = Math.random): GameState {
+  if (!st.current || !st.puzzle) return st;
+  const puzzles = { ...st.puzzles, [st.current]: st.puzzle };
+  return next(s, { ...st, current: null, puzzle: null, puzzles }, rng);
+}
+
+// The button of a solved puzzle: the puzzle is gone for good and the story goes on.
+export function puzzleFinish(s: Scenario, st: GameState, rng: Rng = Math.random): GameState {
+  if (!st.current || !st.puzzle || !puzzleSolved(st.puzzle)) return st;
+  const puzzles = { ...st.puzzles };
+  delete puzzles[st.current];
+  return choose(s, { ...st, puzzle: null, puzzles }, 1, rng);
+}
+
+// For authors: skip the playing and take the solved puzzle.
+export function puzzleSolve(st: GameState): GameState {
+  return st.puzzle ? { ...st, puzzle: solvePuzzle(st.puzzle) } : st;
 }
 
 // The players pressed a button of the open window.

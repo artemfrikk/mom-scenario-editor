@@ -12,6 +12,10 @@ import {
   MAX_START,
   newGame,
   nextPhase,
+  puzzleClose,
+  puzzleFinish,
+  puzzleSet,
+  puzzleSolve,
   randomItems,
   newRound,
   touch,
@@ -21,7 +25,10 @@ import {
 import { buttonLabel, buttonsOf, getComponent, getText, resolveText } from '../model/ops';
 import type { QComponent } from '../format/scenario';
 import catalog from '../content/catalog.json';
+import { assetUrl, soundUrl } from '../assets';
 import { useStore } from '../store';
+import { puzzleMoves } from '../model/puzzles';
+import { PuzzleWindow } from './PuzzleWindow';
 import { Picker, Thumb } from './widgets';
 import { ITEM_OPTIONS } from './options';
 import { TYPE_LABEL } from './labels';
@@ -56,6 +63,38 @@ export function GameView() {
   const [names, setNames] = useState<string[]>(() => Array.from({ length: Math.min(max, Math.max(min, 2)) }, (_, i) => `Сыщик ${i + 1}`));
   const [game, setGame] = useState<GameState | null>(null);
   const [history, setHistory] = useState<GameState[]>([]);
+  const [muted, setMuted] = useState(() => {
+    try {
+      return localStorage.getItem('mse-muted') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const music = useRef<HTMLAudioElement | null>(null);
+  const cue = game?.cue;
+  const over = game === null;
+  // Sounds and music the events ask for, taken from the scenario's own files. Only a new cue plays, not a changed mute or language.
+  useEffect(() => {
+    if (!cue) return;
+    const effect = cue.audio && !muted ? soundUrl(s, cue.audio, lang) : undefined;
+    if (effect) new Audio(effect).play().catch(() => {});
+    if (cue.music) {
+      music.current?.pause();
+      music.current = null;
+      const url = /^nosound/i.test(cue.music) ? undefined : soundUrl(s, cue.music, lang);
+      if (url && !muted) {
+        const a = new Audio(url);
+        a.loop = true;
+        a.play().catch(() => {});
+        music.current = a;
+      }
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [cue?.id]);
+  useEffect(() => {
+    if (muted || over) music.current?.pause();
+  }, [muted, over]);
+  useEffect(() => () => music.current?.pause(), []);
   const [clues, setClues] = useState(1);
   const [kit, setKit] = useState<'none' | 'random' | 'pick'>('random');
   const [kitCount, setKitCount] = useState(3);
@@ -172,7 +211,20 @@ export function GameView() {
       <div className="game-map">
         <GameUi game={game} onPress={busy || game.ended ? undefined : (n) => act((g) => touch(s, g, n))} />
         <MapView embedded only={game.visible} onPick={busy || game.ended ? undefined : (n) => act((g) => touch(s, g, n))} />
-        {current && (
+        {current?.type === 'Puzzle' && game.puzzle && (
+          <PuzzleWindow
+            s={s}
+            lang={lang}
+            puzzle={game.puzzle}
+            component={current}
+            start={game.puzzles[current.name] ? puzzleMoves(game.puzzles[current.name]) : 0}
+            onSet={(p) => act((g) => puzzleSet(g, p))}
+            onClose={() => act((g) => puzzleClose(s, g))}
+            onFinish={() => act((g) => puzzleFinish(s, g))}
+            onSolve={() => act((g) => puzzleSolve(g))}
+          />
+        )}
+        {current && current.type !== 'Puzzle' && (
           <div className="game-window" role="dialog">
             <div className="game-title" title={current.name}>
               {spawned ? 'Появление чудовища' : TYPE_LABEL[current.type]}
@@ -241,6 +293,21 @@ export function GameView() {
             )}
           </div>
           <div className="hint" style={{ marginTop: 8 }}>
+            <button
+              className="small ghost"
+              style={{ float: 'right' }}
+              title="Включить или выключить музыку и звуки сценария"
+              onClick={() => {
+                setMuted(!muted);
+                try {
+                  localStorage.setItem('mse-muted', muted ? '0' : '1');
+                } catch {
+                  /* the choice just is not remembered */
+                }
+              }}
+            >
+              {muted ? '🔇 Звук выключен' : '🔊 Звук включён'}
+            </button>
             {busy ? 'Сначала закройте окно события.' : 'Тронуть жетон или дверь: нажмите на них на карте.'}
           </div>
         </div>
@@ -362,7 +429,13 @@ function GameUi({ game, onPress }: { game: GameState; onPress?: (name: string) =
         const size = Number(d.size ?? 1) || 1;
         const text = textOf(c);
         const press = goes(c);
-        // The whole-screen picture is the intro's dark background; other pictures live in the scenario's own files.
+        // A picture from the scenario's own files; Valkyrie's built-in pictures are drawn as the dark background or not at all.
+        const picture = assetUrl(s, d.image ?? '');
+        if (picture && !text && !press) {
+          const px = Number(d.xposition ?? 0) || 0;
+          const py = Number(d.yposition ?? 0) || 0;
+          return <img key={c.name} className="game-ui-pic" src={picture} alt="" style={{ left: `calc(50% + ${px * h}px)`, top: `calc(50% + ${py * h}px)`, width: size * h, maxHeight: h }} />;
+        }
         if (!text && !press) return size >= 1 ? <div key={c.name} className="game-ui-bg" /> : null;
         // A picture-only button is drawn only when nothing with text sits in the same place; tiny ones are secret buttons.
         if (!text && (size < 0.02 || labelled.has(at(c)))) return null;

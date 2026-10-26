@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newScenario } from '../format/scenario';
-import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, adjustClues, newGame, newRound, nextPhase, randomItems, touch, windowText } from './game';
+import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, adjustClues, newGame, next, queueEvent, puzzleClose, puzzleFinish, puzzleSet, puzzleSolve, newRound, nextPhase, randomItems, touch, windowText } from './game';
 import { addComponent, setButtonTargets, setText, updateData } from './ops';
 import { buildTemplate, WIZARD_DEFAULTS, wizardScenario } from './templates';
 
@@ -85,6 +85,7 @@ describe('game', () => {
     [s, a] = addComponent(s, 'Event', { vartests: 'VarOperation:flag,>,0' }, 'A');
     [s, b] = addComponent(s, 'Event', {}, 'B');
     s = setButtonTargets(s, 'EventStart', 1, [a, b]);
+    for (const n of [a, b]) s = setText(s, 'Russian', n + '.text', 'Текст');
     let st = newGame(s, heroes, rng);
     st = choose(s, st, 1, rng);
     expect(st.current).toBe(b);
@@ -154,5 +155,38 @@ describe('window text', () => {
     expect(items).toHaveLength(4);
     expect(new Set(items).size).toBe(4);
     expect(randomItems(99)).toHaveLength(6);
+  });
+
+  it('a puzzle blocks the button until solved, can be put aside and picked up again', () => {
+    let s = newScenario('Russian');
+    let door: string, p: string, done: string;
+    [s, done] = addComponent(s, 'Event', { operations: 'opened,=,1', display: 'false' }, 'Done');
+    [s, p] = addComponent(s, 'Puzzle', { class: 'tower', puzzlelevel: '2', event1: done }, 'Lock');
+    [s, door] = addComponent(s, 'Event', { trigger: 'StartRound', event1: p }, 'Go');
+    s = setButtonTargets(s, door, 1, [p]);
+    s = setText(s, 'Russian', door + '.text', 'Текст');
+    let st = newGame(s, heroes, rng);
+    st = choose(s, st, 1, rng); // intro
+    st = choose(s, st, 1, rng); // Go
+    expect(st.current).toBe(p);
+    expect(st.puzzle?.kind).toBe('tower');
+    expect(puzzleFinish(s, st, rng).current).toBe(p); // not solved: nothing happens
+    const first = st.puzzle!;
+    st = puzzleClose(s, puzzleSet(st, { ...first, moves: 5 } as typeof first), rng);
+    expect(st.current).toBeNull();
+    expect(st.puzzles[p]).toBeTruthy();
+    st = next(s, queueEvent(s, st, p), rng); // whatever leads to the puzzle is used again
+    expect(st.puzzle && 'moves' in st.puzzle && st.puzzle.moves).toBe(5); // picked up where it was left
+    st = puzzleFinish(s, puzzleSolve(st), rng);
+    expect(st.vars.opened).toBe(1);
+    expect(st.puzzles[p]).toBeUndefined();
+  });
+
+  it('an event that names a sound or music leaves a cue for the screen', () => {
+    let s = newScenario('Russian');
+    [s] = addComponent(s, 'Event', { trigger: 'StartRound', audio: 'door.ogg', music: 'theme.ogg', display: 'false' }, 'Sound');
+    let st = newGame(s, heroes, rng);
+    st = choose(s, st, 1, rng); // the intro, then the sound event runs
+    expect(st.cue).toEqual({ id: 1, audio: 'door.ogg', music: 'theme.ogg' });
   });
 });
