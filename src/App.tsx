@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getText } from './model/ops';
-import { useSimple } from './mode';
 import { sampleScenario } from './model/sample';
 import { validate } from './model/validate';
 import { restoreAutosave, useStore, type View } from './store';
@@ -20,6 +19,7 @@ import { FolderSave } from './ui/FolderSave';
 import { snapshotNow } from './versions';
 import { PrintSheet } from './ui/PrintSheet';
 import { VersionsDialog } from './ui/VersionsDialog';
+import { SettingsDialog } from './ui/SettingsDialog';
 import { TranslatorPage } from './ui/Translator';
 
 const NAV: { view: View; icon: string; label: string }[] = [
@@ -47,10 +47,10 @@ export default function App() {
   const toast = useStore((st) => st.notice);
   const flash = useStore((st) => st.flash);
   const [started, setStarted] = useState(false);
-  const simple = useSimple((st) => st.simple);
-  const toggleSimple = useSimple((st) => st.toggle);
   const [wizard, setWizard] = useState(false);
   const [tour, setTour] = useState(false);
+  const [settings, setSettings] = useState(false);
+  const [folderTick, setFolderTick] = useState(0); // the save button re-reads its folder after the settings were open
   const [versions, setVersions] = useState(false);
   const [printing, setPrinting] = useState(false);
   // The translator lives at #translate so it can be bookmarked.
@@ -196,9 +196,9 @@ export default function App() {
         <button className="ghost" onClick={() => setPrinting(true)} title="Весь сюжет одним документом: для вычитки и тестирования">
           🖨 Печать
         </button>
-        <FolderSave getBlob={() => save()} fileName={fileName} onDone={flash} />
-        <button className="ghost" onClick={toggleSimple} title="Простой режим прячет редкие настройки. Полный показывает всё, что умеет Valkyrie.">
-          {simple ? 'Режим: простой' : 'Режим: полный'}
+        <FolderSave key={folderTick} getBlob={() => save()} fileName={fileName} onDone={flash} />
+        <button className="ghost" onClick={() => setSettings(true)} title="Режим редактора, картинки игры, папка для сохранения">
+          ⚙ Настройки
         </button>
         <button className="ghost" onClick={() => setTour(true)} title="Показать знакомство с редактором">
           ?
@@ -264,6 +264,15 @@ export default function App() {
       {printing && <PrintSheet onClose={() => setPrinting(false)} />}
       {versions && <VersionsDialog onClose={() => setVersions(false)} />}
       {tour && <Tour onClose={() => setTour(false)} />}
+      {settings && (
+        <SettingsDialog
+          onClose={() => {
+            setSettings(false);
+            setFolderTick((n) => n + 1);
+          }}
+          onTour={() => setTour(true)}
+        />
+      )}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
