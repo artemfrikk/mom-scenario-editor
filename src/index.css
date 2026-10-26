@@ -392,3 +392,21 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 
 /* writing straight in a story card */
 .nb-edit { width: 100%; box-sizing: border-box; resize: none; border: none; border-top: 1px solid var(--line); border-radius: 0; background: #ffffff0d; padding: 8px 12px; font-size: 13px; line-height: 1.45; }
+
+/* constructor palette */
+.story-root { position: absolute; inset: 0; }
+.flow-drop { position: absolute; inset: 0; }
+.with-palette .flow-drop { left: 240px; }
+.with-palette .view-toolbar { left: 252px; }
+.block-palette {
+  position: absolute; z-index: 11; top: 0; left: 0; bottom: 0; width: 240px; overflow-y: auto;
+  background: color-mix(in srgb, var(--panel) 96%, transparent); border-right: 1px solid var(--line); padding: 10px;
+  display: flex; flex-direction: column; gap: 8px; font-size: 12px;
+}
+.bp-head { display: flex; align-items: center; justify-content: space-between; }
+.bp-step { background: var(--panel-2); border-left: 3px solid var(--accent); padding: 8px; border-radius: 4px; line-height: 1.35; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.bp-title { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.06em; margin-top: 4px; }
+.bp-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.bp-block { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; text-align: center; line-height: 1.15; height: auto; cursor: grab; }
+.bp-block .ico { font-size: 22px; }
+.block-palette .action-grid { grid-template-columns: 1fr 1fr; }
