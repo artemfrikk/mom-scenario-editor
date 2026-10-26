@@ -86,6 +86,13 @@ export interface Template {
 
 export const TEMPLATES: Template[] = [
   {
+    id: 'scene',
+    icon: '📜',
+    title: 'Сцена',
+    what: 'Окно с текстом и кнопкой «Продолжить». Подходит для описания, диалога или подсказки.',
+    needsEvent: true,
+  },
+  {
     id: 'search',
     icon: '🔍',
     title: 'Жетон с находкой',
@@ -200,6 +207,13 @@ export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook
       out = t(out, key, 'Вы нашли ключ. Теперь им можно открыть запертую дверь.', 'Забрать');
       out = showFrom(out, hook, [door, key]);
       return { scenario: out, first: door, events: [door, key, open], facts: { [fact]: label } };
+    }
+    case 'scene': {
+      let out: Scenario, ev: string;
+      [out, ev] = addComponent(s, 'Event', {}, 'Scene');
+      out = t(out, ev, 'Опишите, что происходит.', 'Продолжить');
+      out = link(out, hook, ev);
+      return { scenario: out, first: ev, events: [ev], facts: {} };
     }
     case 'ambush': {
       // In Valkyrie a monster appears when its Spawn is reached by a button (add= only places tiles, doors, tokens and pictures).

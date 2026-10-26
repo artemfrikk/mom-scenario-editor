@@ -22,6 +22,9 @@ import { TRIGGER_LABEL, TYPE_ICON } from './labels';
 import { MapView } from './MapView';
 import { plainText } from './options';
 import { TemplatesDialog } from './TemplatesDialog';
+import { BLOCK_MIME, BlockPalette } from './BlockPalette';
+import { defaultHook } from '../model/builder';
+import { buildTemplate } from '../model/templates';
 
 const TYPE_COLOR: Partial<Record<ComponentType, string>> = {
   Event: 'var(--event)',
@@ -154,6 +157,9 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
   const [dragPos, setDragPos] = useState<Layout>({});
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   const [templates, setTemplates] = useState(false);
+  const [palette, setPalette] = useState(true);
+  const facts = useStore((st) => st.facts);
+  const setFact = useStore((st) => st.setFact);
   const flash = useStore((st) => st.flash);
 
   // Delete / Backspace removes the chosen arrow, or the chosen block with everything that points to it.
@@ -314,6 +320,38 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
     [change, flow, lang, select, setLayout],
   );
 
+  // A block from the constructor: built, hung on a free button and put on the canvas.
+  const place = useCallback(
+    (id: string, at?: { x: number; y: number }) => {
+      const st = useStore.getState();
+      const hook = defaultHook(st.scenario, lang, st.selected);
+      let result: ReturnType<typeof buildTemplate> = null;
+      change((sc) => {
+        result = buildTemplate(sc, lang, id, hook && { event: hook.event, button: hook.button }, facts);
+        return result ? result.scenario : sc;
+      });
+      const built = result as ReturnType<typeof buildTemplate>;
+      if (!built) return;
+      for (const [k, v] of Object.entries(built.facts)) setFact(k, v);
+      // Keep the shape dagre gives the new chain, moved next to where it hangs (or where it was dropped).
+      const now = useStore.getState().scenario;
+      const full = autoLayout(now, {});
+      const fresh = built.events.filter((n) => full[n] && isEventLike(now.components.find((c) => c.name === n)?.type ?? 'Tile'));
+      const old = useStore.getState().layout;
+      const base = at ?? (hook && old[hook.event] ? { x: old[hook.event].x + 300, y: old[hook.event].y } : flow.screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }));
+      if (fresh.length) {
+        const dx = base.x - full[fresh[0]].x;
+        const dy = base.y - full[fresh[0]].y;
+        const add: Layout = {};
+        for (const n of fresh) add[n] = { x: full[n].x + dx, y: full[n].y + dy };
+        setLayout({ ...old, ...add });
+      }
+      select(built.first);
+      flash(hook ? `Добавлено и подключено к «${hook.event}». Замените тексты-заготовки на свои.` : 'Добавлено. Замените тексты-заготовки на свои.');
+    },
+    [change, facts, flash, flow, lang, select, setFact, setLayout],
+  );
+
   const create = (type: ComponentType) => {
     const center = flow.screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
     let created = '';
@@ -328,11 +366,14 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
   };
 
   return (
-    <>
+    <div className={'story-root' + (palette ? ' with-palette' : '')}>
       <div className="view-toolbar">
         <button onClick={() => create('Event')}>+ {TYPE_ICON.Event} Событие</button>
         <button onClick={() => create('Token')}>+ {TYPE_ICON.Token} Жетон</button>
         <button onClick={() => create('Spawn')}>+ {TYPE_ICON.Spawn} Монстр</button>
+        <button className={palette ? 'primary' : ''} onClick={() => setPalette(!palette)} title="Готовые блоки для сюжета">
+          🧩 Конструктор
+        </button>
         <button onClick={() => setTemplates(true)} title="Жетон с находкой, запертая дверь, засада, развилка, концовки">
           ✨ Заготовки
         </button>
@@ -350,6 +391,19 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
         </button>
         <span className="hint tb-hint">Delete: удалить выбранное</span>
       </div>
+      {palette && <BlockPalette onPlace={(id) => place(id)} onClose={() => setPalette(false)} />}
+      <div
+        className="flow-drop"
+        onDragOver={(e) => {
+          if (e.dataTransfer.types.includes(BLOCK_MIME)) e.preventDefault();
+        }}
+        onDrop={(e) => {
+          const id = e.dataTransfer.getData(BLOCK_MIME);
+          if (!id) return;
+          e.preventDefault();
+          place(id, flow.screenToFlowPosition({ x: e.clientX, y: e.clientY }));
+        }}
+      >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -389,13 +443,14 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
         <Controls showInteractive={false} />
         <MiniMap pannable zoomable nodeColor={(n) => TYPE_COLOR[(n.data as StoryData).type] ?? '#555'} maskColor="#0009" style={{ background: '#1e1b24' }} />
       </ReactFlow>
+      </div>
       {templates && <TemplatesDialog onClose={() => setTemplates(false)} />}
       {nodes.length === 0 && (
         <div className="empty-state" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           Добавьте первое событие кнопкой «+ Событие».
         </div>
       )}
-    </>
+    </div>
   );
 }
 
