@@ -158,7 +158,8 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 .map-svg .tile.sel .outline { stroke: var(--accent); stroke-width: 0.15; fill: none; }
 .map-svg .piece { cursor: move; }
 .map-svg .tok circle { stroke: #0009; stroke-width: 0.06; }
-.map-svg .tok text { font-size: 0.8px; pointer-events: none; }
+.map-svg .tok text { font-size: 0.4px; pointer-events: none; }
+.map-svg .tok circle.tok-hit { stroke: none; }
 
 .empty-state { display: grid; place-items: center; height: 100%; color: var(--muted); text-align: center; padding: 30px; }
 
@@ -512,3 +513,15 @@ button.tk.add { cursor: pointer; border-style: dashed; color: var(--err); }
 .tr-scenario-actions { display: flex; gap: 6px; }
 @media (max-width: 700px) { .tr-scenario { grid-template-columns: 1fr; } }
 .tr-engine { width: auto; }
+/* settings dialog */
+.modal.settings { max-width: 680px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.set-section { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 14px; }
+.set-section h3 { margin: 0 0 8px; font-size: 14px; }
+.set-row { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 8px 0; }
+.set-text { flex: 1; min-width: 0; }
+.set-text .hint { margin-top: 2px; }
+.set-control { flex: none; max-width: 220px; }
+.set-btns { display: flex; gap: 6px; }
+.btn-label { display: inline-block; padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); cursor: pointer; font-size: 13px; text-align: center; }
+.btn-label.primary { background: var(--accent); color: #1a1408; border-color: var(--accent); font-weight: 600; }
+.btn-label.disabled { opacity: .5; pointer-events: none; }
