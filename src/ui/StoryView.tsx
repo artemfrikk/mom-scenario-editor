@@ -21,6 +21,7 @@ import { useStore, type Layout } from '../store';
 import { TRIGGER_LABEL, TYPE_ICON } from './labels';
 import { MapView } from './MapView';
 import { plainText } from './options';
+import { TemplatesDialog } from './TemplatesDialog';
 
 const TYPE_COLOR: Partial<Record<ComponentType, string>> = {
   Event: 'var(--event)',
@@ -37,7 +38,8 @@ interface StoryData extends Record<string, unknown> {
   text: string;
   shown: boolean;
   trigger: string;
-  buttons: { index: number; label: string }[];
+  buttons: { index: number; label: string; linked: boolean }[];
+  onAdd: (name: string, index: number) => void;
   adds: number;
   selected: boolean;
 }
@@ -59,6 +61,18 @@ const StoryNode = memo(function StoryNode({ data }: NodeProps<Node<StoryData>>) 
       {data.buttons.map((b) => (
         <div className="nbtn" key={b.index}>
           <span>{data.shown ? b.label || 'Продолжить' : 'Далее'}</span>
+          {!b.linked && (
+            <button
+              className="nbtn-add nodrag nopan"
+              title="Создать следующее событие для этой кнопки"
+              onClick={(e) => {
+                e.stopPropagation();
+                data.onAdd(data.name, b.index);
+              }}
+            >
+              + Далее
+            </button>
+          )}
           <Handle type="source" position={Position.Right} id={'b' + b.index} />
         </div>
       ))}
@@ -103,6 +117,7 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
   const flow = useReactFlow();
   const [dragPos, setDragPos] = useState<Layout>({});
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
+  const [templates, setTemplates] = useState(false);
   const flash = useStore((st) => st.flash);
 
   // Delete / Backspace removes the chosen arrow, or the chosen block with everything that points to it.
@@ -150,6 +165,26 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
     }, 0);
   }, [layout, s.components, flow]);
 
+  // The "+ Далее" button on a block: a new event, already linked to that button and placed to its right.
+  const addNext = useCallback(
+    (from: string, index: number) => {
+      let created = '';
+      change((sc) => {
+        const [next, name] = addComponent(sc, 'Event');
+        created = name;
+        const c = next.components.find((x) => x.name === from);
+        const b = c && buttonsOf(c).find((x) => x.index === index);
+        let out = setText(next, lang, name + '.text', '');
+        out = setText(out, lang, name + '.button1', 'Продолжить');
+        return b ? setButtonTargets(out, from, index, [...b.targets, name]) : out;
+      });
+      const at = useStore.getState().layout[from];
+      if (at) setLayout({ ...useStore.getState().layout, [created]: { x: at.x + 300, y: at.y + (index - 1) * 110 } });
+      select(created);
+    },
+    [change, lang, select, setLayout],
+  );
+
   const nodes: Node<StoryData>[] = useMemo(
     () =>
       s.components
@@ -166,13 +201,14 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
               shown,
               text: plainText(resolveText(s, lang, getText(s, lang, c.name + '.text'))),
               trigger: c.data.trigger ?? '',
-              buttons: buttonsOf(c).map((b) => ({ index: b.index, label: plainText(buttonLabel(s, lang, b), 60) })),
+              buttons: buttonsOf(c).map((b) => ({ index: b.index, label: plainText(buttonLabel(s, lang, b), 60), linked: b.targets.length > 0 })),
+              onAdd: addNext,
               adds: (c.data.add ?? '').split(/\s+/).filter(Boolean).length,
               selected: c.name === selected,
             },
           };
         }),
-    [s, lang, layout, dragPos, selected],
+    [s, lang, layout, dragPos, selected, addNext],
   );
 
   const edges: Edge[] = useMemo(() => {
@@ -259,6 +295,9 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
         <button onClick={() => create('Event')}>+ {TYPE_ICON.Event} Событие</button>
         <button onClick={() => create('Token')}>+ {TYPE_ICON.Token} Жетон</button>
         <button onClick={() => create('Spawn')}>+ {TYPE_ICON.Spawn} Монстр</button>
+        <button onClick={() => setTemplates(true)} title="Жетон с находкой, запертая дверь, засада, развилка, концовки">
+          ✨ Заготовки
+        </button>
         <button
           onClick={() => {
             setLayout(autoLayout(s, {}));
@@ -312,6 +351,7 @@ function Story({ mapOpen, onToggleMap }: { mapOpen: boolean; onToggleMap: () => 
         <Controls showInteractive={false} />
         <MiniMap pannable zoomable nodeColor={(n) => TYPE_COLOR[(n.data as StoryData).type] ?? '#555'} maskColor="#0009" style={{ background: '#1e1b24' }} />
       </ReactFlow>
+      {templates && <TemplatesDialog onClose={() => setTemplates(false)} />}
       {nodes.length === 0 && (
         <div className="empty-state" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           Добавьте первое событие кнопкой «+ Событие».

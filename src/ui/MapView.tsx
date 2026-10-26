@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import catalog from '../content/catalog.json';
 import { isEventLike, type QComponent } from '../format/scenario';
-import { addComponent, deleteComponent, fmt, position, setText, SNAP_TILE, SNAP_TOKEN, SQUARE, updateData } from '../model/ops';
+import { addComponent, addedBy, deleteComponent, fmt, position, setAddedBy, setText, SNAP_TILE, SNAP_TOKEN, SQUARE, updateData } from '../model/ops';
 import { imageKey, useImages } from '../images';
 import { useStore } from '../store';
 import { TILE_OPTIONS } from './options';
 import { tokenIcon } from './labels';
 import { ImagesButton } from './ImagesDialog';
 import { Picker } from './widgets';
+import { TilePalette } from './TilePalette';
 
 const tileById = new Map(catalog.tiles.map((t) => [t.id, t]));
 const PX_PER_UNIT = 1024 / SQUARE; // Valkyrie MoM tile images: 1024 px per 3.5 units
@@ -24,7 +25,8 @@ function fallbackSize(traits: string[]): [number, number] {
   return [2 * SQUARE, SQUARE];
 }
 
-export function MapView({ embedded = false }: { embedded?: boolean }) {
+// `only` turns the map into a read-only view of just those objects (used by the play-through).
+export function MapView({ embedded = false, only }: { embedded?: boolean; only?: string[] }) {
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const selected = useStore((st) => st.selected);
@@ -37,6 +39,7 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
   const [view, setView] = useState<View>({ x: -10, y: -10, scale: 28 });
   const [imgSize, setImgSize] = useState<Record<string, [number, number]>>({});
   const [addingTile, setAddingTile] = useState(false);
+  const [palette, setPalette] = useState(() => !embedded && !only);
   const drag = useRef<
     | { kind: 'pan'; sx: number; sy: number; view: View }
     | { kind: 'move'; name: string; dx: number; dy: number; snap: number; moved: boolean }
@@ -44,7 +47,10 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
   >(null);
   const [panning, setPanning] = useState(false);
 
-  const pieces = useMemo(() => s.components.filter((c) => ['Tile', 'Token', 'Door', 'MPlace'].includes(c.type)), [s.components]);
+  const pieces = useMemo(
+    () => s.components.filter((c) => ['Tile', 'Token', 'Door', 'MPlace'].includes(c.type) && (!only || only.includes(c.name))),
+    [s.components, only],
+  );
 
   useEffect(() => {
     const el = svgRef.current;
@@ -126,6 +132,7 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
   };
 
   const startMove = (e: RPointerEvent, c: QComponent) => {
+    if (only) return;
     e.stopPropagation();
     svgRef.current!.setPointerCapture(e.pointerId);
     select(c.name);
@@ -165,7 +172,7 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
   const flash = useStore((st) => st.flash);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).closest('input, textarea, select')) return;
+      if (only || (e.target as HTMLElement).closest('input, textarea, select')) return;
       if (e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') rotateSelected();
       // In the story view the story graph handles Delete itself.
       if (!embedded && (e.key === 'Delete' || e.key === 'Backspace') && selected && pieces.some((p) => p.name === selected)) {
@@ -185,14 +192,15 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
     return { x, y };
   };
 
-  const create = (type: 'Tile' | 'Token' | 'Door' | 'MPlace', extra: Record<string, string> = {}) => {
+  const create = (type: 'Tile' | 'Token' | 'Door' | 'MPlace', extra: Record<string, string> = {}, shownBy?: string) => {
     const p = centerWorld();
     const snap = type === 'Tile' ? SNAP_TILE : SNAP_TOKEN;
     const data = { xposition: fmt(Math.round(p.x / snap) * snap), yposition: fmt(Math.round(p.y / snap) * snap), ...extra };
     let created = '';
     change((sc) => {
-      const [next, name] = addComponent(sc, type, data, type === 'Tile' ? (extra.side ?? '').replace(/^TileSide/, '') : '');
+      let [next, name] = addComponent(sc, type, data, type === 'Tile' ? (extra.side ?? '').replace(/^TileSide/, '') : '');
       created = name;
+      if (shownBy) next = setAddedBy(next, name, [...addedBy(next, name), shownBy]);
       if (type === 'Token' || type === 'Door') return setText(setText(next, lang, name + '.text', ''), lang, name + '.button1', 'Продолжить');
       return next;
     });
@@ -211,7 +219,7 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
   }
 
   const shownOnBoard = new Set(s.components.flatMap((c) => (c.data.add ?? '').split(/\s+/).filter(Boolean)));
-  const dim = (c: QComponent) => (shownOnBoard.has(c.name) ? undefined : 0.45);
+  const dim = (c: QComponent) => (only || shownOnBoard.has(c.name) ? undefined : 0.45);
   const tiles = pieces.filter((c) => c.type === 'Tile');
   const others = pieces.filter((c) => c.type !== 'Tile');
   const selectedComponent = s.components.find((c) => c.name === selected);
@@ -221,7 +229,13 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
 
   return (
     <>
+      {!only && (
       <div className="view-toolbar" style={{ maxWidth: 'calc(100% - 24px)' }}>
+        {!embedded && (
+          <button className={palette ? 'primary' : ''} onClick={() => setPalette(!palette)} title="Панель со всеми комнатами в картинках">
+            🧱 Комнаты
+          </button>
+        )}
         {addingTile ? (
           <div style={{ width: 320 }}>
             <Picker
@@ -254,6 +268,13 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
         </button>
         <ImagesButton />
       </div>
+      )}
+      {palette && !embedded && !only && (
+        <TilePalette
+          onClose={() => setPalette(false)}
+          onPick={(side, shownBy) => create('Tile', { side }, shownBy)}
+        />
+      )}
       <svg
         ref={svgRef}
         className={'map-svg' + (panning ? ' panning' : '')}
@@ -330,7 +351,7 @@ export function MapView({ embedded = false }: { embedded?: boolean }) {
           );
         })}
       </svg>
-      {!embedded && imagesStatus !== 'ready' && tiles.length > 0 && (
+      {!embedded && !only && imagesStatus !== 'ready' && tiles.length > 0 && (
         <div className="hint" style={{ position: 'absolute', bottom: 12, left: 12, maxWidth: 420, background: 'var(--panel)', padding: 10, borderRadius: 8, border: '1px solid var(--line)' }}>
           Тайлы показаны примерными прямоугольниками. Чтобы увидеть настоящие картинки, нажмите «Подключить картинки».
           Перетаскивайте предметы мышкой, Shift отключает привязку к сетке. Полупрозрачные объекты пока не показывает ни одно событие.

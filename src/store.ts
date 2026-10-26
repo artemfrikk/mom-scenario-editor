@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { defaultLanguage, newScenario, type Scenario } from './format/scenario';
 import { loadValkyrie, saveValkyrie } from './format/valkyrie';
 
-export type View = 'quest' | 'map' | 'story' | 'texts' | 'check';
+export type View = 'quest' | 'map' | 'story' | 'play' | 'texts' | 'check';
 export type Layout = Record<string, { x: number; y: number }>;
 
 // Story-graph node positions travel inside the package; Valkyrie ignores unknown files.
@@ -38,6 +38,7 @@ interface State {
   flash: (message: string) => void;
   open: (file: File) => Promise<void>;
   reset: () => void;
+  startWith: (scenario: Scenario, notes: string) => void;
   save: () => Promise<Blob>;
 }
 
@@ -139,6 +140,19 @@ export const useStore = create<State>((set, get) => ({
       future: [],
       dirty: false,
       view: 'quest',
+    }),
+  startWith: (scenario, notes) =>
+    set({
+      scenario,
+      fileName: 'scenario.valkyrie',
+      layout: {},
+      notes,
+      selected: null,
+      lang: defaultLanguage(scenario),
+      past: [],
+      future: [],
+      dirty: true,
+      view: 'story',
     }),
   save: async () => {
     const { scenario, layout, notes } = get();

@@ -9,11 +9,17 @@ import { LANGUAGE_LABEL } from './ui/labels';
 import { MapView } from './ui/MapView';
 import { CheckPage, QuestPage, TextsPage } from './ui/Pages';
 import { StoryView } from './ui/StoryView';
+import { PlayView } from './ui/PlayView';
+import { tourSeen } from './tour';
+import { Tour } from './ui/Tour';
+import { Wizard } from './ui/Wizard';
+import { FolderSave } from './ui/FolderSave';
 
 const NAV: { view: View; icon: string; label: string }[] = [
   { view: 'quest', icon: '📖', label: 'Сценарий' },
   { view: 'story', icon: '🕸', label: 'Сюжет' },
   { view: 'map', icon: '🗺', label: 'Карта' },
+  { view: 'play', icon: '▶', label: 'Проба' },
   { view: 'texts', icon: '🌐', label: 'Тексты' },
   { view: 'check', icon: '✔', label: 'Проверка' },
 ];
@@ -33,11 +39,16 @@ export default function App() {
   const toast = useStore((st) => st.notice);
   const flash = useStore((st) => st.flash);
   const [started, setStarted] = useState(false);
+  const [wizard, setWizard] = useState(false);
+  const [tour, setTour] = useState(false);
   const issues = useMemo(() => validate(s), [s]);
   const errors = issues.filter((i) => i.level === 'error').length;
 
   useEffect(() => {
-    restoreAutosave().then((ok) => setStarted(ok));
+    restoreAutosave().then((ok) => {
+      setStarted(ok);
+      if (!tourSeen()) setTour(true);
+    });
     void useImages.getState().restore();
   }, []);
 
@@ -116,13 +127,16 @@ export default function App() {
         <button
           onClick={() => {
             if (dirty && !confirm('Начать новый сценарий? Несохранённые изменения пропадут.')) return;
-            reset();
-            setStarted(true);
+            setWizard(true);
           }}
         >
           Новый
         </button>
         <button onClick={() => fileInput.current?.click()}>Открыть…</button>
+        <FolderSave getBlob={() => save()} fileName={fileName} onDone={flash} />
+        <button className="ghost" onClick={() => setTour(true)} title="Показать знакомство с редактором">
+          ?
+        </button>
         <button className="primary" onClick={doSave} title="Ctrl+S">
           Сохранить .valkyrie
         </button>
@@ -130,10 +144,7 @@ export default function App() {
       </header>
       {!started ? (
         <Welcome
-          onNew={() => {
-            reset();
-            setStarted(true);
-          }}
+          onNew={() => setWizard(true)}
           onOpen={() => fileInput.current?.click()}
           onDrop={doOpen}
         />
@@ -156,6 +167,7 @@ export default function App() {
             {view === 'quest' && <QuestPage />}
             {view === 'story' && <StoryView />}
             {view === 'map' && <MapView />}
+            {view === 'play' && <PlayView />}
             {view === 'texts' && <TextsPage />}
             {view === 'check' && <CheckPage />}
           </main>
@@ -163,6 +175,20 @@ export default function App() {
         </div>
       )}
       {started && <ImagesDialog auto={view === 'map' || view === 'story'} />}
+      {wizard && (
+        <Wizard
+          onClose={() => {
+            setWizard(false);
+            setStarted(true);
+          }}
+          onEmpty={() => {
+            reset();
+            setWizard(false);
+            setStarted(true);
+          }}
+        />
+      )}
+      {tour && <Tour onClose={() => setTour(false)} />}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );

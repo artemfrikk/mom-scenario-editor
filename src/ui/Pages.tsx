@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import catalog from '../content/catalog.json';
 import { defaultLanguage } from '../format/scenario';
+import { applyFix, fixLabel } from '../model/fixes';
 import { getText, setText } from '../model/ops';
 import { validate } from '../model/validate';
 import { useStore } from '../store';
@@ -299,12 +300,15 @@ export function CheckPage() {
   const s = useStore((st) => st.scenario);
   const select = useStore((st) => st.select);
   const setView = useStore((st) => st.setView);
+  const change = useStore((st) => st.change);
+  const flash = useStore((st) => st.flash);
   const issues = useMemo(() => validate(s), [s]);
+  const fixable = issues.filter((i) => i.fix);
   const counts = s.components.reduce<Record<string, number>>((m, c) => ((m[c.type] = (m[c.type] ?? 0) + 1), m), {});
   return (
     <div className="page">
       <h1>Проверка</h1>
-      <div className="lead">Ошибки, из-за которых сценарий может сломаться в Valkyrie.</div>
+      <div className="lead">Ошибки, из-за которых сценарий может сломаться в Valkyrie. Рядом с проблемой есть кнопка быстрого исправления.</div>
       <div className="card">
         {Object.entries(counts).map(([t, n]) => (
           <span key={t} className="chip" style={{ cursor: 'default' }}>
@@ -312,6 +316,27 @@ export function CheckPage() {
           </span>
         ))}
       </div>
+      {fixable.length > 1 && (
+        <div className="row" style={{ marginBottom: 10 }}>
+          <button
+            onClick={() => {
+              change((sc) => {
+                // Fix one at a time on the current scenario: an earlier fix can resolve later ones.
+                let out = sc;
+                for (const i of fixable) {
+                  const now = validate(out).find((x) => x.message === i.message && x.fix);
+                  if (now?.fix) out = applyFix(out, now.fix);
+                }
+                return out;
+              });
+              flash('Исправлено. Ctrl+Z вернёт всё как было.');
+            }}
+            title="Применить все исправления из списка"
+          >
+            Исправить всё сразу ({fixable.length})
+          </button>
+        </div>
+      )}
       <div className="card" style={{ padding: 0 }}>
         {issues.length === 0 ? (
           <div style={{ padding: 18, color: 'var(--ok)' }}>✓ Проблем не найдено.</div>
@@ -328,7 +353,20 @@ export function CheckPage() {
                 }}
               >
                 <span className={'dot ' + i.level} />
-                <span>{i.message}</span>
+                <span style={{ flex: 1 }}>{i.message}</span>
+                {i.fix && (
+                  <button
+                    className="small auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const fix = i.fix!;
+                      change((sc) => applyFix(sc, fix));
+                      flash('Исправлено. Ctrl+Z отменяет.');
+                    }}
+                  >
+                    {fixLabel(i.fix)}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
