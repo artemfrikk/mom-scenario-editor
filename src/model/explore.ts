@@ -3,7 +3,7 @@
 
 import type { Scenario } from '../format/scenario';
 import { isEventLike } from '../format/scenario';
-import { buttonState, choose, defeat, eliminated, endInvestigatorPhase, newGame, newRound, touch, type GameState } from './game';
+import { buttonState, choose, defeat, eliminated, endInvestigatorPhase, newGame, newRound, puzzleClose, puzzleFinish, puzzleSolve, touch, type GameState } from './game';
 import { buttonsOf, getComponent } from './ops';
 
 export interface Exploration {
@@ -24,6 +24,7 @@ function key(st: GameState): string {
   return JSON.stringify([
     st.stack,
     st.current,
+    Object.keys(st.puzzles),
     [...st.visible].sort(),
     [...st.items].sort(),
     st.vars,
@@ -59,7 +60,12 @@ export function explore(s: Scenario, heroes = ['Сыщик 1', 'Сыщик 2']):
     for (const { st, path } of frontier) {
       if (st.ended) continue;
       const moves: [string, (rng: () => number) => GameState][] = [];
-      if (st.current) {
+      if (st.current && st.puzzle) {
+        // A puzzle can be solved (and its button pressed) or put aside.
+        moves.push([`${st.current}: решить`, (rng) => puzzleFinish(s, puzzleSolve(st), rng)]);
+        moves.push([`${st.current}: отложить`, (rng) => puzzleClose(s, st, rng)]);
+        moves.push(['все сыщики выбыли', (rng) => eliminated(s, { ...st, current: null, puzzle: null }, rng)]);
+      } else if (st.current) {
         const c = getComponent(s, st.current)!;
         const buttons = buttonsOf(c);
         // A window without buttons still has Valkyrie's default "Ok", which just closes it.

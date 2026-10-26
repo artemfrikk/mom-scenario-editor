@@ -12,6 +12,10 @@ import {
   MAX_START,
   newGame,
   nextPhase,
+  puzzleClose,
+  puzzleFinish,
+  puzzleSet,
+  puzzleSolve,
   randomItems,
   newRound,
   touch,
@@ -22,6 +26,8 @@ import { buttonLabel, buttonsOf, getComponent, getText, resolveText } from '../m
 import type { QComponent } from '../format/scenario';
 import catalog from '../content/catalog.json';
 import { useStore } from '../store';
+import { puzzleMoves } from '../model/puzzles';
+import { PuzzleWindow } from './PuzzleWindow';
 import { Picker, Thumb } from './widgets';
 import { ITEM_OPTIONS } from './options';
 import { TYPE_LABEL } from './labels';
@@ -172,7 +178,20 @@ export function GameView() {
       <div className="game-map">
         <GameUi game={game} onPress={busy || game.ended ? undefined : (n) => act((g) => touch(s, g, n))} />
         <MapView embedded only={game.visible} onPick={busy || game.ended ? undefined : (n) => act((g) => touch(s, g, n))} />
-        {current && (
+        {current?.type === 'Puzzle' && game.puzzle && (
+          <PuzzleWindow
+            s={s}
+            lang={lang}
+            puzzle={game.puzzle}
+            component={current}
+            start={game.puzzles[current.name] ? puzzleMoves(game.puzzles[current.name]) : 0}
+            onSet={(p) => act((g) => puzzleSet(g, p))}
+            onClose={() => act((g) => puzzleClose(s, g))}
+            onFinish={() => act((g) => puzzleFinish(s, g))}
+            onSolve={() => act((g) => puzzleSolve(g))}
+          />
+        )}
+        {current && current.type !== 'Puzzle' && (
           <div className="game-window" role="dialog">
             <div className="game-title" title={current.name}>
               {spawned ? 'Появление чудовища' : TYPE_LABEL[current.type]}

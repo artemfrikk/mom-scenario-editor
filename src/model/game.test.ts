@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newScenario } from '../format/scenario';
-import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, adjustClues, newGame, newRound, nextPhase, randomItems, touch, windowText } from './game';
+import { adjustHp, buttonState, choose, defeat, endInvestigatorPhase, eliminated, adjustClues, newGame, next, queueEvent, puzzleClose, puzzleFinish, puzzleSet, puzzleSolve, newRound, nextPhase, randomItems, touch, windowText } from './game';
 import { addComponent, setButtonTargets, setText, updateData } from './ops';
 import { buildTemplate, WIZARD_DEFAULTS, wizardScenario } from './templates';
 
@@ -154,5 +154,29 @@ describe('window text', () => {
     expect(items).toHaveLength(4);
     expect(new Set(items).size).toBe(4);
     expect(randomItems(99)).toHaveLength(6);
+  });
+
+  it('a puzzle blocks the button until solved, can be put aside and picked up again', () => {
+    let s = newScenario('Russian');
+    let door: string, p: string, done: string;
+    [s, done] = addComponent(s, 'Event', { operations: 'opened,=,1', display: 'false' }, 'Done');
+    [s, p] = addComponent(s, 'Puzzle', { class: 'tower', puzzlelevel: '2', event1: done }, 'Lock');
+    [s, door] = addComponent(s, 'Event', { trigger: 'StartRound', event1: p }, 'Go');
+    s = setButtonTargets(s, door, 1, [p]);
+    let st = newGame(s, heroes, rng);
+    st = choose(s, st, 1, rng); // intro
+    st = choose(s, st, 1, rng); // Go
+    expect(st.current).toBe(p);
+    expect(st.puzzle?.kind).toBe('tower');
+    expect(puzzleFinish(s, st, rng).current).toBe(p); // not solved: nothing happens
+    const first = st.puzzle!;
+    st = puzzleClose(s, puzzleSet(st, { ...first, moves: 5 } as typeof first), rng);
+    expect(st.current).toBeNull();
+    expect(st.puzzles[p]).toBeTruthy();
+    st = next(s, queueEvent(s, st, p), rng); // whatever leads to the puzzle is used again
+    expect(st.puzzle && 'moves' in st.puzzle && st.puzzle.moves).toBe(5); // picked up where it was left
+    st = puzzleFinish(s, puzzleSolve(st), rng);
+    expect(st.vars.opened).toBe(1);
+    expect(st.puzzles[p]).toBeUndefined();
   });
 });
