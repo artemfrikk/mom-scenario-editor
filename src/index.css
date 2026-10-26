@@ -481,3 +481,13 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 .tr-radios { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; }
 .tr-radios label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 .tr-radios input { width: auto; margin: 0; accent-color: var(--accent); }
+
+/* settings dialog */
+.modal.settings { max-width: 680px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.set-section { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 14px; }
+.set-section h3 { margin: 0 0 8px; font-size: 14px; }
+.set-row { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 8px 0; }
+.set-text { flex: 1; min-width: 0; }
+.set-text .hint { margin-top: 2px; }
+.set-control { flex: none; max-width: 220px; }
+.set-btns { display: flex; gap: 6px; }
