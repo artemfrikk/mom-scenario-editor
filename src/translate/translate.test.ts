@@ -171,3 +171,15 @@ describe('package', () => {
     for (const r of rows) expect(ru.entries.get(r.key)).toBe(r.source + ' (ru)');
   });
 });
+
+describe('markup for the text field', () => {
+  it('shows colours as styled text and game marks as blocks', async () => {
+    const { toHtml, tokenLabel } = await import('./markup');
+    expect(toHtml('Сыщик на <color=Cyan>{c:TileDock}</color> и {clue}\nдальше', (k) => (k === 'TileDock.name' ? 'Пирс' : undefined))).toBe(
+      'Сыщик на <span class="tk-color" data-color="Cyan" style="color:Cyan"><span class="tk" contenteditable="false" data-t="{c:TileDock}" title="{c:TileDock}">Пирс</span></span> и <span class="tk" contenteditable="false" data-t="{clue}" title="{clue}">🔎</span><br>дальше',
+    );
+    // an unpaired tag stays a visible block instead of swallowing the rest of the text
+    expect(toHtml('a </b> b')).toContain('data-t="&lt;/b&gt;"');
+    expect(tokenLabel('{qst:CONTINUE}', () => 'Продолжить')).toBe('«Продолжить»');
+  });
+});

@@ -4,7 +4,9 @@
 import { del, get, set } from 'idb-keyval';
 import { create } from 'zustand';
 import { buildPackage, openPackage, type TranslationPackage } from './package';
-import { buildGroups, type Group } from './rows';
+import { translateAll } from './machine';
+import { buildGroups, type Group, type Row } from './rows';
+import { fixTerms } from './terms';
 import { needsNoTranslation } from './tokens';
 
 export type Status = 'auto' | 'check' | 'done';
@@ -33,11 +35,15 @@ interface TranslatorState {
   setStatus(key: string, status: Status): void;
   bulk(label: string, change: (tr: Translations) => Translations): void;
   undoBulk(): void;
+  // Texts that still have no translation.
+  missing(): Row[];
+  // Machine-translates the given rows; returns how many lost a game mark on the way.
+  machine(rows: Row[], onProgress: (done: number) => void, signal?: AbortSignal): Promise<number>;
   build(): Promise<Blob>;
 }
 
 const FILE_KEY = 'mse-tr-file';
-const workKey = (name: string, source: string, target: string) => `mse-tr:${name}:${source}:${target}`;
+export const workKey = (name: string, source: string, target: string) => `mse-tr:${name}:${source}:${target}`;
 
 let saveTimer: number | undefined;
 function saveSoon() {
@@ -131,6 +137,30 @@ export const useTranslator = create<TranslatorState>((setState, getState) => ({
   undoBulk() {
     setState((st) => (st.undo ? { tr: st.undo, undo: undefined } : st));
     saveSoon();
+  },
+
+  missing() {
+    const { groups, tr } = getState();
+    return groups.flatMap((g) => g.rows).filter((r) => r.source.trim() && !needsNoTranslation(r.source) && !(tr[r.key]?.text ?? '').trim());
+  },
+
+  async machine(rows, onProgress, signal) {
+    const { source, target } = getState();
+    let done = 0;
+    let lost = 0;
+    await translateAll(
+      rows.map((r) => r.source),
+      source,
+      target,
+      (i, res) => {
+        done++;
+        if (!res.ok) lost++;
+        getState().setText(rows[i].key, target === 'Russian' ? fixTerms(rows[i].source, res.text) : res.text, 'auto');
+        onProgress(done);
+      },
+      { signal },
+    );
+    return lost;
   },
 
   async build() {

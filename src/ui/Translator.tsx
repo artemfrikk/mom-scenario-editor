@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
 import { aiPrompt, parseAiAnswer } from '../translate/ai';
-import { GOOGLE_CODE, translateAll } from '../translate/machine';
+import { canUseFolder, useLibrary, type ScenarioInfo } from '../translate/library';
+import { GOOGLE_CODE } from '../translate/machine';
 import type { Group, Row } from '../translate/rows';
 import { useTranslator, type Translations } from '../translate/store';
 import { countMatches, fixInvestigator, fixTerms, replaceAll } from '../translate/terms';
 import { needsNoTranslation, tokenProblems } from '../translate/tokens';
-import { FolderSave } from './FolderSave';
 import { LANGUAGE_LABEL, TYPE_ICON, TYPE_LABEL } from './labels';
-import { previewHtml } from './options';
+import { toHtml, tokenLabel } from '../translate/markup';
+import { TokenEditor } from './TokenEditor';
 
 type Filter = 'all' | 'empty' | 'auto' | 'problems';
 const PAGE = 40;
@@ -36,23 +37,23 @@ export function TranslatorPage({ editorReady }: { editorReady: boolean }) {
   const pkg = useTranslator((st) => st.pkg);
   const flash = useStore((st) => st.flash);
   const [restoring, setRestoring] = useState(() => !useTranslator.getState().pkg);
+  const [working, setWorking] = useState(false);
 
   useEffect(() => {
+    void useLibrary.getState().restore();
     if (!restoring) return;
     void useTranslator
       .getState()
       .restoreLast()
-      .then((ok) => {
-        setRestoring(false);
-        if (ok) flash('Продолжаем перевод с того места, где вы остановились.');
-      });
-  }, [flash, restoring]);
+      .then(() => setRestoring(false));
+  }, [restoring]);
 
   const openFile = async (f: Blob | undefined, name?: string) => {
     if (!f) return;
     try {
       const how = await useTranslator.getState().open(f, name ?? (f as File).name ?? 'scenario.valkyrie');
       const { target } = useTranslator.getState();
+      setWorking(true);
       flash(
         how === 'restored'
           ? 'Нашёлся ваш прошлый перевод этого сценария, продолжаем с него.'
@@ -66,23 +67,223 @@ export function TranslatorPage({ editorReady }: { editorReady: boolean }) {
   };
 
   if (restoring) return <div className="page" />;
-  if (!pkg) return <TranslatorStart onOpen={openFile} editorReady={editorReady} />;
-  return <TranslatorWork />;
+  if (working && pkg) return <TranslatorWork onBack={() => setWorking(false)} />;
+  return <TranslatorStart onOpen={openFile} onContinue={() => setWorking(true)} editorReady={editorReady} />;
 }
 
-function TranslatorStart({ onOpen, editorReady }: { onOpen: (f: Blob | undefined, name?: string) => void; editorReady: boolean }) {
+interface Running {
+  fileName: string;
+  done: number;
+  total: number;
+  saving: boolean;
+}
+
+// Opens, machine-translates what is missing, and writes the file back (or downloads it). Returns a message for the person.
+async function translateAndSave(item: ScenarioInfo, onProgress: (r: Running) => void, signal: AbortSignal): Promise<string> {
+  const tr = useTranslator.getState();
+  await tr.open(item.file, item.fileName);
+  const rows = tr.missing();
+  onProgress({ fileName: item.fileName, done: 0, total: rows.length, saving: false });
+  const lost = rows.length ? await tr.machine(rows, (done) => onProgress({ fileName: item.fileName, done, total: rows.length, saving: false }), signal) : 0;
+  if (signal.aborted) return 'Перевод остановлен. Уже переведённое сохранено в браузере.';
+  onProgress({ fileName: item.fileName, done: rows.length, total: rows.length, saving: true });
+  const blob = await tr.build();
+  const lib = useLibrary.getState();
+  const inFolder = await lib.write(item.fileName, blob).catch(() => false);
+  if (!inFolder) download(blob, item.fileName);
+  await lib.refreshOne(item.fileName, inFolder ? undefined : new File([blob], item.fileName));
+  const marks = lost ? ` В ${lost} текстах потерялись значки игры, их стоит поправить вручную.` : '';
+  return (inFolder ? `«${item.title}» переведён и сохранён в папку. Можно играть!` : `«${item.title}» переведён и скачан. Положите файл в папку Download с заменой.`) + marks;
+}
+
+function TranslatorStart({ onOpen, onContinue, editorReady }: { onOpen: (f: Blob | undefined, name?: string) => void; onContinue: () => void; editorReady: boolean }) {
   const input = useRef<HTMLInputElement>(null);
+  const folderInput = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
+  const flash = useStore((st) => st.flash);
+  const pkg = useTranslator((st) => st.pkg);
+  const lib = useLibrary();
+  const [running, setRunning] = useState<Running | null>(null);
+  const [abort, setAbort] = useState<AbortController | null>(null);
+  const [onlyMissing, setOnlyMissing] = useState(true);
+
+  const isDone = (i: ScenarioInfo) => i.total > 0 && i.translated >= i.total;
+  const todo = lib.items.filter((i) => !i.error && !isDone(i));
+  const shownItems = onlyMissing ? lib.items.filter((i) => !isDone(i)) : lib.items;
+
+  const run = async (items: ScenarioInfo[]) => {
+    const ctrl = new AbortController();
+    setAbort(ctrl);
+    try {
+      let last = '';
+      for (const item of items) {
+        if (ctrl.signal.aborted) break;
+        last = await translateAndSave(item, setRunning, ctrl.signal);
+      }
+      flash(items.length > 1 && !ctrl.signal.aborted ? `Готово: переведено сценариев ${items.length}.` : last);
+    } catch (e) {
+      flash('Перевод остановился: ' + (e as Error).message + ' Уже переведённое сохранено в браузере.');
+    } finally {
+      setRunning(null);
+      setAbort(null);
+    }
+  };
+
+  const openItem = (i: ScenarioInfo) => onOpen(i.file, i.fileName);
+
   return (
     <div className="page">
-      <div className="welcome">
+      <div className="welcome tr-start">
         <h1>Переводчик сценариев Valkyrie</h1>
         <div className="lead">
-          Откройте любой сценарий .valkyrie, переведите его тексты автоматически, поправьте то, что звучит странно, и сохраните. Значки и
-          команды игры в тексте не ломаются, а всё остальное в сценарии остаётся как было.
+          Выберите скачанный сценарий и нажмите «Перевести». Значки и команды игры в тексте не ломаются, а всё остальное в сценарии остаётся
+          как было.
         </div>
+
+        {pkg && (
+          <div className="card tr-continue">
+            <div>
+              <b>Продолжить перевод</b>
+              <div className="hint">{pkg.texts.Russian?.get('quest.name') || pkg.texts[pkg.defaultLanguage]?.get('quest.name') || pkg.fileName}</div>
+            </div>
+            <button className="primary" onClick={onContinue}>
+              Продолжить →
+            </button>
+          </div>
+        )}
+
+        <div className="card tr-library">
+          <div className="tr-library-head">
+            <b>📚 Сценарии из папки Valkyrie</b>
+            {lib.dir && (
+              <span className="hint">
+                папка «{lib.dir.name}» ·{' '}
+                <a href="#" onClick={(e) => (e.preventDefault(), void lib.rescan())}>
+                  обновить
+                </a>{' '}
+                ·{' '}
+                <a href="#" onClick={(e) => (e.preventDefault(), void lib.choose())}>
+                  другая папка
+                </a>
+              </span>
+            )}
+          </div>
+
+          {!lib.scanned && (
+            <div className="tr-connect">
+              {canUseFolder() ? (
+                lib.needsPermission ? (
+                  <button className="primary" onClick={() => void lib.allow()}>
+                    📁 Открыть папку «{lib.dir?.name}»
+                  </button>
+                ) : (
+                  <button className="primary" onClick={() => void lib.choose()}>
+                    📁 Подключить папку Download
+                  </button>
+                )
+              ) : (
+                <button className="primary" onClick={() => folderInput.current?.click()}>
+                  📁 Выбрать папку Download
+                </button>
+              )}
+              <p className="hint">
+                {lib.needsPermission
+                  ? 'Браузер просит подтвердить доступ к папке после перезапуска. Это один клик.'
+                  : 'Выберите папку, куда Valkyrie скачивает сценарии. Обычно это:'}
+              </p>
+              {!lib.needsPermission && (
+                <p>
+                  <code>C:\Users\ваше имя\AppData\Roaming\Valkyrie\Download</code>
+                  <br />
+                  <span className="hint">
+                    В окне выбора папки вставьте в адресную строку <code>%AppData%\Valkyrie</code>, нажмите Enter и выберите папку Download.
+                  </span>
+                </p>
+              )}
+              {!canUseFolder() && (
+                <p className="hint">
+                  В этом браузере переведённый файл скачается, и его нужно будет переложить в папку Download вручную. В Chrome, Edge или Яндекс
+                  Браузере переводчик сохраняет файл в папку сам.
+                </p>
+              )}
+            </div>
+          )}
+          <input
+            ref={folderInput}
+            type="file"
+            style={{ display: 'none' }}
+            // @ts-expect-error webkitdirectory is supported by every desktop browser but missing from React's types
+            webkitdirectory=""
+            onChange={(e) => e.target.files && void lib.fromFiles(e.target.files)}
+          />
+
+          {lib.loading && <p className="hint">Читаю сценарии…</p>}
+
+          {lib.scanned && (
+            <>
+              <div className="tr-library-tools">
+                <label className="tr-check">
+                  <input type="checkbox" checked={onlyMissing} onChange={(e) => setOnlyMissing(e.target.checked)} /> Только без перевода
+                </label>
+                <div className="spacer" />
+                {running ? (
+                  <button onClick={() => abort?.abort()}>Остановить</button>
+                ) : (
+                  todo.length > 1 && (
+                    <button onClick={() => void run(todo)} title="Перевести по очереди все сценарии, где ещё нет полного перевода">
+                      ⚡ Перевести все ({todo.length})
+                    </button>
+                  )
+                )}
+              </div>
+              {lib.items.length === 0 && <p className="hint">В этой папке нет файлов .valkyrie. Скачайте сценарий в Valkyrie или выберите другую папку.</p>}
+              {lib.items.length > 0 && shownItems.length === 0 && <p className="hint">Все сценарии в папке уже переведены.</p>}
+              <div className="tr-scenarios">
+                {shownItems.map((i) => {
+                  const busy = running?.fileName === i.fileName;
+                  const pct = i.total ? Math.round((100 * i.translated) / i.total) : 0;
+                  return (
+                    <div key={i.fileName} className={'tr-scenario' + (busy ? ' busy' : '')}>
+                      <div className="tr-scenario-name">
+                        <b>{i.title}</b>
+                        <span className="hint">{i.fileName}</span>
+                      </div>
+                      <div className="tr-scenario-state">
+                        {i.error ? (
+                          <span className="bad">не открывается</span>
+                        ) : busy ? (
+                          <span>{running!.saving ? 'Сохраняю…' : `Перевожу ${running!.done} из ${running!.total}`}</span>
+                        ) : isDone(i) ? (
+                          <span className="good">✓ Есть русский</span>
+                        ) : i.translated > 0 ? (
+                          <span className="half">Переведено {pct}%</span>
+                        ) : (
+                          <span className="none">Нет русского</span>
+                        )}
+                        {!i.error && <span className="hint">{i.languages.map(langLabel).join(', ')}</span>}
+                      </div>
+                      <div className="tr-scenario-actions">
+                        {!i.error && !isDone(i) && (
+                          <button className="primary" disabled={!!running} onClick={() => void run([i])} title="Перевести автоматически и сохранить файл">
+                            ⚡ Перевести
+                          </button>
+                        )}
+                        {!i.error && (
+                          <button disabled={!!running} onClick={() => openItem(i)} title="Открыть тексты, чтобы прочитать и поправить перевод">
+                            ✏️ Открыть
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+
         <div
-          className={'drop' + (over ? ' over' : '')}
+          className={'drop small' + (over ? ' over' : '')}
           onClick={() => input.current?.click()}
           onDragOver={(e) => {
             e.preventDefault();
@@ -95,7 +296,7 @@ function TranslatorStart({ onOpen, editorReady }: { onOpen: (f: Blob | undefined
             onOpen(e.dataTransfer.files[0]);
           }}
         >
-          <b>📂 Перетащите сюда файл .valkyrie</b>
+          <b>📂 Или перетащите сюда любой файл .valkyrie</b>
           <span>или нажмите, чтобы выбрать его на компьютере</span>
         </div>
         <input ref={input} type="file" accept=".valkyrie,.zip" style={{ display: 'none' }} onChange={(e) => onOpen(e.target.files?.[0])} />
@@ -109,24 +310,13 @@ function TranslatorStart({ onOpen, editorReady }: { onOpen: (f: Blob | undefined
           </button>
         )}
         <div className="card">
-          <b>Где лежат скачанные сценарии</b>
-          <p className="hint" style={{ lineHeight: 1.6 }}>
-            Valkyrie хранит их в папке <code>C:\Users\ваше имя\AppData\Roaming\Valkyrie\Download</code>. Проще всего попасть туда так: в окне
-            выбора файла вставьте в адресную строку <code>%AppData%\Valkyrie\Download</code> и нажмите Enter.
-          </p>
-        </div>
-        <div className="card">
-          <b>Как это работает</b>
+          <b>Как играть в переведённый сценарий</b>
           <ol className="hint" style={{ lineHeight: 1.7, paddingLeft: 18 }}>
-            <li>Откройте сценарий. Переводчик сам найдёт язык оригинала.</li>
+            <li>В настройках Valkyrie выберите русский язык.</li>
             <li>
-              Нажмите <b>«Перевести автоматически»</b>: Google переведёт всё за минуту. Для красивого художественного текста можно перевести
-              через ChatGPT или Claude.
+              В списке сценариев переключитесь в режим <b>офлайн</b>: иначе при обновлении Valkyrie может скачать оригинал поверх перевода.
             </li>
-            <li>Пройдитесь по текстам и поправьте их. Работа сохраняется сама, можно закрыть вкладку и вернуться.</li>
-            <li>
-              Сохраните файл в папку <b>Download</b> вместо старого и выберите русский язык в настройках Valkyrie.
-            </li>
+            <li>Машинный перевод можно вычитать: кнопка «✏️ Открыть» покажет все тексты рядом с оригиналом.</li>
           </ol>
         </div>
       </div>
@@ -134,7 +324,7 @@ function TranslatorStart({ onOpen, editorReady }: { onOpen: (f: Blob | undefined
   );
 }
 
-function TranslatorWork() {
+function TranslatorWork({ onBack }: { onBack: () => void }) {
   const pkg = useTranslator((st) => st.pkg)!;
   const source = useTranslator((st) => st.source);
   const target = useTranslator((st) => st.target);
@@ -185,29 +375,15 @@ function TranslatorWork() {
   const title = pkg.texts[target]?.get('quest.name') || pkg.texts[source]?.get('quest.name') || pkg.fileName;
 
   const runMachine = async (only?: Row[]) => {
-    const todo = (only ?? translatable.filter((r) => rowState(r, tr).empty)).filter((r) => r.source.trim());
+    const todo = (only ?? useTranslator.getState().missing()).filter((r) => r.source.trim());
     if (!todo.length) {
       flash('Все тексты уже переведены. Чтобы перевести заново, очистите нужный текст.');
       return;
     }
     const abort = new AbortController();
     setMachine({ done: 0, total: todo.length, abort });
-    let done = 0;
-    let lost = 0;
     try {
-      await translateAll(
-        todo.map((r) => r.source),
-        source,
-        target,
-        (i, res) => {
-          done++;
-          if (!res.ok) lost++;
-          const text = target === 'Russian' ? fixTerms(todo[i].source, res.text) : res.text;
-          useTranslator.getState().setText(todo[i].key, text, 'auto');
-          setMachine((m) => (m ? { ...m, done } : m));
-        },
-        { signal: abort.signal },
-      );
+      const lost = await useTranslator.getState().machine(todo, (done) => setMachine((m) => (m ? { ...m, done } : m)), abort.signal);
       if (!abort.signal.aborted)
         flash(lost ? `Готово. В ${lost} текстах потерялись значки игры: они в фильтре «Есть ошибки».` : 'Готово! Теперь пройдитесь по текстам и поправьте их.');
     } catch (e) {
@@ -219,7 +395,14 @@ function TranslatorWork() {
 
   const save = async () => {
     try {
-      download(await useTranslator.getState().build(), pkg.fileName);
+      const blob = await useTranslator.getState().build();
+      const lib = useLibrary.getState();
+      if (await lib.write(pkg.fileName, blob).catch(() => false)) {
+        void lib.refreshOne(pkg.fileName);
+        flash(`Сохранено в папку «${lib.dir!.name}». Можно играть!`);
+        return;
+      }
+      download(blob, pkg.fileName);
       setDialog('saved');
     } catch (e) {
       flash('Не получилось сохранить: ' + (e as Error).message);
@@ -266,8 +449,8 @@ function TranslatorWork() {
             <div className="auto" style={{ width: `${(100 * stats.auto) / Math.max(1, stats.total)}%` }} />
           </div>
         </div>
-        <button className="ghost" onClick={() => confirm('Закрыть этот сценарий? Перевод останется сохранённым в браузере.') && useTranslator.getState().close()}>
-          Другой файл
+        <button onClick={onBack} title="Вернуться к списку сценариев. Перевод этого сценария сохранится в браузере.">
+          ← Другой сценарий
         </button>
       </div>
 
@@ -301,7 +484,6 @@ function TranslatorWork() {
           </button>
         )}
         <div className="spacer" />
-        <FolderSave getBlob={() => useTranslator.getState().build()} fileName={pkg.fileName} onDone={flash} />
         <button className="primary" onClick={save} disabled={!!machine}>
           💾 Сохранить сценарий
         </button>
@@ -377,15 +559,10 @@ function RowCard({ row, group, showGroup, onMachine, busy }: { row: Row; group: 
   const fixed = needsNoTranslation(row.source);
   const problems = empty ? null : tokenProblems(row.source, text);
   const status = empty ? 'empty' : entry?.status === 'done' ? 'done' : 'auto';
-  const area = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    const el = area.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 2 + 'px';
-  }, [text]);
-
+  const pkg = useTranslator((st) => st.pkg);
+  const source = useTranslator((st) => st.source);
+  const sourceLookup = (k: string) => pkg?.texts[source]?.get(k);
+  const targetLookup = (k: string) => useTranslator.getState().tr[k]?.text || sourceLookup(k);
   const kind = group.type === 'quest' || group.type === 'other' ? '' : TYPE_LABEL[group.type];
   return (
     <div className={'tr-row ' + status + (problems ? ' bad' : '')}>
@@ -401,36 +578,39 @@ function RowCard({ row, group, showGroup, onMachine, busy }: { row: Row; group: 
         </span>
       </div>
       <div className="tr-cols">
-        <div className="tr-source" dangerouslySetInnerHTML={{ __html: sourceHtml(row.source) }} />
+        <div className="tr-source" dangerouslySetInnerHTML={{ __html: toHtml(row.source, sourceLookup) }} />
         <div>
-          <textarea
-            ref={area}
+          <TokenEditor
             value={text}
             placeholder={fixed ? 'Можно оставить как в оригинале' : 'Перевод…'}
-            onChange={(e) => useTranslator.getState().setText(row.key, e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                e.preventDefault();
-                useTranslator.getState().setStatus(row.key, 'done');
-                const all = [...document.querySelectorAll<HTMLTextAreaElement>('.tr-row textarea')];
-                all[all.indexOf(e.currentTarget) + 1]?.focus();
-              }
-            }}
-            spellCheck
+            onChange={(t) => useTranslator.getState().setText(row.key, t)}
+            lookup={targetLookup}
             lang={GOOGLE_CODE[useTranslator.getState().target]}
+            onCtrlEnter={(el) => {
+              useTranslator.getState().setStatus(row.key, 'done');
+              const all = [...document.querySelectorAll<HTMLElement>('.tr-row .tr-edit')];
+              all[all.indexOf(el) + 1]?.focus();
+            }}
           />
           {problems && (
             <div className="tr-problem">
               {problems.missing.length > 0 && (
                 <>
-                  Потерялось: <code>{problems.missing.join(' ')}</code>. Без этого в игре пропадёт значок или ссылка.{' '}
+                  Потерялось:{' '}
+                  {problems.missing.map((t, i) => (
+                    <button
+                      key={i}
+                      className="tk add"
+                      title="Нажмите, чтобы вернуть в конец текста, потом перетащите куда нужно"
+                      onClick={() => useTranslator.getState().setText(row.key, text + (/\s$/.test(text) ? '' : ' ') + t)}
+                    >
+                      + {tokenLabel(t, targetLookup)}
+                    </button>
+                  ))}{' '}
+                  Без этого в игре пропадёт значок, цвет или название.{' '}
                 </>
               )}
-              {problems.extra.length > 0 && (
-                <>
-                  Лишнее: <code>{problems.extra.join(' ')}</code>.
-                </>
-              )}
+              {problems.extra.length > 0 && <>Лишнее: {problems.extra.map((t) => tokenLabel(t, targetLookup)).join(', ')}. </>}
             </div>
           )}
           <div className="tr-row-actions">
@@ -445,7 +625,6 @@ function RowCard({ row, group, showGroup, onMachine, busy }: { row: Row; group: 
                 ✓ Проверено
               </button>
             )}
-            {!empty && <span className="hint tr-preview" dangerouslySetInnerHTML={{ __html: 'В игре: ' + sourceHtml(text) }} />}
           </div>
         </div>
       </div>
@@ -453,9 +632,6 @@ function RowCard({ row, group, showGroup, onMachine, busy }: { row: Row; group: 
   );
 }
 
-function sourceHtml(text: string): string {
-  return previewHtml(text.replace(/\n/g, '\\n')).replace(/\{qst:([^}]+)\}/g, '<i class="tr-ref">[фраза $1]</i>');
-}
 
 function AiDialog({ rows, onClose }: { rows: Row[]; onClose: () => void }) {
   const tr = useTranslator((st) => st.tr);
