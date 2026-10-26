@@ -82,9 +82,11 @@ interface Running {
 const switchedNote = ' Google ограничил перевод, поэтому остаток перевёл встроенный переводчик Chrome.';
 
 // Opens, machine-translates what is missing, and writes the file back (or downloads it). Returns a message for the person.
-async function translateAndSave(item: ScenarioInfo, onProgress: (r: Running) => void, signal: AbortSignal): Promise<string> {
+// With `fresh`, earlier translations are dropped and everything is translated again.
+async function translateAndSave(item: ScenarioInfo, onProgress: (r: Running) => void, signal: AbortSignal, fresh = false): Promise<string> {
   const tr = useTranslator.getState();
   await tr.open(item.file, item.fileName);
+  if (fresh) tr.restart();
   const rows = tr.missing();
   onProgress({ fileName: item.fileName, done: 0, total: rows.length, wait: 0, saving: false });
   const { lost, switched } = rows.length ? await tr.auto(rows, (p) => onProgress({ fileName: item.fileName, ...p, saving: false }), signal) : { lost: 0, switched: false };
@@ -114,14 +116,14 @@ function TranslatorStart({ onOpen, onContinue, editorReady }: { onOpen: (f: Blob
   const todo = lib.items.filter((i) => !i.error && !isDone(i));
   const shownItems = onlyMissing ? lib.items.filter((i) => !isDone(i)) : lib.items;
 
-  const run = async (items: ScenarioInfo[]) => {
+  const run = async (items: ScenarioInfo[], fresh = false) => {
     const ctrl = new AbortController();
     setAbort(ctrl);
     try {
       let last = '';
       for (const item of items) {
         if (ctrl.signal.aborted) break;
-        last = await translateAndSave(item, setRunning, ctrl.signal);
+        last = await translateAndSave(item, setRunning, ctrl.signal, fresh);
       }
       flash(items.length > 1 && !ctrl.signal.aborted ? `Готово: переведено сценариев ${items.length}.` : last);
     } catch (e) {
@@ -151,6 +153,9 @@ function TranslatorStart({ onOpen, onContinue, editorReady }: { onOpen: (f: Blob
             </div>
             <button className="primary" onClick={onContinue}>
               Продолжить →
+            </button>
+            <button className="ghost" onClick={() => useTranslator.getState().close()} title="Убрать этот сценарий из браузера. Его перевод сохранится, если откроете файл снова.">
+              ✕
             </button>
           </div>
         )}
@@ -277,6 +282,15 @@ function TranslatorStart({ onOpen, onContinue, editorReady }: { onOpen: (f: Blob
                             ⚡ Перевести
                           </button>
                         )}
+                        {!i.error && i.translated > 0 && (
+                          <button
+                            disabled={!!running}
+                            onClick={() => window.confirm(`Перевести «${i.title}» заново? Старый перевод будет заменён новым.`) && void run([i], true)}
+                            title="Забыть старый перевод, перевести всё заново и сохранить файл"
+                          >
+                            🔄 Заново
+                          </button>
+                        )}
                         {!i.error && (
                           <button disabled={!!running} onClick={() => openItem(i)} title="Открыть тексты, чтобы прочитать и поправить перевод">
                             ✏️ Открыть
@@ -388,7 +402,7 @@ function TranslatorWork({ onBack }: { onBack: () => void }) {
   const runMachine = async (only?: Row[]) => {
     const todo = (only ?? useTranslator.getState().missing()).filter((r) => r.source.trim());
     if (!todo.length) {
-      flash('Все тексты уже переведены. Чтобы перевести заново, очистите нужный текст.');
+      flash('Все тексты уже переведены. Чтобы перевести всё заново, нажмите «🔄 Перевести всё заново».');
       return;
     }
     const abort = new AbortController();
@@ -405,6 +419,12 @@ function TranslatorWork({ onBack }: { onBack: () => void }) {
     } finally {
       setMachine(null);
     }
+  };
+
+  const restart = () => {
+    if (!window.confirm('Перевести весь сценарий заново? Сейчас готовый перевод будет заменён новым (кнопкой «Отменить» можно вернуть старый).')) return;
+    useTranslator.getState().restart();
+    void runMachine();
   };
 
   const save = async () => {
@@ -492,6 +512,11 @@ function TranslatorWork({ onBack }: { onBack: () => void }) {
                 <option value="google">через Google</option>
                 <option value="browser">встроенным переводчиком Chrome</option>
               </select>
+            )}
+            {stats.done > 0 && (
+              <button onClick={restart} title="Забыть весь готовый перевод (и сохранённый в браузере, и тот, что уже был в файле) и перевести заново">
+                🔄 Перевести всё заново
+              </button>
             )}
             <button onClick={() => setDialog('ai')} title="Художественный перевод через ChatGPT, Claude или другой чат-ассистент">
               🤖 Через ChatGPT / Claude

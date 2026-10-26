@@ -36,6 +36,8 @@ interface TranslatorState {
   setStatus(key: string, status: Status): void;
   bulk(label: string, change: (tr: Translations) => Translations): void;
   undoBulk(): void;
+  // Forgets every translation (saved in the browser and the one already in the file) so everything is translated again.
+  restart(): void;
   // Texts that still have no translation.
   missing(): Row[];
   // Machine-translates the given rows; returns how many lost a game mark on the way.
@@ -148,6 +150,15 @@ export const useTranslator = create<TranslatorState>((setState, getState) => ({
 
   undoBulk() {
     setState((st) => (st.undo ? { tr: st.undo, undo: undefined } : st));
+    saveSoon();
+  },
+
+  restart() {
+    const { pkg, source } = getState();
+    if (!pkg) return;
+    const tr: Translations = {};
+    for (const u of unitsOf(pkg, source)) if (needsNoTranslation(u.source)) tr[u.id] = { text: u.source, status: 'done' };
+    setState((st) => ({ undo: st.tr, undoLabel: 'Перевести всё заново', tr }));
     saveSoon();
   },
 
