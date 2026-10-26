@@ -17,9 +17,17 @@ import { buttonLabel, buttonsOf, getComponent } from '../model/ops';
 import catalog from '../content/catalog.json';
 import { useStore } from '../store';
 import { Thumb } from './widgets';
-import { TYPE_ICON } from './labels';
+import { TYPE_LABEL } from './labels';
 import { MapView } from './MapView';
 import { labelOf, plainText, previewHtml } from './options';
+
+// How a {c:Name} in a window is called: a Spawn by its monster, in Russian when the game's texts are connected.
+function windowLabel(spawnName: string): string | undefined {
+  const c = useStore.getState().scenario.components.find((x) => x.name === spawnName);
+  const id = (c?.data.monster ?? '').split(/\s+/)[0];
+  const m = catalog.monsters.find((x) => x.id === id);
+  return m ? labelOf(m.name, m.nameKey).split(' · ')[0] : undefined;
+}
 
 const monsterImage = (id: string) => catalog.monsters.find((m) => m.id === id);
 
@@ -95,8 +103,8 @@ export function GameView() {
         <MapView embedded only={game.visible} onPick={busy || game.ended ? undefined : (n) => act((g) => touch(s, g, n))} />
         {current && (
           <div className="game-window" role="dialog">
-            <div className="game-title">
-              {TYPE_ICON[current.type]} {current.name}
+            <div className="game-title" title={current.name}>
+              {spawned ? 'Появление чудовища' : TYPE_LABEL[current.type]}
             </div>
             {spawned && (
               <div className="game-monster">
@@ -107,7 +115,7 @@ export function GameView() {
                 </div>
               </div>
             )}
-            <div className="game-text" dangerouslySetInnerHTML={{ __html: previewHtml(windowText(s, game, lang, current.name)) || '<i>Текст не написан</i>' }} />
+            <div className="game-text" dangerouslySetInnerHTML={{ __html: previewHtml(windowText(s, game, lang, current.name, windowLabel)) || '<i>Текст не написан</i>' }} />
             <div className="play-buttons">
               {buttonsOf(current).map((b) => {
                 const state = buttonState(current, b.index, game.vars);

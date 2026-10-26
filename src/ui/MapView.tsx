@@ -67,7 +67,7 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
   useEffect(() => {
     if (!userMoved.current && size.w >= 50) fit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [size.w, size.h, imgSize]);
+  }, [size.w, size.h, imgSize, only ? pieces.length : 0]);
 
   // Measure the pictures of tiles that are on the map, to draw them at their real size.
   useEffect(() => {
