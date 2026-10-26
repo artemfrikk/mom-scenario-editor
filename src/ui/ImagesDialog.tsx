@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { canPickFolder, importPath, pickFolder, useImages, valkyrieRoot } from '../images';
 import { useImagesDialog } from './imagesDialogStore';
+
+const DEFAULT_PROGRAM = 'D:\\Valkyrie';
+const programPath = (_root: string) => DEFAULT_PROGRAM + '\\Valkyrie_Data\\StreamingAssets\\content\\MoM';
 
 // The toolbar button that shows the state of the pictures and reopens the dialog.
 export function ImagesButton() {
@@ -29,9 +32,12 @@ export function ImagesDialog({ auto }: { auto: boolean }) {
   const found = useImages((s) => s.found);
   const error = useImages((s) => s.error);
   const fromFiles = useImages((s) => s.fromFiles);
+  const hasTokens = useImages((s) => 'search_token' in s.urls);
   const open = useImagesDialog((s) => s.open);
   const dismissed = useImagesDialog((s) => s.dismissed);
   const hide = useImagesDialog((s) => s.hide);
+  const show = useImagesDialog((s) => s.show);
+  const before = useRef(status);
   const [copied, setCopied] = useState(false);
   const [root, setRoot] = useState(valkyrieRoot);
   const imgPath = importPath(root);
@@ -40,10 +46,16 @@ export function ImagesDialog({ auto }: { auto: boolean }) {
 
   const visible = open || (auto && status === 'none' && !dismissed);
 
+  // Right after the import folder is read, offer the second step if the token icons are still missing.
+  useEffect(() => {
+    if (before.current === 'loading' && status === 'ready' && !hasTokens) show();
+    before.current = status;
+  }, [status, hasTokens, show]);
+
   // Close by itself once the pictures are in.
   useEffect(() => {
-    if (status === 'ready' && open) useImagesDialog.setState({ open: false });
-  }, [status, open]);
+    if (status === 'ready' && hasTokens && open) useImagesDialog.setState({ open: false });
+  }, [status, hasTokens, open]);
 
   if (!visible) return null;
 
@@ -82,6 +94,18 @@ export function ImagesDialog({ auto }: { auto: boolean }) {
             <div className="hint">Нужна папка import внутри MoM: в ней лежат и картинки (img), и тексты (text). Можно выбрать и одну папку img: картинки загрузятся, но русских названий не будет.</div>
           </li>
         </ol>
+        {status === 'ready' && !hasTokens && canPickFolder() && (
+          <div className="hint" style={{ marginBottom: 10 }}>
+            <b>Шаг 2: значки жетонов.</b> Они лежат не в import, а в самой программе Valkyrie. Нажмите кнопку ниже и выберите папку
+            <code> {programPath(root)}</code> (если Valkyrie стоит не в {DEFAULT_PROGRAM}, найдите папку Valkyrie_Data\StreamingAssets\content\MoM
+            там, где она установлена).
+            <div className="row" style={{ marginTop: 8 }}>
+              <button className="primary" onClick={() => void pickFolder('valkyrie-app')}>
+                Выбрать папку со значками жетонов
+              </button>
+            </div>
+          </div>
+        )}
         {status === 'loading' && <div className="hint">Копирую картинки… найдено {found}</div>}
         {error && <div className="error">{error}</div>}
         <div className="row" style={{ marginTop: 14 }}>

@@ -80,8 +80,9 @@ for (const pack of readdirSync(dir)) {
       traits: traits(d.traits), image: d.image?.replace('{import}/', '') || undefined,
     });
   }
-  for (const [id] of Object.entries(read('tokens.ini'))) {
-    catalog.tokens.push({ id, pack: packId, name: prettyName(id, '', ['Token']) });
+  for (const [id, d] of Object.entries(read('tokens.ini'))) {
+    const image = d.image?.replace('{import}/', '');
+    catalog.tokens.push({ id, pack: packId, name: prettyName(id, '', ['Token']), image: image && !/SpriteAtlas/.test(image) ? image : undefined, pps: Number(d.pps) || undefined });
   }
   for (const [id, d] of Object.entries(read('audio.ini'))) {
     catalog.audio.push({ id, traits: traits(d.traits) });
