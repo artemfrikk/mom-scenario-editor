@@ -27,7 +27,7 @@ function fallbackSize(traits: string[]): [number, number] {
 }
 
 // `only` turns the map into a read-only view of just those objects (used by the play-through).
-export function MapView({ embedded = false, only }: { embedded?: boolean; only?: string[] }) {
+export function MapView({ embedded = false, only, onPick }: { embedded?: boolean; only?: string[]; onPick?: (name: string) => void }) {
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const selected = useStore((st) => st.selected);
@@ -133,7 +133,10 @@ export function MapView({ embedded = false, only }: { embedded?: boolean; only?:
   };
 
   const startMove = (e: RPointerEvent, c: QComponent) => {
-    if (only) return;
+    if (only) {
+      if (onPick && (c.type === 'Token' || c.type === 'Door')) onPick(c.name);
+      return;
+    }
     e.stopPropagation();
     svgRef.current!.setPointerCapture(e.pointerId);
     select(c.name);
@@ -324,7 +327,7 @@ export function MapView({ embedded = false, only }: { embedded?: boolean; only?:
       )}
       <svg
         ref={svgRef}
-        className={'map-svg' + (panning ? ' panning' : '')}
+        className={'map-svg' + (panning ? ' panning' : '') + (only ? ' play' : '')}
         viewBox={`${view.x} ${view.y} ${size.w / view.scale} ${size.h / view.scale}`}
         onWheel={onWheel}
         onPointerDown={(e) => {

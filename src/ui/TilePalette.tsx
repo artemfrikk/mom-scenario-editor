@@ -3,7 +3,8 @@ import catalog from '../content/catalog.json';
 import { isEventLike } from '../format/scenario';
 import type { Side } from '../model/geometry';
 import { useStore } from '../store';
-import { packName } from './options';
+import { useImages } from '../images';
+import { labelOf, packName } from './options';
 import { Thumb } from './widgets';
 
 // A side panel with every room as a picture: click one and it lands in the middle of the map
@@ -16,10 +17,11 @@ export function TilePalette({ onPick, onClose, canDock }: { onPick: (side: strin
     events.includes(selected ?? '') ? selected! : (s.components.find((c) => c.data.trigger === 'EventStart')?.name ?? events[0] ?? ''),
   );
   const [dir, setDir] = useState<Side>('right');
+  useImages((st) => st.names); // redraw when the official names arrive
   const [q, setQ] = useState('');
   const [pack, setPack] = useState('');
   const tiles = catalog.tiles.filter(
-    (t) => (!pack || t.pack === pack) && (!q || (t.name + ' ' + t.id + ' ' + t.traits.join(' ')).toLowerCase().includes(q.toLowerCase())),
+    (t) => (!pack || t.pack === pack) && (!q || (labelOf(t.name, t.nameKey) + ' ' + t.id + ' ' + t.traits.join(' ')).toLowerCase().includes(q.toLowerCase())),
   );
   return (
     <aside className="palette">
@@ -65,9 +67,9 @@ export function TilePalette({ onPick, onClose, canDock }: { onPick: (side: strin
       </select>
       <div className="palette-grid">
         {tiles.map((t) => (
-          <button key={t.id} className="palette-tile" onClick={() => onPick(t.id, shownBy, dir)} title={`${t.name} · ${packName[t.pack] ?? t.pack}`}>
+          <button key={t.id} className="palette-tile" onClick={() => onPick(t.id, shownBy, dir)} title={`${labelOf(t.name, t.nameKey)} · ${packName[t.pack] ?? t.pack}`}>
             <Thumb path={t.image} className="palette-img" />
-            <span>{t.name}</span>
+            <span>{labelOf(t.name, t.nameKey)}</span>
           </button>
         ))}
         {tiles.length === 0 && <div className="hint">Ничего не найдено.</div>}

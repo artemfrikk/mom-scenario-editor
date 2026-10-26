@@ -54,6 +54,7 @@
    "id": "TileSideAlley1",
    "pack": "MoMBase",
    "name": "Alley 1",
+   "nameKey": "TILE_ALLEY_1_MAD20",
    "traits": [
     "outside",
     "small",
@@ -66,6 +67,7 @@
    "id": "TileSideAlley2",
    "pack": "MoMBase",
    "name": "Alley 2",
+   "nameKey": "TILE_ALLEY_2_MAD20",
    "traits": [
     "outside",
     "small",
@@ -78,6 +80,7 @@
    "id": "TileSideAlleyCorner1",
    "pack": "MoMBase",
    "name": "Alley Corner 1",
+   "nameKey": "TILE_ALLEY_CORNER_1_MAD20",
    "traits": [
     "outside",
     "small",
@@ -90,6 +93,7 @@
    "id": "TileSideAlleyCorner2",
    "pack": "MoMBase",
    "name": "Alley Corner 2",
+   "nameKey": "TILE_ALLEY_CORNER_2_MAD20",
    "traits": [
     "outside",
     "small",
@@ -102,6 +106,7 @@
    "id": "TileSideAlleyEnd",
    "pack": "MoMBase",
    "name": "Alley End",
+   "nameKey": "TILE_ALLEY_END_MAD20",
    "traits": [
     "outside",
     "small",
@@ -114,6 +119,7 @@
    "id": "TileSideAttic",
    "pack": "MoMBase",
    "name": "Attic",
+   "nameKey": "TILE_ATTIC_MAD20",
    "traits": [
     "inside",
     "medium",
@@ -126,6 +132,7 @@
    "id": "TileSideBallroom",
    "pack": "MoMBase",
    "name": "Ballroom",
+   "nameKey": "TILE_BALLROOM_MAD20",
    "traits": [
     "inside",
     "medium"
@@ -137,6 +144,7 @@
    "id": "TileSideBasement",
    "pack": "MoMBase",
    "name": "Basement",
+   "nameKey": "TILE_BASEMENT_MAD20",
    "traits": [
     "inside",
     "medium",
@@ -149,6 +157,7 @@
    "id": "TileSideBathroom",
    "pack": "MoMBase",
    "name": "Bathroom",
+   "nameKey": "TILE_BATHROOM_MAD20",
    "traits": [
     "inside",
     "small",
@@ -162,6 +171,7 @@
    "id": "TileSideBeach",
    "pack": "MoMBase",
    "name": "Beach",
+   "nameKey": "TILE_BEACH_MAD20",
    "traits": [
     "inside",
     "outside",
@@ -175,6 +185,7 @@
    "id": "TileSideBedroom1",
    "pack": "MoMBase",
    "name": "Bedroom 1",
+   "nameKey": "TILE_BEDROOM_1_MAD20",
    "traits": [
     "inside",
     "small",
@@ -187,6 +198,7 @@
    "id": "TileSideBedroom2",
    "pack": "MoMBase",
    "name": "Bedroom 2",
+   "nameKey": "TILE_BEDROOM_2_MAD20",
    "traits": [
     "inside",
     "small",
@@ -199,6 +211,7 @@
    "id": "TileSideBellTower",
    "pack": "MoMBase",
    "name": "Bell Tower",
+   "nameKey": "TILE_BELL_TOWER_MAD20",
    "traits": [
     "inside",
     "small"
@@ -210,6 +223,7 @@
    "id": "TileSideBilliardsRoom",
    "pack": "MoMBase",
    "name": "Billiards Room",
+   "nameKey": "TILE_BILLIARDS_ROOM_MAD20",
    "traits": [
     "inside",
     "small"
@@ -221,6 +235,7 @@
    "id": "TileSideConservatory",
    "pack": "MoMBase",
    "name": "Conservatory",
+   "nameKey": "TILE_CONSERVATORY_MAD20",
    "traits": [
     "inside",
     "outside",
@@ -233,6 +248,7 @@
    "id": "TileSideDiningRoom",
    "pack": "MoMBase",
    "name": "Dining Room",
+   "nameKey": "TILE_DINING_ROOM_MAD20",
    "traits": [
     "inside",
     "medium",
@@ -245,6 +261,7 @@
    "id": "TileSideDock1",
    "pack": "MoMBase",
    "name": "Dock 1",
+   "nameKey": "TILE_DOCK_1_MAD20",
    "traits": [
     "outside",
     "small",
@@ -257,6 +274,7 @@
    "id": "TileSideDock2",
    "pack": "MoMBase",
    "name": "Dock 2",
+   "nameKey": "TILE_DOCK_2_MAD20",
    "traits": [
     "outside",
     "small",
@@ -269,6 +287,7 @@
    "id": "TileSideEntryHall",
    "pack": "MoMBase",
    "name": "Entry Hall",
+   "nameKey": "TILE_ENTRY_HALL_MAD20",
    "traits": [
     "inside",
     "small",
@@ -281,6 +300,7 @@
    "id": "TileSideFleaMarket",
    "pack": "MoMBase",
    "name": "Flea Market",
+   "nameKey": "TILE_FLEA_MARKET_MAD20",
    "traits": [
     "outside",
     "medium"
@@ -292,6 +312,7 @@
    "id": "TileSideHall1",
    "pack": "MoMBase",
    "name": "Hall 1",
+   "nameKey": "TILE_HALL_1_MAD20",
    "traits": [
     "inside",
     "small",
@@ -304,6 +325,7 @@
    "id": "TileSideHall2",
    "pack": "MoMBase",
    "name": "Hall 2",
+   "nameKey": "TILE_HALL_2_MAD20",
    "traits": [
     "inside",
     "small",
@@ -316,6 +338,7 @@
    "id": "TileSideHallCorner1",
    "pack": "MoMBase",
    "name": "Hall Corner 1",
+   "nameKey": "TILE_HALL_CORNER_1_MAD20",
    "traits": [
     "inside",
     "small",
@@ -328,6 +351,7 @@
    "id": "TileSideHallCorner2",
    "pack": "MoMBase",
    "name": "Hall Corner 2",
+   "nameKey": "TILE_HALL_CORNER_2_MAD20",
    "traits": [
     "inside",
     "small",
@@ -340,6 +364,7 @@
    "id": "TileSideHallEnd",
    "pack": "MoMBase",
    "name": "Hall End",
+   "nameKey": "TILE_HALL_END_MAD20",
    "traits": [
     "inside",
     "small",
@@ -352,6 +377,7 @@
    "id": "TileSideHallStairs",
    "pack": "MoMBase",
    "name": "Hall Stairs",
+   "nameKey": "TILE_HALL_STAIRS_MAD20",
    "traits": [
     "inside",
     "small",
@@ -365,6 +391,7 @@
    "id": "TileSideHouseBoat",
    "pack": "MoMBase",
    "name": "House Boat",
+   "nameKey": "TILE_HOUSE_BOAT_MAD20",
    "traits": [
     "outside",
     "inside",
@@ -379,6 +406,7 @@
    "id": "TileSideInteriorHall",
    "pack": "MoMBase",
    "name": "Interior Hall",
+   "nameKey": "TILE_INTERIOR_HALL_MAD20",
    "traits": [
     "inside",
     "medium",
@@ -391,6 +419,7 @@
    "id": "TileSideLibrary",
    "pack": "MoMBase",
    "name": "Library",
+   "nameKey": "TILE_LIBRARY_MAD20",
    "traits": [
     "inside",
     "small"
@@ -402,6 +431,7 @@
    "id": "TileSideLobby",
    "pack": "MoMBase",
    "name": "Lobby",
+   "nameKey": "TILE_LOBBY_MAD20",
    "traits": [
     "inside",
     "medium"
@@ -413,6 +443,7 @@
    "id": "TileSideLounge",
    "pack": "MoMBase",
    "name": "Lounge",
+   "nameKey": "TILE_LOUNGE_MAD20",
    "traits": [
     "inside",
     "medium"
@@ -424,6 +455,7 @@
    "id": "TileSideOffice",
    "pack": "MoMBase",
    "name": "Office",
+   "nameKey": "TILE_OFFICE_MAD20",
    "traits": [
     "inside",
     "small"
@@ -435,6 +467,7 @@
    "id": "TileSideParkPond",
    "pack": "MoMBase",
    "name": "Park Pond",
+   "nameKey": "TILE_PARK_POND_MAD20",
    "traits": [
     "outside",
     "medium",
@@ -447,6 +480,7 @@
    "id": "TileSidePier",
    "pack": "MoMBase",
    "name": "Pier",
+   "nameKey": "TILE_PIER_MAD20",
    "traits": [
     "inside",
     "outside",
@@ -461,6 +495,7 @@
    "id": "TileSideRentalDock",
    "pack": "MoMBase",
    "name": "Rental Dock",
+   "nameKey": "TILE_RENTAL_DOCK_MAD20",
    "traits": [
     "inside",
     "outside",
@@ -474,6 +509,7 @@
    "id": "TileSideRootCellar",
    "pack": "MoMBase",
    "name": "Root Cellar",
+   "nameKey": "TILE_ROOT_CELLAR_MAD20",
    "traits": [
     "inside",
     "outside",
@@ -486,6 +522,7 @@
    "id": "TileSideStorefront",
    "pack": "MoMBase",
    "name": "Storefront",
+   "nameKey": "TILE_STOREFRONT_MAD20",
    "traits": [
     "inside",
     "outside",
@@ -499,6 +536,7 @@
    "id": "TileSideStreet1",
    "pack": "MoMBase",
    "name": "Street 1",
+   "nameKey": "TILE_STREET_1_MAD20",
    "traits": [
     "outside",
     "small",
@@ -511,6 +549,7 @@
    "id": "TileSideStreet2",
    "pack": "MoMBase",
    "name": "Street 2",
+   "nameKey": "TILE_STREET_2_MAD20",
    "traits": [
     "outside",
     "small",
@@ -523,6 +562,7 @@
    "id": "TileSideStreetCorner1",
    "pack": "MoMBase",
    "name": "Street Corner 1",
+   "nameKey": "TILE_STREET_CORNER_1_MAD20",
    "traits": [
     "outside",
     "small",
@@ -535,6 +575,7 @@
    "id": "TileSideStreetCorner2",
    "pack": "MoMBase",
    "name": "Street Corner 2",
+   "nameKey": "TILE_STREET_CORNER_2_MAD20",
    "traits": [
     "outside",
     "small",
@@ -547,6 +588,7 @@
    "id": "TileSideStreetCorner3",
    "pack": "MoMBase",
    "name": "Street Corner 3",
+   "nameKey": "TILE_STREET_CORNER_3_MAD20",
    "traits": [
     "outside",
     "small",
@@ -559,6 +601,7 @@
    "id": "TileSideStudy",
    "pack": "MoMBase",
    "name": "Study",
+   "nameKey": "TILE_STUDY_MAD20",
    "traits": [
     "inside",
     "small"
@@ -570,6 +613,7 @@
    "id": "TileSideToolShed",
    "pack": "MoMBase",
    "name": "Tool Shed",
+   "nameKey": "TILE_TOOL_SHED_MAD20",
    "traits": [
     "inside",
     "outside",
@@ -582,6 +626,7 @@
    "id": "TileSideTownSquare",
    "pack": "MoMBase",
    "name": "Town Square",
+   "nameKey": "TILE_TOWN_SQUARE_MAD20",
    "traits": [
     "outside",
     "medium"
@@ -593,6 +638,7 @@
    "id": "TileSideWarehouse",
    "pack": "MoMBase",
    "name": "Warehouse",
+   "nameKey": "TILE_WAREHOUSE_MAD20",
    "traits": [
     "inside",
     "medium",
@@ -605,6 +651,7 @@
    "id": "TileSideYard1",
    "pack": "MoMBase",
    "name": "Yard 1",
+   "nameKey": "TILE_YARD_1_MAD20",
    "traits": [
     "outside",
     "small"
@@ -616,6 +663,7 @@
    "id": "TileSideYard2",
    "pack": "MoMBase",
    "name": "Yard 2",
+   "nameKey": "TILE_YARD_2_MAD20",
    "traits": [
     "outside",
     "small"
@@ -627,6 +675,7 @@
    "id": "TileSideAtticStorage",
    "pack": "BtT",
    "name": "Attic Storage",
+   "nameKey": "TILE_ATTIC_STORAGE_MAD23",
    "traits": [
     "inside",
     "small"
@@ -638,6 +687,7 @@
    "id": "TileSideBalcony",
    "pack": "BtT",
    "name": "Balcony",
+   "nameKey": "TILE_BALCONY_MAD23",
    "traits": [
     "outside",
     "small"
@@ -649,6 +699,7 @@
    "id": "TileSideBasementStorage",
    "pack": "BtT",
    "name": "Basement Storage",
+   "nameKey": "TILE_BASEMENT_STORAGE_MAD23",
    "traits": [
     "inside",
     "small"
@@ -660,6 +711,7 @@
    "id": "TileSideBedroom",
    "pack": "BtT",
    "name": "Bedroom",
+   "nameKey": "TILE_BEDROOM_MAD23",
    "traits": [
     "inside",
     "small",
@@ -673,6 +725,7 @@
    "id": "TileSideDiningRoomMAD23",
    "pack": "BtT",
    "name": "Dining Room",
+   "nameKey": "TILE_DINING_ROOM_MAD23",
    "traits": [
     "inside",
     "small"
@@ -684,6 +737,7 @@
    "id": "TileSideEntryHallMAD23",
    "pack": "BtT",
    "name": "Entry Hall",
+   "nameKey": "TILE_ENTRY_HALL_MAD23",
    "traits": [
     "inside",
     "small",
@@ -696,6 +750,7 @@
    "id": "TileSideHallCorner",
    "pack": "BtT",
    "name": "Hall Corner",
+   "nameKey": "TILE_HALL_CORNER_MAD23",
    "traits": [
     "inside",
     "small",
@@ -708,6 +763,7 @@
    "id": "TileSideHallStairsMAD23",
    "pack": "BtT",
    "name": "Hall Stairs",
+   "nameKey": "TILE_HALL_STAIRS_MAD23",
    "traits": [
     "inside",
     "small",
@@ -721,6 +777,7 @@
    "id": "TileSideKitchen",
    "pack": "BtT",
    "name": "Kitchen",
+   "nameKey": "TILE_KITCHEN_MAD23",
    "traits": [
     "inside",
     "small",
@@ -734,6 +791,7 @@
    "id": "TileSideLibraryMAD23",
    "pack": "BtT",
    "name": "Library",
+   "nameKey": "TILE_LIBRARY_MAD23",
    "traits": [
     "inside",
     "small"
@@ -745,6 +803,7 @@
    "id": "TileSidePorch",
    "pack": "BtT",
    "name": "Porch",
+   "nameKey": "TILE_PORCH_MAD23",
    "traits": [
     "inside",
     "outside",
@@ -757,6 +816,7 @@
    "id": "TileSideYard1MAD23",
    "pack": "BtT",
    "name": "Yard 1",
+   "nameKey": "TILE_YARD_1_MAD23",
    "traits": [
     "outside",
     "small"
@@ -768,6 +828,7 @@
    "id": "TileSideBaggageCar",
    "pack": "HJ",
    "name": "Baggage Car",
+   "nameKey": "TILE_BAGGAGE_CAR_MAD27",
    "traits": [
     "inside",
     "train",
@@ -782,6 +843,7 @@
    "id": "TileSideBridge",
    "pack": "HJ",
    "name": "Bridge",
+   "nameKey": "TILE_BRIDGE_MAD27",
    "traits": [
     "inside",
     "ship",
@@ -794,6 +856,7 @@
    "id": "TileSideCabin1",
    "pack": "HJ",
    "name": "Cabin 1",
+   "nameKey": "TILE_CABIN_1_MAD27",
    "traits": [
     "inside",
     "train",
@@ -807,6 +870,7 @@
    "id": "TileSideCabin3",
    "pack": "HJ",
    "name": "Cabin 3",
+   "nameKey": "TILE_CABIN_3_MAD27",
    "traits": [
     "inside",
     "train",
@@ -820,6 +884,7 @@
    "id": "TileSideCarboose",
    "pack": "HJ",
    "name": "Caboose",
+   "nameKey": "TILE_CABOOSE_MAD27",
    "traits": [
     "inside",
     "outside",
@@ -834,6 +899,7 @@
    "id": "TileSideChartRoom",
    "pack": "HJ",
    "name": "Chart Room",
+   "nameKey": "TILE_CHART_ROOM_MAD27",
    "traits": [
     "inside",
     "train",
@@ -847,6 +913,7 @@
    "id": "TileSideCrewBedroom",
    "pack": "HJ",
    "name": "Crew Bedroom",
+   "nameKey": "TILE_CREW_BEDROOM_MAD27",
    "traits": [
     "inside",
     "train",
@@ -860,6 +927,7 @@
    "id": "TileSideDiningCar1",
    "pack": "HJ",
    "name": "Dining Car 1",
+   "nameKey": "TILE_DINING_CAR_1_MAD27",
    "traits": [
     "inside",
     "train",
@@ -873,6 +941,7 @@
    "id": "TileSideDiningCar2",
    "pack": "HJ",
    "name": "Dining Car 2",
+   "nameKey": "TILE_DINING_CAR_2_MAD27",
    "traits": [
     "inside",
     "train",
@@ -887,6 +956,7 @@
    "id": "TileSideDiningRoomMAD27",
    "pack": "HJ",
    "name": "Dining Room",
+   "nameKey": "TILE_DINING_ROOM_MAD27",
    "traits": [
     "inside",
     "ship",
@@ -899,6 +969,7 @@
    "id": "TileSideEngine",
    "pack": "HJ",
    "name": "Engine",
+   "nameKey": "TILE_ENGINE_MAD27",
    "traits": [
     "inside",
     "outside",
@@ -912,6 +983,7 @@
    "id": "TileSideEngineRoom",
    "pack": "HJ",
    "name": "Engine Room",
+   "nameKey": "TILE_ENGINE_ROOM_MAD27",
    "traits": [
     "inside",
     "ship",
@@ -924,6 +996,7 @@
    "id": "TileSideFreightCar1",
    "pack": "HJ",
    "name": "Freight Car 1",
+   "nameKey": "TILE_FREIGHT_CAR_1_MAD27",
    "traits": [
     "inside",
     "train",
@@ -938,6 +1011,7 @@
    "id": "TileSideFreightCar2",
    "pack": "HJ",
    "name": "Freight Car 2",
+   "nameKey": "TILE_FREIGHT_CAR_2_MAD27",
    "traits": [
     "outside",
     "train",
@@ -951,6 +1025,7 @@
    "id": "TileSideLifeBoat",
    "pack": "HJ",
    "name": "Life Boat",
+   "nameKey": "TILE_LIFE_BOAT_MAD27",
    "traits": [
     "small",
     "ship",
@@ -963,6 +1038,7 @@
    "id": "TileSideLoungeCar",
    "pack": "HJ",
    "name": "Lounge Car",
+   "nameKey": "TILE_LOUNGE_CAR_MAD27",
    "traits": [
     "inside",
     "train",
@@ -976,6 +1052,7 @@
    "id": "TileSideMedicalOffice",
    "pack": "HJ",
    "name": "Medical Office",
+   "nameKey": "TILE_MEDICAL_OFFICE_MAD27",
    "traits": [
     "inside",
     "storage",
@@ -988,6 +1065,7 @@
    "id": "TileSideObservationCar",
    "pack": "HJ",
    "name": "Observation Car",
+   "nameKey": "TILE_OBSERVATION_CAR_MAD27",
    "traits": [
     "outside",
     "train",
@@ -1000,6 +1078,7 @@
    "id": "TileSidePassengerCar1",
    "pack": "HJ",
    "name": "Passenger Car 1",
+   "nameKey": "TILE_PASSENGER_CAR_1_MAD27",
    "traits": [
     "inside",
     "train",
@@ -1013,6 +1092,7 @@
    "id": "TileSidePassengerCar2",
    "pack": "HJ",
    "name": "Passenger Car 2",
+   "nameKey": "TILE_PASSENGER_CAR_2_MAD27",
    "traits": [
     "inside",
     "train",
@@ -1026,6 +1106,7 @@
    "id": "TileSidePool",
    "pack": "HJ",
    "name": "Pool",
+   "nameKey": "TILE_POOL_MAD27",
    "traits": [
     "inside",
     "bathroom",
@@ -1038,6 +1119,7 @@
    "id": "TileSideProw",
    "pack": "HJ",
    "name": "Prow",
+   "nameKey": "TILE_PROW_MAD27",
    "traits": [
     "outside",
     "ship",
@@ -1050,6 +1132,7 @@
    "id": "TileSideShipDeck1",
    "pack": "HJ",
    "name": "Ship Deck 1",
+   "nameKey": "TILE_SHIP_DECK_1_MAD27",
    "traits": [
     "outside",
     "ship",
@@ -1062,6 +1145,7 @@
    "id": "TileSideShipDeck2",
    "pack": "HJ",
    "name": "Ship Deck 2",
+   "nameKey": "TILE_SHIP_DECK_2_MAD27",
    "traits": [
     "outside",
     "ship",
@@ -1074,6 +1158,7 @@
    "id": "TileSideShipDeck3",
    "pack": "HJ",
    "name": "Ship Deck 3",
+   "nameKey": "TILE_SHIP_DECK_3_MAD27",
    "traits": [
     "outside",
     "ship",
@@ -1086,6 +1171,7 @@
    "id": "TileSideShipDeck4",
    "pack": "HJ",
    "name": "Ship Deck 4",
+   "nameKey": "TILE_SHIP_DECK_4_MAD27",
    "traits": [
     "outside",
     "ship",
@@ -1098,6 +1184,7 @@
    "id": "TileSideShipDeck5",
    "pack": "HJ",
    "name": "Ship Deck 5",
+   "nameKey": "TILE_SHIP_DECK_5_MAD27",
    "traits": [
     "outside",
     "ship",
@@ -1110,6 +1197,7 @@
    "id": "TileSideShipDeck6",
    "pack": "HJ",
    "name": "Ship Deck 6",
+   "nameKey": "TILE_SHIP_DECK_6_MAD27",
    "traits": [
     "outside",
     "ship",
@@ -1122,6 +1210,7 @@
    "id": "TileSideSleeperCar",
    "pack": "HJ",
    "name": "Sleeper Car",
+   "nameKey": "TILE_SLEEPER_CAR_MAD27",
    "traits": [
     "inside",
     "train",
@@ -1135,6 +1224,7 @@
    "id": "TileSideSpa",
    "pack": "HJ",
    "name": "Spa",
+   "nameKey": "TILE_SPA_MAD27",
    "traits": [
     "inside",
     "bathroom",
@@ -1147,6 +1237,7 @@
    "id": "TileSideStation",
    "pack": "HJ",
    "name": "Station",
+   "nameKey": "TILE_STATION_MAD27",
    "traits": [
     "inside",
     "outside",
@@ -1162,6 +1253,7 @@
    "id": "TileSideStorageHold",
    "pack": "HJ",
    "name": "Storage Hold",
+   "nameKey": "TILE_STORAGE_HOLD_MAD27",
    "traits": [
     "inside",
     "storage",
@@ -1176,6 +1268,7 @@
    "id": "TileSideTracks",
    "pack": "HJ",
    "name": "Tracks",
+   "nameKey": "TILE_TRACKS_MAD27",
    "traits": [
     "outside",
     "train",
@@ -1188,6 +1281,7 @@
    "id": "TileSideViewingRoom1",
    "pack": "HJ",
    "name": "Viewing Room 1",
+   "nameKey": "TILE_VIEWING_ROOM_1_MAD27",
    "traits": [
     "inside",
     "ship",
@@ -1200,6 +1294,7 @@
    "id": "TileSideViewingRoom2",
    "pack": "HJ",
    "name": "Viewing Room 2",
+   "nameKey": "TILE_VIEWING_ROOM_2_MAD27",
    "traits": [
     "inside",
     "ship",
@@ -1212,6 +1307,7 @@
    "id": "TileSideViewingRoom3",
    "pack": "HJ",
    "name": "Viewing Room 3",
+   "nameKey": "TILE_VIEWING_ROOM_3_MAD27",
    "traits": [
     "inside",
     "ship",
@@ -1224,6 +1320,7 @@
    "id": "TileSideStatueChamber",
    "pack": "PotS",
    "name": "Statue Chamber",
+   "nameKey": "TILE_STATUE_CHAMBER_MAD28",
    "traits": [
     "inside",
     "medium",
@@ -1236,6 +1333,7 @@
    "id": "TileSideBurialChamber",
    "pack": "PotS",
    "name": "Burial Chamber",
+   "nameKey": "TILE_BURIAL_CHAMBER_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1248,6 +1346,7 @@
    "id": "TileSideBedChamber",
    "pack": "PotS",
    "name": "Bed Chamber",
+   "nameKey": "TILE_BED_CHAMBER_MAD28",
    "traits": [
     "inside",
     "temple",
@@ -1260,6 +1359,7 @@
    "id": "TileSideVerdantChamber",
    "pack": "PotS",
    "name": "Verdant Chamber",
+   "nameKey": "TILE_VERDANT_CHAMBER_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1272,6 +1372,7 @@
    "id": "TileSidePit",
    "pack": "PotS",
    "name": "Pit",
+   "nameKey": "TILE_PIT_MAD28",
    "traits": [
     "inside",
     "medium",
@@ -1284,6 +1385,7 @@
    "id": "TileSideTunnel",
    "pack": "PotS",
    "name": "Tunnel",
+   "nameKey": "TILE_TUNNEL_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1296,6 +1398,7 @@
    "id": "TileSideRopeBridge",
    "pack": "PotS",
    "name": "Rope Bridge",
+   "nameKey": "TILE_ROPE_BRIDGE_MAD28",
    "traits": [
     "outside",
     "medium"
@@ -1307,6 +1410,7 @@
    "id": "TileSideHollowGrove",
    "pack": "PotS",
    "name": "Hollow Grove",
+   "nameKey": "TILE_HOLLOW_GROVE_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1318,6 +1422,7 @@
    "id": "TileSideCrumblingPlaza",
    "pack": "PotS",
    "name": "Crumbling Plaza",
+   "nameKey": "TILE_CRUMBLING_PLAZA_MAD28",
    "traits": [
     "outside",
     "medium"
@@ -1329,6 +1434,7 @@
    "id": "TileSideShrine",
    "pack": "PotS",
    "name": "Shrine",
+   "nameKey": "TILE_SHRINE_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1340,6 +1446,7 @@
    "id": "TileSideJungleRuins1",
    "pack": "PotS",
    "name": "Jungle Ruins 1",
+   "nameKey": "TILE_JUNGLE_RUINS_1_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1351,6 +1458,7 @@
    "id": "TileSideJungleRuins2",
    "pack": "PotS",
    "name": "Jungle Ruins 2",
+   "nameKey": "TILE_JUNGLE_RUINS_2_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1362,6 +1470,7 @@
    "id": "TileSideRiver1",
    "pack": "PotS",
    "name": "River 1",
+   "nameKey": "TILE_RIVER_1_MAD28",
    "traits": [
     "outside",
     "small",
@@ -1374,6 +1483,7 @@
    "id": "TileSideRiver2",
    "pack": "PotS",
    "name": "River 2",
+   "nameKey": "TILE_RIVER_2_MAD28",
    "traits": [
     "outside",
     "small",
@@ -1386,6 +1496,7 @@
    "id": "TileSideRiverCrossing",
    "pack": "PotS",
    "name": "River Crossing",
+   "nameKey": "TILE_RIVER_CROSSING_MAD28",
    "traits": [
     "outside",
     "small",
@@ -1398,6 +1509,7 @@
    "id": "TileSideRiverEdge",
    "pack": "PotS",
    "name": "River Edge",
+   "nameKey": "TILE_RIVER_EDGE_MAD28",
    "traits": [
     "outside",
     "medium",
@@ -1410,6 +1522,7 @@
    "id": "TileSideCampsite",
    "pack": "PotS",
    "name": "Campsite",
+   "nameKey": "TILE_CAMPSITE_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1421,6 +1534,7 @@
    "id": "TileSideClearing1",
    "pack": "PotS",
    "name": "Clearing 1",
+   "nameKey": "TILE_CLEARING_1_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1432,6 +1546,7 @@
    "id": "TileSideClearing2",
    "pack": "PotS",
    "name": "Abandoned Hut",
+   "nameKey": "TILE_ABANDONED_HUT_MAD28",
    "traits": [
     "outside",
     "medium"
@@ -1443,6 +1558,7 @@
    "id": "TileSideTempleStairs",
    "pack": "PotS",
    "name": "Temple Stairs",
+   "nameKey": "TILE_TEMPLE_STAIRS_MAD28",
    "traits": [
     "outside",
     "medium"
@@ -1454,6 +1570,7 @@
    "id": "TileSideThroneChamber",
    "pack": "PotS",
    "name": "Throne Chamber",
+   "nameKey": "TILE_THRONE_CHAMBER_MAD28",
    "traits": [
     "inside",
     "medium",
@@ -1466,6 +1583,7 @@
    "id": "TileSideOvergrownPath",
    "pack": "PotS",
    "name": "Overgrown Path",
+   "nameKey": "TILE_OVERGROWN_PATH_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1477,6 +1595,7 @@
    "id": "TileSideAltarChamber",
    "pack": "PotS",
    "name": "Altar Chamber",
+   "nameKey": "TILE_ALTAR_CHAMBER_MAD28",
    "traits": [
     "inside",
     "small"
@@ -1488,6 +1607,7 @@
    "id": "TileSideSunlitChamber",
    "pack": "PotS",
    "name": "Sunlit Chamber",
+   "nameKey": "TILE_SUNLIT_CHAMBER_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1500,6 +1620,7 @@
    "id": "TileSideRuinedHut",
    "pack": "PotS",
    "name": "Ruined Hut",
+   "nameKey": "TILE_RUINED_HUT_MAD28",
    "traits": [
     "outside",
     "medium"
@@ -1511,6 +1632,7 @@
    "id": "TileSideHallChamber1",
    "pack": "PotS",
    "name": "Hall Chamber 1",
+   "nameKey": "TILE_HALL_CHAMBER_1_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1523,6 +1645,7 @@
    "id": "TileSideHallChamber2",
    "pack": "PotS",
    "name": "Hall Chamber 2",
+   "nameKey": "TILE_HALL_CHAMBER_2_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1535,6 +1658,7 @@
    "id": "TileSideStorageChamber",
    "pack": "PotS",
    "name": "Storage Chamber",
+   "nameKey": "TILE_STORAGE_CHAMBER_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1547,6 +1671,7 @@
    "id": "TileSidePoolChamber",
    "pack": "PotS",
    "name": "Pool Chamber",
+   "nameKey": "TILE_POOL_CHAMBER_MAD28",
    "traits": [
     "inside",
     "medium",
@@ -1560,6 +1685,7 @@
    "id": "TileSideMosaicChamber",
    "pack": "PotS",
    "name": "Mosaic Chamber",
+   "nameKey": "TILE_MOSAIC_CHAMBER_MAD28",
    "traits": [
     "inside",
     "medium",
@@ -1572,6 +1698,7 @@
    "id": "TileSideRavine",
    "pack": "PotS",
    "name": "Ravine",
+   "nameKey": "TILE_RAVINE_MAD28",
    "traits": [
     "outside",
     "small"
@@ -1583,6 +1710,7 @@
    "id": "TileSideAntechamber",
    "pack": "PotS",
    "name": "Antechamber",
+   "nameKey": "TILE_ANTECHAMBER_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1595,6 +1723,7 @@
    "id": "TileSideCrackedChamber",
    "pack": "PotS",
    "name": "Cracked Chamber",
+   "nameKey": "TILE_CRACKED_CHAMBER_MAD28",
    "traits": [
     "inside",
     "medium",
@@ -1607,6 +1736,7 @@
    "id": "TileSideRuinedChamber",
    "pack": "PotS",
    "name": "Ruined Chamber",
+   "nameKey": "TILE_RUINED_CHAMBER_MAD28",
    "traits": [
     "inside",
     "small",
@@ -1619,6 +1749,7 @@
    "id": "TileSideDiner",
    "pack": "SoA",
    "name": "Diner",
+   "nameKey": "TILE_DINER_MAD25",
    "traits": [
     "inside",
     "big"
@@ -1630,6 +1761,7 @@
    "id": "TileSideExhibitEntrance",
    "pack": "SoA",
    "name": "Exhibit Entrance",
+   "nameKey": "TILE_EXHIBIT_ENTRANCE_MAD25",
    "traits": [
     "inside",
     "big"
@@ -1641,6 +1773,7 @@
    "id": "TileSideYard1MAD25",
    "pack": "SoA",
    "name": "Yard 1",
+   "nameKey": "TILE_YARD_1_MAD25",
    "traits": [
     "outside",
     "medium"
@@ -1652,6 +1785,7 @@
    "id": "TileSideMainExhibit",
    "pack": "SoA",
    "name": "Main Exhibit",
+   "nameKey": "TILE_MAIN_EXHIBIT_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1663,6 +1797,7 @@
    "id": "TileSideLab",
    "pack": "SoA",
    "name": "Lab",
+   "nameKey": "TILE_LAB_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1674,6 +1809,7 @@
    "id": "TileSideBandstand",
    "pack": "SoA",
    "name": "Bandstand",
+   "nameKey": "TILE_BANDSTAND_MAD25",
    "traits": [
     "outside",
     "medium"
@@ -1685,6 +1821,7 @@
    "id": "TileSideLobbyMAD25",
    "pack": "SoA",
    "name": "Lobby",
+   "nameKey": "TILE_LOBBY_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1696,6 +1833,7 @@
    "id": "TileSideExhibit3",
    "pack": "SoA",
    "name": "Exhibit 3",
+   "nameKey": "TILE_EXHIBIT_3_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1707,6 +1845,7 @@
    "id": "TileSideClassroom1",
    "pack": "SoA",
    "name": "Classroom 1",
+   "nameKey": "TILE_CLASSROOM_1_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1718,6 +1857,7 @@
    "id": "TileSideLibraryMAD25",
    "pack": "SoA",
    "name": "Library",
+   "nameKey": "TILE_LIBRARY_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1729,6 +1869,7 @@
    "id": "TileSideGeneralShop",
    "pack": "SoA",
    "name": "General Shop",
+   "nameKey": "TILE_GENERAL_SHOP_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1740,6 +1881,7 @@
    "id": "TileSideStudio",
    "pack": "SoA",
    "name": "Studio",
+   "nameKey": "TILE_STUDIO_MAD25",
    "traits": [
     "inside",
     "medium"
@@ -1751,6 +1893,7 @@
    "id": "TileSideSewer1",
    "pack": "SoA",
    "name": "Sewer 1",
+   "nameKey": "TILE_SEWER_1_MAD25",
    "traits": [
     "small",
     "inside"
@@ -1762,6 +1905,7 @@
    "id": "TileSideLibraryArchives",
    "pack": "SoA",
    "name": "Library Archives",
+   "nameKey": "TILE_LIBRARY_ARCHIVES_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1773,6 +1917,7 @@
    "id": "TileSidePrintingPress",
    "pack": "SoA",
    "name": "Printing Press",
+   "nameKey": "TILE_PRINTING_PRESS_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1784,6 +1929,7 @@
    "id": "TileSideExhibit2",
    "pack": "SoA",
    "name": "Exhibit 2",
+   "nameKey": "TILE_EXHIBIT_2_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1795,6 +1941,7 @@
    "id": "TileSideStreetCorner",
    "pack": "SoA",
    "name": "Street Corner",
+   "nameKey": "TILE_STREET_CORNER_MAD25",
    "traits": [
     "outside",
     "small"
@@ -1806,6 +1953,7 @@
    "id": "TileSideResearchLibrary",
    "pack": "SoA",
    "name": "Research Library",
+   "nameKey": "TILE_RESEARCH_LIBRARY_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1817,6 +1965,7 @@
    "id": "TileSideSewer2",
    "pack": "SoA",
    "name": "Sewer 2",
+   "nameKey": "TILE_SEWER_2_MAD25",
    "traits": [
     "small",
     "inside"
@@ -1828,6 +1977,7 @@
    "id": "TileSideChapelMAD25",
    "pack": "SoA",
    "name": "Chapel",
+   "nameKey": "TILE_CHAPEL_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1839,6 +1989,7 @@
    "id": "TileSideSpeakeasy",
    "pack": "SoA",
    "name": "Speakeasy",
+   "nameKey": "TILE_SPEAKEASY_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1850,6 +2001,7 @@
    "id": "TileSidePortraitHall",
    "pack": "SoA",
    "name": "Portrait Hall",
+   "nameKey": "TILE_PORTRAIT_HALL_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1861,6 +2013,7 @@
    "id": "TileSideMagicShop",
    "pack": "SoA",
    "name": "Magic Shop",
+   "nameKey": "TILE_MAGIC_SHOP_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1872,6 +2025,7 @@
    "id": "TileSideOfficeMAD25",
    "pack": "SoA",
    "name": "Office",
+   "nameKey": "TILE_OFFICE_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1883,6 +2037,7 @@
    "id": "TileSideYard2MAD25",
    "pack": "SoA",
    "name": "Yard 2",
+   "nameKey": "TILE_YARD_2_MAD25",
    "traits": [
     "outside",
     "small"
@@ -1894,6 +2049,7 @@
    "id": "TileSideBedroomMAD25",
    "pack": "SoA",
    "name": "Bedroom",
+   "nameKey": "TILE_BEDROOM_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1905,6 +2061,7 @@
    "id": "TileSideAlley",
    "pack": "SoA",
    "name": "Alley",
+   "nameKey": "TILE_ALLEY_MAD25",
    "traits": [
     "outside",
     "small"
@@ -1916,6 +2073,7 @@
    "id": "TileSideExhibit1",
    "pack": "SoA",
    "name": "Exhibit 1",
+   "nameKey": "TILE_EXHIBIT_1_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1927,6 +2085,7 @@
    "id": "TileSideCuriosityShop",
    "pack": "SoA",
    "name": "Curiosity Shop",
+   "nameKey": "TILE_CURIOSITY_SHOP_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1938,6 +2097,7 @@
    "id": "TileSideHallStairsMAD25",
    "pack": "SoA",
    "name": "Hall Stairs",
+   "nameKey": "TILE_HALL_STAIRS_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1949,6 +2109,7 @@
    "id": "TileSideWarehouseMAD25",
    "pack": "SoA",
    "name": "Warehouse",
+   "nameKey": "TILE_WAREHOUSE_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1960,6 +2121,7 @@
    "id": "TileSideClassroom2",
    "pack": "SoA",
    "name": "Classroom 2",
+   "nameKey": "TILE_CLASSROOM_2_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1971,6 +2133,7 @@
    "id": "TileSideClassroom3",
    "pack": "SoA",
    "name": "Classroom 3",
+   "nameKey": "TILE_CLASSROOM_3_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1982,6 +2145,7 @@
    "id": "TileSideLoungeMAD25",
    "pack": "SoA",
    "name": "Lounge",
+   "nameKey": "TILE_LOUNGE_MAD25",
    "traits": [
     "inside",
     "small"
@@ -1993,6 +2157,7 @@
    "id": "TileSideCafe",
    "pack": "SoT",
    "name": "Cafe",
+   "nameKey": "TILE_CAFE_MAD26",
    "traits": [
     "inside",
     "outside",
@@ -2005,6 +2170,7 @@
    "id": "TileSideDungeonHall",
    "pack": "SoT",
    "name": "Dungeon Hall",
+   "nameKey": "TILE_DUNGEON_HALL_MAD26",
    "traits": [
     "inside",
     "medium"
@@ -2016,6 +2182,7 @@
    "id": "TileSideCeremonyRoomMAD26",
    "pack": "SoT",
    "name": "Ceremony Room",
+   "nameKey": "TILE_CEREMONY_ROOM_MAD26",
    "traits": [
     "inside",
     "small"
@@ -2027,6 +2194,7 @@
    "id": "TileSideInnerSanctum",
    "pack": "SoT",
    "name": "Inner Sanctum",
+   "nameKey": "TILE_INNER_SANCTUM_MAD26",
    "traits": [
     "inside",
     "small"
@@ -2038,6 +2206,7 @@
    "id": "TileSideLoungeMAD26",
    "pack": "SoT",
    "name": "Lounge",
+   "nameKey": "TILE_LOUNGE_MAD26",
    "traits": [
     "inside",
     "small"
@@ -2049,6 +2218,7 @@
    "id": "TileSideParadeFloat1",
    "pack": "SoT",
    "name": "Parade Float 1",
+   "nameKey": "TILE_PARADE_FLOAT_1_MAD26",
    "traits": [
     "outside",
     "small"
@@ -2060,6 +2230,7 @@
    "id": "TileSideParadeFloat2",
    "pack": "SoT",
    "name": "Parade Float 2",
+   "nameKey": "TILE_PARADE_FLOAT_2_MAD26",
    "traits": [
     "outside",
     "small"
@@ -2071,6 +2242,7 @@
    "id": "TileSidePharmacy",
    "pack": "SoT",
    "name": "Pharmacy",
+   "nameKey": "TILE_PHARMACY_MAD26",
    "traits": [
     "inside",
     "small"
@@ -2082,6 +2254,7 @@
    "id": "TileSideStorageRoom",
    "pack": "SoT",
    "name": "Storage Room",
+   "nameKey": "TILE_STORAGE_ROOM_MAD26",
    "traits": [
     "inside",
     "small"
@@ -2093,6 +2266,7 @@
    "id": "TileSideVault",
    "pack": "SoT",
    "name": "Vault",
+   "nameKey": "TILE_VAULT_MAD26",
    "traits": [
     "inside",
     "small"
@@ -2106,6 +2280,7 @@
    "id": "MonsterCultist",
    "pack": "MoMBase",
    "name": "Cultist",
+   "nameKey": "MONSTER_CULTIST",
    "traits": [
     "small",
     "humanoid"
@@ -2118,6 +2293,7 @@
    "id": "MonsterDeepOne",
    "pack": "MoMBase",
    "name": "Deep One",
+   "nameKey": "MONSTER_DEEP_ONE",
    "traits": [
     "humanoid"
    ],
@@ -2129,6 +2305,7 @@
    "id": "MonsterDeepOneHybrid",
    "pack": "MoMBase",
    "name": "Deep One Hybrid",
+   "nameKey": "MONSTER_DEEP_ONE_HYBRID",
    "traits": [
     "humanoid"
    ],
@@ -2140,6 +2317,7 @@
    "id": "MonsterGhost",
    "pack": "MoMBase",
    "name": "Ghost",
+   "nameKey": "MONSTER_GHOST",
    "traits": [
     "spirit"
    ],
@@ -2151,6 +2329,7 @@
    "id": "MonsterHuntingHorror",
    "pack": "MoMBase",
    "name": "Hunting Horror",
+   "nameKey": "MONSTER_HUNTING_HORROR",
    "traits": [
     "beast"
    ],
@@ -2162,6 +2341,7 @@
    "id": "MonsterRiot",
    "pack": "MoMBase",
    "name": "Riot",
+   "nameKey": "MONSTER_RIOT",
    "traits": [
     "humanoid"
    ],
@@ -2173,6 +2353,7 @@
    "id": "MonsterStarSpawn",
    "pack": "MoMBase",
    "name": "Star Spawn",
+   "nameKey": "MONSTER_STAR_SPAWN",
    "traits": [
     "beast"
    ],
@@ -2184,6 +2365,7 @@
    "id": "MonsterChildOfDagon",
    "pack": "MoMBase",
    "name": "Unique Monster Child Of Dagon",
+   "nameKey": "UNIQUE_MONSTER_CHILD_OF_DAGON",
    "traits": [
     "humanoid"
    ],
@@ -2195,6 +2377,7 @@
    "id": "MonsterPriestOfDagon",
    "pack": "MoMBase",
    "name": "Unique Monster Priest Of Dagon",
+   "nameKey": "UNIQUE_MONSTER_PRIEST_OF_DAGON",
    "traits": [
     "humanoid"
    ],
@@ -2206,6 +2389,7 @@
    "id": "MonsterThrall",
    "pack": "BtT",
    "name": "Thrall",
+   "nameKey": "MONSTER_THRALL",
    "traits": [
     "humanoid"
    ],
@@ -2217,6 +2401,7 @@
    "id": "MonsterWarlock",
    "pack": "HJ",
    "name": "Warlock",
+   "nameKey": "MONSTER_WARLOCK",
    "traits": [
     "humanoid"
    ],
@@ -2228,6 +2413,7 @@
    "id": "MonsterDimensionalShambler",
    "pack": "HJ",
    "name": "Dimensional Shambler",
+   "nameKey": "MONSTER_DIMENSIONAL_SHAMBLER",
    "traits": [
     "beast"
    ],
@@ -2239,6 +2425,7 @@
    "id": "MonsterHuntingDeepOne",
    "pack": "HJ",
    "name": "Hunting Deep One",
+   "nameKey": "MONSTER_HUNTING_DEEP_ONE",
    "traits": [
     "humanoid"
    ],
@@ -2250,6 +2437,7 @@
    "id": "MonsterFormlessSpawn",
    "pack": "HJ",
    "name": "Formless Spawn",
+   "nameKey": "MONSTER_FORMLESS_SPAWN",
    "traits": [
     "beast"
    ],
@@ -2261,6 +2449,7 @@
    "id": "MonsterFeatheredSerpent",
    "pack": "PotS",
    "name": "Feathered Serpent",
+   "nameKey": "MONSTER_FEATHERED_SERPENT",
    "traits": [
     "beast"
    ],
@@ -2272,6 +2461,7 @@
    "id": "MonsterTempleGuardian",
    "pack": "PotS",
    "name": "Temple Guardian",
+   "nameKey": "MONSTER_TEMPLE_GUARDIAN",
    "traits": [
     "beast"
    ],
@@ -2283,6 +2473,7 @@
    "id": "MonsterSerpentPerson",
    "pack": "PotS",
    "name": "Serpent Person",
+   "nameKey": "MONSTER_SERPENT_PERSON",
    "traits": [
     "snakeperson"
    ],
@@ -2294,6 +2485,7 @@
    "id": "MonsterAncientBasilisk",
    "pack": "PotS",
    "name": "Ancient Basilisk",
+   "nameKey": "MONSTER_ANCIENT_BASILISK",
    "traits": [
     "beast"
    ],
@@ -2305,6 +2497,7 @@
    "id": "MonsterSkeleton",
    "pack": "SoA",
    "name": "Skeleton",
+   "nameKey": "MONSTER_SKELETON",
    "traits": [
     "fleshless"
    ],
@@ -2316,6 +2509,7 @@
    "id": "MonsterHiredGun",
    "pack": "SoA",
    "name": "Hired Gun",
+   "nameKey": "MONSTER_HIRED_GUN",
    "traits": [
     "humanoid"
    ],
@@ -2327,6 +2521,7 @@
    "id": "MonsterLloigor",
    "pack": "SoA",
    "name": "Lloigor",
+   "nameKey": "MONSTER_LLOIGOR",
    "traits": [
     "beast"
    ],
@@ -2338,6 +2533,7 @@
    "id": "MonsterStarVampire",
    "pack": "SoA",
    "name": "Star Vampire",
+   "nameKey": "MONSTER_STAR_VAMPIRE",
    "traits": [
     "beast"
    ],
@@ -2349,6 +2545,7 @@
    "id": "MonsterWraith",
    "pack": "SoT",
    "name": "Wraith",
+   "nameKey": "MONSTER_WRAITH",
    "traits": [
     "spirit"
    ],
@@ -2362,6 +2559,7 @@
    "id": "ItemCommon18Derringer",
    "pack": "MoMBase",
    "name": "18 Derringer",
+   "nameKey": "COMMON_ITEM_18_DERRINGER",
    "traits": [
     "weapon",
     "firearm",
@@ -2373,6 +2571,7 @@
    "id": "ItemCommon38Revolver",
    "pack": "MoMBase",
    "name": "38 Revolver",
+   "nameKey": "COMMON_ITEM_38_REVOLVER",
    "traits": [
     "weapon",
     "firearm",
@@ -2384,6 +2583,7 @@
    "id": "ItemCommon45Automatic",
    "pack": "MoMBase",
    "name": "45 Automatic",
+   "nameKey": "COMMON_ITEM_45_AUTOMATIC",
    "traits": [
     "weapon",
     "firearm",
@@ -2406,6 +2606,7 @@
    "id": "ItemCommonArcaneManuscript",
    "pack": "MoMBase",
    "name": "Arcane Manuscript",
+   "nameKey": "COMMON_ITEM_ARCANE_MANUSCRIPT",
    "traits": [
     "tome",
     "common"
@@ -2416,6 +2617,7 @@
    "id": "ItemCommonAxe",
    "pack": "MoMBase",
    "name": "Axe",
+   "nameKey": "COMMON_ITEM_AXE",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2427,6 +2629,7 @@
    "id": "ItemCommonBandages",
    "pack": "MoMBase",
    "name": "Bandages",
+   "nameKey": "COMMON_ITEM_BANDAGES",
    "traits": [
     "equipment",
     "common"
@@ -2437,6 +2640,7 @@
    "id": "ItemCommonBrassKnuckles",
    "pack": "MoMBase",
    "name": "Brass Knuckles",
+   "nameKey": "COMMON_ITEM_BRASS_KNUCKLES",
    "traits": [
     "equipment",
     "common"
@@ -2447,6 +2651,7 @@
    "id": "ItemCommonBullseyeLantern",
    "pack": "MoMBase",
    "name": "Bullseye Lantern",
+   "nameKey": "COMMON_ITEM_BULLSEYE_LANTERN",
    "traits": [
     "lightsource",
     "common"
@@ -2457,6 +2662,7 @@
    "id": "ItemCommonCandles",
    "pack": "MoMBase",
    "name": "Candles",
+   "nameKey": "COMMON_ITEM_CANDLES",
    "traits": [
     "lightsource",
     "common"
@@ -2467,6 +2673,7 @@
    "id": "ItemCommonCarbineRifle",
    "pack": "MoMBase",
    "name": "Carbine Rifle",
+   "nameKey": "COMMON_ITEM_CARBINE_RIFLE",
    "traits": [
     "weapon",
     "firearm",
@@ -2478,6 +2685,7 @@
    "id": "ItemCommonCrowbar",
    "pack": "MoMBase",
    "name": "Crowbar",
+   "nameKey": "COMMON_ITEM_CROWBAR",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2489,6 +2697,7 @@
    "id": "ItemCommonDynamite",
    "pack": "MoMBase",
    "name": "Dynamite",
+   "nameKey": "COMMON_ITEM_DYNAMITE",
    "traits": [
     "equipment",
     "common"
@@ -2499,6 +2708,7 @@
    "id": "ItemCommonElderSignPendant",
    "pack": "MoMBase",
    "name": "Elder Sign Pendant",
+   "nameKey": "COMMON_ITEM_ELDER_SIGN_PENDANT",
    "traits": [
     "equipment",
     "common"
@@ -2509,6 +2719,7 @@
    "id": "ItemCommonElderWard",
    "pack": "MoMBase",
    "name": "Elder Ward",
+   "nameKey": "COMMON_ITEM_ELDER_WARD",
    "traits": [
     "equipment",
     "common"
@@ -2519,6 +2730,7 @@
    "id": "ItemCommonFireExtinguisher",
    "pack": "MoMBase",
    "name": "Fire Extinguisher",
+   "nameKey": "COMMON_ITEM_FIRE_EXTINGUISHER",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2530,6 +2742,7 @@
    "id": "ItemCommonFlareGun",
    "pack": "MoMBase",
    "name": "Flare Gun",
+   "nameKey": "COMMON_ITEM_FLARE_GUN",
    "traits": [
     "equipment",
     "common"
@@ -2540,6 +2753,7 @@
    "id": "ItemCommonHolyCross",
    "pack": "MoMBase",
    "name": "Holy Cross",
+   "nameKey": "COMMON_ITEM_HOLY_CROSS",
    "traits": [
     "equipment",
     "common"
@@ -2550,6 +2764,7 @@
    "id": "ItemCommonHolyWater",
    "pack": "MoMBase",
    "name": "Holy Water",
+   "nameKey": "COMMON_ITEM_HOLY_WATER",
    "traits": [
     "equipment",
     "common"
@@ -2560,6 +2775,7 @@
    "id": "ItemCommonKeroseneLantern",
    "pack": "MoMBase",
    "name": "Kerosene Lantern",
+   "nameKey": "COMMON_ITEM_KEROSENE_LANTERN",
    "traits": [
     "lightsource",
     "common"
@@ -2570,6 +2786,7 @@
    "id": "ItemCommonKingJamesBible",
    "pack": "MoMBase",
    "name": "King James Bible",
+   "nameKey": "COMMON_ITEM_KING_JAMES_BIBLE",
    "traits": [
     "tome",
     "common"
@@ -2580,6 +2797,7 @@
    "id": "ItemCommonKnife",
    "pack": "MoMBase",
    "name": "Knife",
+   "nameKey": "COMMON_ITEM_KNIFE",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -2591,6 +2809,7 @@
    "id": "ItemCommonLeadPipe",
    "pack": "MoMBase",
    "name": "Lead Pipe",
+   "nameKey": "COMMON_ITEM_LEAD_PIPE",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2602,6 +2821,7 @@
    "id": "ItemCommonLuckyCigaretteCase",
    "pack": "MoMBase",
    "name": "Lucky Cigarette Case",
+   "nameKey": "COMMON_ITEM_LUCKY_CIGARETTE_CASE",
    "traits": [
     "equipment",
     "common"
@@ -2612,6 +2832,7 @@
    "id": "ItemCommonLuckyRabbitsFoot",
    "pack": "MoMBase",
    "name": "Lucky Rabbits Foot",
+   "nameKey": "COMMON_ITEM_LUCKY_RABBITS_FOOT",
    "traits": [
     "equipment",
     "common"
@@ -2622,6 +2843,7 @@
    "id": "ItemCommonMachete",
    "pack": "MoMBase",
    "name": "Machete",
+   "nameKey": "COMMON_ITEM_MACHETE",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -2633,6 +2855,7 @@
    "id": "ItemCommonMagnifyingGlass",
    "pack": "MoMBase",
    "name": "Magnifying Glass",
+   "nameKey": "COMMON_ITEM_MAGNIFYING_GLASS",
    "traits": [
     "equipment",
     "common"
@@ -2643,6 +2866,7 @@
    "id": "ItemCommonMeatCleaver",
    "pack": "MoMBase",
    "name": "Meat Cleaver",
+   "nameKey": "COMMON_ITEM_MEAT_CLEAVER",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -2654,6 +2878,7 @@
    "id": "ItemCommonMedicalTextbook",
    "pack": "MoMBase",
    "name": "Medical Textbook",
+   "nameKey": "COMMON_ITEM_MEDICAL_TEXTBOOK",
    "traits": [
     "equipment",
     "common"
@@ -2664,6 +2889,7 @@
    "id": "ItemCommonPickaxe",
    "pack": "MoMBase",
    "name": "Pickaxe",
+   "nameKey": "COMMON_ITEM_PICKAXE",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2675,6 +2901,7 @@
    "id": "ItemCommonPocketWatch",
    "pack": "MoMBase",
    "name": "Pocket Watch",
+   "nameKey": "COMMON_ITEM_POCKET_WATCH",
    "traits": [
     "equipment",
     "common"
@@ -2685,6 +2912,7 @@
    "id": "ItemCommonRitualDagger",
    "pack": "MoMBase",
    "name": "Ritual Dagger",
+   "nameKey": "COMMON_ITEM_RITUAL_DAGGER",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -2696,6 +2924,7 @@
    "id": "ItemCommonSedatives",
    "pack": "MoMBase",
    "name": "Sedatives",
+   "nameKey": "COMMON_ITEM_SEDATIVES",
    "traits": [
     "equipment",
     "common"
@@ -2706,6 +2935,7 @@
    "id": "ItemCommonShotgun",
    "pack": "MoMBase",
    "name": "Shotgun",
+   "nameKey": "COMMON_ITEM_SHOTGUN",
    "traits": [
     "weapon",
     "firearm",
@@ -2717,6 +2947,7 @@
    "id": "ItemCommonShovel",
    "pack": "MoMBase",
    "name": "Shovel",
+   "nameKey": "COMMON_ITEM_SHOVEL",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2728,6 +2959,7 @@
    "id": "ItemCommonSledgehammer",
    "pack": "MoMBase",
    "name": "Sledgehammer",
+   "nameKey": "COMMON_ITEM_SLEDGEHAMMER",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2739,6 +2971,7 @@
    "id": "ItemCommonTommyGun",
    "pack": "MoMBase",
    "name": "Tommy Gun",
+   "nameKey": "COMMON_ITEM_TOMMY_GUN",
    "traits": [
     "weapon",
     "firearm",
@@ -2750,6 +2983,7 @@
    "id": "ItemCommonTorch",
    "pack": "MoMBase",
    "name": "Torch",
+   "nameKey": "COMMON_ITEM_TORCH",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2762,6 +2996,7 @@
    "id": "ItemCommonWhiskey",
    "pack": "MoMBase",
    "name": "Whiskey",
+   "nameKey": "COMMON_ITEM_WHISKEY",
    "traits": [
     "equipment",
     "common"
@@ -2772,6 +3007,7 @@
    "id": "ItemCommonWrench",
    "pack": "MoMBase",
    "name": "Wrench",
+   "nameKey": "COMMON_ITEM_WRENCH",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -2783,6 +3019,7 @@
    "id": "ItemUniqueBrassKey",
    "pack": "MoMBase",
    "name": "Brass Key",
+   "nameKey": "UNIQUE_ITEM_BRASS_KEY",
    "traits": [
     "key",
     "unique"
@@ -2793,6 +3030,7 @@
    "id": "ItemUniqueCircumstantialEvidence",
    "pack": "MoMBase",
    "name": "Circumstantial Evidence",
+   "nameKey": "UNIQUE_ITEM_CIRCUMSTANTIAL_EVIDENCE",
    "traits": [
     "evidence",
     "unique"
@@ -2803,6 +3041,7 @@
    "id": "ItemUniqueConclusiveEvidence",
    "pack": "MoMBase",
    "name": "Conclusive Evidence",
+   "nameKey": "UNIQUE_ITEM_CONCLUSIVE_EVIDENCE",
    "traits": [
     "evidence",
     "unique"
@@ -2813,6 +3052,7 @@
    "id": "ItemUniqueCultSigil",
    "pack": "MoMBase",
    "name": "Cult Sigil",
+   "nameKey": "UNIQUE_ITEM_CULT_SIGIL",
    "traits": [
     "evidence",
     "key",
@@ -2824,6 +3064,7 @@
    "id": "ItemUniqueForensicEvidence",
    "pack": "MoMBase",
    "name": "Forensic Evidence",
+   "nameKey": "UNIQUE_ITEM_FORENSIC_EVIDENCE",
    "traits": [
     "evidence",
     "unique"
@@ -2834,6 +3075,7 @@
    "id": "ItemUniqueHandcuffs",
    "pack": "MoMBase",
    "name": "Handcuffs",
+   "nameKey": "UNIQUE_ITEM_HANDCUFFS",
    "traits": [
     "equipment",
     "unique"
@@ -2844,6 +3086,7 @@
    "id": "ItemUniqueGoldKey",
    "pack": "MoMBase",
    "name": "Gold Key",
+   "nameKey": "UNIQUE_ITEM_GOLD_KEY",
    "traits": [
     "key",
     "unique"
@@ -2854,6 +3097,7 @@
    "id": "ItemUniqueGrotesqueStone",
    "pack": "MoMBase",
    "name": "Grotesque Stone",
+   "nameKey": "UNIQUE_ITEM_GROTESQUE_STONE",
    "traits": [
     "evidence",
     "unique"
@@ -2864,6 +3108,7 @@
    "id": "ItemUniqueIncriminatingEvidence",
    "pack": "MoMBase",
    "name": "Incriminating Evidence",
+   "nameKey": "UNIQUE_ITEM_INCRIMINATING_EVIDENCE",
    "traits": [
     "evidence",
     "unique"
@@ -2874,6 +3119,7 @@
    "id": "ItemUniqueOilLamp",
    "pack": "MoMBase",
    "name": "Oil Lamp",
+   "nameKey": "UNIQUE_ITEM_OIL_LAMP",
    "traits": [
     "lightsource",
     "unique"
@@ -2884,6 +3130,7 @@
    "id": "ItemUniqueOldJournal",
    "pack": "MoMBase",
    "name": "Old Journal",
+   "nameKey": "UNIQUE_ITEM_OLD_JOURNAL",
    "traits": [
     "evidence",
     "unique"
@@ -2894,6 +3141,7 @@
    "id": "ItemUniqueOldKeys",
    "pack": "MoMBase",
    "name": "Old Keys",
+   "nameKey": "UNIQUE_ITEM_OLD_KEYS",
    "traits": [
     "key",
     "unique"
@@ -2904,6 +3152,7 @@
    "id": "ItemUniqueMissingLink",
    "pack": "MoMBase",
    "name": "Missing Link",
+   "nameKey": "UNIQUE_ITEM_MISSING_LINK",
    "traits": [
     "evidence",
     "unique"
@@ -2914,6 +3163,7 @@
    "id": "ItemUniquePhotographicEvidence",
    "pack": "MoMBase",
    "name": "Photographic Evidence",
+   "nameKey": "UNIQUE_ITEM_PHOTOGRAPHIC_EVIDENCE",
    "traits": [
     "evidence",
     "unique"
@@ -2924,6 +3174,7 @@
    "id": "ItemUniquePuzzleBox",
    "pack": "MoMBase",
    "name": "Puzzle Box",
+   "nameKey": "UNIQUE_ITEM_PUZZLE_BOX",
    "traits": [
     "equipment",
     "unique"
@@ -2934,6 +3185,7 @@
    "id": "ItemUniqueRitualComponents",
    "pack": "MoMBase",
    "name": "Ritual Components",
+   "nameKey": "UNIQUE_ITEM_RITUAL_COMPONENTS",
    "traits": [
     "evidence",
     "unique"
@@ -2944,6 +3196,7 @@
    "id": "ItemUniqueRope",
    "pack": "MoMBase",
    "name": "Rope",
+   "nameKey": "UNIQUE_ITEM_ROPE",
    "traits": [
     "equipment",
     "unique"
@@ -2954,6 +3207,7 @@
    "id": "ItemUniqueSilverKey",
    "pack": "MoMBase",
    "name": "Silver Key",
+   "nameKey": "UNIQUE_ITEM_SILVER_KEY",
    "traits": [
     "key",
     "unique"
@@ -2964,6 +3218,7 @@
    "id": "ItemSpellFeedTheMind",
    "pack": "MoMBase",
    "name": "Feed The Mind",
+   "nameKey": "SPELL_FEED_THE_MIND",
    "traits": [
     "spell",
     "spelldefence"
@@ -2974,6 +3229,7 @@
    "id": "ItemSpellFleshWard",
    "pack": "MoMBase",
    "name": "Flesh Ward",
+   "nameKey": "SPELL_FLESH_WARD",
    "traits": [
     "spell",
     "spelldefence"
@@ -2984,6 +3240,7 @@
    "id": "ItemSpellInstillBravery",
    "pack": "MoMBase",
    "name": "Instill Bravery",
+   "nameKey": "SPELL_INSTILL_BRAVERY",
    "traits": [
     "spell",
     "spelldefence"
@@ -2994,6 +3251,7 @@
    "id": "ItemSpellShriveling",
    "pack": "MoMBase",
    "name": "Shriveling",
+   "nameKey": "SPELL_SHRIVELING",
    "traits": [
     "spell",
     "spellattack"
@@ -3004,6 +3262,7 @@
    "id": "ItemSpellWither",
    "pack": "MoMBase",
    "name": "Wither",
+   "nameKey": "SPELL_WITHER",
    "traits": [
     "spell",
     "spellattack"
@@ -3014,6 +3273,7 @@
    "id": "ItemSpellWrack",
    "pack": "MoMBase",
    "name": "Wrack",
+   "nameKey": "SPELL_WRACK",
    "traits": [
     "spell",
     "spellattack"
@@ -3024,6 +3284,7 @@
    "id": "ItemCommon25Automatic",
    "pack": "BtT",
    "name": "25 Automatic",
+   "nameKey": "COMMON_ITEM_25_AUTOMATIC",
    "traits": [
     "weapon",
     "firearm",
@@ -3035,6 +3296,7 @@
    "id": "ItemCommonBlackjack",
    "pack": "BtT",
    "name": "Blackjack",
+   "nameKey": "COMMON_ITEM_BLACKJACK",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -3046,6 +3308,7 @@
    "id": "ItemCommonEnchantedBlade",
    "pack": "BtT",
    "name": "Enchanted Blade",
+   "nameKey": "COMMON_ITEM_ENCHANTED_BLADE",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3057,6 +3320,7 @@
    "id": "ItemCommonFineClothes",
    "pack": "BtT",
    "name": "Fine Clothes",
+   "nameKey": "COMMON_ITEM_FINE_CLOTHES",
    "traits": [
     "equipment",
     "common"
@@ -3067,6 +3331,7 @@
    "id": "ItemCommonScribesJournal",
    "pack": "BtT",
    "name": "Scribes Journal",
+   "nameKey": "COMMON_ITEM_SCRIBES_JOURNAL",
    "traits": [
     "tome",
     "common"
@@ -3077,6 +3342,7 @@
    "id": "ItemCommonRazor",
    "pack": "BtT",
    "name": "Razor",
+   "nameKey": "COMMON_ITEM_RAZOR",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3088,6 +3354,7 @@
    "id": "ItemCommonTomeOfHorrors",
    "pack": "BtT",
    "name": "Tome Of Horrors",
+   "nameKey": "COMMON_ITEM_TOME_OF_HORRORS",
    "traits": [
     "tome",
     "common"
@@ -3098,6 +3365,7 @@
    "id": "ItemCommonTomeOfSecrets",
    "pack": "BtT",
    "name": "Tome Of Secrets",
+   "nameKey": "COMMON_ITEM_TOME_OF_SECRETS",
    "traits": [
     "tome",
     "common"
@@ -3108,6 +3376,7 @@
    "id": "ItemUniqueCultistsJournal",
    "pack": "BtT",
    "name": "Cultists Journal",
+   "nameKey": "UNIQUE_ITEM_CULTISTS_JOURNAL",
    "traits": [
     "evidence",
     "tome",
@@ -3119,6 +3388,7 @@
    "id": "ItemSpellPoisonMist",
    "pack": "BtT",
    "name": "Poison Mist",
+   "nameKey": "SPELL_POISON_MIST",
    "traits": [
     "spell",
     "spellattack"
@@ -3129,6 +3399,7 @@
    "id": "ItemSpellArcaneInsight",
    "pack": "BtT",
    "name": "Arcane Insight",
+   "nameKey": "SPELL_ARCANE_INSIGHT",
    "traits": [
     "spell",
     "spelldefence"
@@ -3139,6 +3410,7 @@
    "id": "ItemCommon41Derringer",
    "pack": "HJ",
    "name": "41 Derringer",
+   "nameKey": "COMMON_ITEM_41_DERRINGER",
    "traits": [
     "weapon",
     "firearm",
@@ -3150,6 +3422,7 @@
    "id": "ItemCommonAstronomyGuidebook",
    "pack": "HJ",
    "name": "Astronomy Guidebook",
+   "nameKey": "COMMON_ITEM_ASTRONOMY_GUIDEBOOK",
    "traits": [
     "tome",
     "common"
@@ -3160,6 +3433,7 @@
    "id": "ItemCaptainsHat",
    "pack": "HJ",
    "name": "Captains Hat",
+   "nameKey": "COMMON_ITEM_CAPTAINS_HAT",
    "traits": [
     "equipment",
     "common"
@@ -3170,6 +3444,7 @@
    "id": "ItemCommonCoalShovel",
    "pack": "HJ",
    "name": "Coal Shovel",
+   "nameKey": "COMMON_ITEM_COAL_SHOVEL",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -3181,6 +3456,7 @@
    "id": "ItemCommonDiversHelm",
    "pack": "HJ",
    "name": "Divers Helm",
+   "nameKey": "COMMON_ITEM_DIVERS_HELM",
    "traits": [
     "equipment",
     "common"
@@ -3191,6 +3467,7 @@
    "id": "ItemCommonDiversJournal",
    "pack": "HJ",
    "name": "Divers Journal",
+   "nameKey": "COMMON_ITEM_DIVERS_JOURNAL",
    "traits": [
     "tome",
     "common"
@@ -3201,6 +3478,7 @@
    "id": "ItemCommonGateBox",
    "pack": "HJ",
    "name": "Gate Box",
+   "nameKey": "COMMON_ITEM_GATE_BOX",
    "traits": [
     "equipment",
     "common"
@@ -3211,6 +3489,7 @@
    "id": "ItemCommonGatlingGun",
    "pack": "HJ",
    "name": "Gatling Gun",
+   "nameKey": "COMMON_ITEM_GATLING_GUN",
    "traits": [
     "weapon",
     "firearm",
@@ -3222,6 +3501,7 @@
    "id": "ItemCommonHarpoon",
    "pack": "HJ",
    "name": "Harpoon",
+   "nameKey": "COMMON_ITEM_HARPOON",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3233,6 +3513,7 @@
    "id": "ItemCommonLifePreserver",
    "pack": "HJ",
    "name": "Life Preserver",
+   "nameKey": "COMMON_ITEM_LIFE_PRESERVER",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -3244,6 +3525,7 @@
    "id": "ItemCommonMapOfTheLeyLines",
    "pack": "HJ",
    "name": "Map Of The Ley Lines",
+   "nameKey": "COMMON_ITEM_MAP_OF_THE_LEY_LINES",
    "traits": [
     "equipment",
     "common"
@@ -3254,6 +3536,7 @@
    "id": "ItemCommonMysticSextant",
    "pack": "HJ",
    "name": "Mystic Sexton",
+   "nameKey": "COMMON_ITEM_MYSTIC_SEXTON",
    "traits": [
     "equipment",
     "common"
@@ -3264,6 +3547,7 @@
    "id": "ItemCommonSturdyLuggage",
    "pack": "HJ",
    "name": "Sturdy Luggage",
+   "nameKey": "COMMON_ITEM_STURDY_LUGGAGE",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -3275,6 +3559,7 @@
    "id": "ItemUniqueFishingNet",
    "pack": "HJ",
    "name": "Fishing Net",
+   "nameKey": "UNIQUE_ITEM_FISHING_NET",
    "traits": [
     "equipment",
     "unique"
@@ -3285,6 +3570,7 @@
    "id": "ItemUniqueFuel",
    "pack": "HJ",
    "name": "Fuel",
+   "nameKey": "UNIQUE_ITEM_FUEL",
    "traits": [
     "equipment",
     "unique"
@@ -3295,6 +3581,7 @@
    "id": "ItemUniqueGoldenTrumpet",
    "pack": "HJ",
    "name": "Golden Trumpet",
+   "nameKey": "UNIQUE_ITEM_GOLDEN_TRUMPET",
    "traits": [
     "equipment",
     "unique"
@@ -3305,6 +3592,7 @@
    "id": "ItemUniqueSatchelOfTheVoid",
    "pack": "HJ",
    "name": "Satchel Of The Void",
+   "nameKey": "UNIQUE_ITEM_SATCHEL_OF_THE_VOID",
    "traits": [
     "equipment",
     "unique"
@@ -3315,6 +3603,7 @@
    "id": "ItemUniqueTicket",
    "pack": "HJ",
    "name": "Ticket",
+   "nameKey": "UNIQUE_ITEM_TICKET",
    "traits": [
     "evidence",
     "unique"
@@ -3325,6 +3614,7 @@
    "id": "ItemSpellMistsOfRlyeh",
    "pack": "HJ",
    "name": "Mists Of Rlyeh",
+   "nameKey": "SPELL_MISTS_OF_RLYEH",
    "traits": [
     "spell",
     "spelldefence"
@@ -3335,6 +3625,7 @@
    "id": "ItemSpellStormOfSpirits",
    "pack": "HJ",
    "name": "Storm Of Spirits",
+   "nameKey": "SPELL_STORM_OF_SPIRITS",
    "traits": [
     "spell",
     "spellattack"
@@ -3345,6 +3636,7 @@
    "id": "ItemSpellPlumbingTheVoid",
    "pack": "HJ",
    "name": "Plumbing The Void",
+   "nameKey": "SPELL_PLUMBING_THE_VOID",
    "traits": [
     "spell",
     "spelldefence"
@@ -3355,6 +3647,7 @@
    "id": "ItemCommonDiskOfItzamna",
    "pack": "PotS",
    "name": "Disc Of Itzamna",
+   "nameKey": "COMMON_ITEM_DISC_OF_ITZAMNA",
    "traits": [
     "equipment",
     "common"
@@ -3365,6 +3658,7 @@
    "id": "ItemCommonAntiVenom",
    "pack": "PotS",
    "name": "Antivenom",
+   "nameKey": "COMMON_ITEM_ANTIVENOM",
    "traits": [
     "equipment",
     "common"
@@ -3375,6 +3669,7 @@
    "id": "ItemCommonExpeditionLog",
    "pack": "PotS",
    "name": "Expedition Log",
+   "nameKey": "COMMON_ITEM_EXPEDITION_LOG",
    "traits": [
     "tome",
     "common"
@@ -3385,6 +3680,7 @@
    "id": "ItemCommonHedgeShears",
    "pack": "PotS",
    "name": "Hedge Shears",
+   "nameKey": "COMMON_ITEM_HEDGE_SHEARS",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3396,6 +3692,7 @@
    "id": "ItemCommonJeweledSkull",
    "pack": "PotS",
    "name": "Jeweled Skull",
+   "nameKey": "COMMON_ITEM_JEWELED_SKULL",
    "traits": [
     "equipment",
     "common"
@@ -3406,6 +3703,7 @@
    "id": "ItemCommonLuckyBandana",
    "pack": "PotS",
    "name": "Lucky Bandana",
+   "nameKey": "COMMON_ITEM_LUCKY_BANDANA",
    "traits": [
     "equipment",
     "common"
@@ -3416,6 +3714,7 @@
    "id": "ItemCommonMatches",
    "pack": "PotS",
    "name": "Matches",
+   "nameKey": "COMMON_ITEM_MATCHES",
    "traits": [
     "equipment",
     "common"
@@ -3426,6 +3725,7 @@
    "id": "ItemCommonOtherworldlyCompass",
    "pack": "PotS",
    "name": "Otherworldly Compass",
+   "nameKey": "COMMON_ITEM_OTHERWORLDLY_COMPASS",
    "traits": [
     "equipment",
     "common"
@@ -3436,6 +3736,7 @@
    "id": "ItemCommonPithHelmet",
    "pack": "PotS",
    "name": "Pith Helmet",
+   "nameKey": "COMMON_ITEM_PITH_HELMET",
    "traits": [
     "equipment",
     "common"
@@ -3446,6 +3747,7 @@
    "id": "ItemCommonSerpentBracelet",
    "pack": "PotS",
    "name": "Serpent Bracelet",
+   "nameKey": "COMMON_ITEM_SERPENT_BRACELET",
    "traits": [
     "equipment",
     "common"
@@ -3456,6 +3758,7 @@
    "id": "ItemCommonSurvivalKnife",
    "pack": "PotS",
    "name": "Survival Knife",
+   "nameKey": "COMMON_ITEM_SURVIVAL_KNIFE",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3467,6 +3770,7 @@
    "id": "ItemCommonSurvivalPack",
    "pack": "PotS",
    "name": "Survival Pack",
+   "nameKey": "COMMON_ITEM_SURVIVAL_PACK",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -3478,6 +3782,7 @@
    "id": "ItemCommonTimewornBrand",
    "pack": "PotS",
    "name": "Timeworn Brand",
+   "nameKey": "COMMON_ITEM_TIMEWORN_BRAND",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3489,6 +3794,7 @@
    "id": "ItemCommonTorch",
    "pack": "PotS",
    "name": "Torch",
+   "nameKey": "COMMON_ITEM_TORCH",
    "traits": [
     "weapon",
     "heavyweapon",
@@ -3501,6 +3807,7 @@
    "id": "ItemSpellCallTheStorm",
    "pack": "PotS",
    "name": "Call The Storm",
+   "nameKey": "SPELL_CALL_THE_STORM",
    "traits": [
     "spell",
     "spellattack"
@@ -3511,6 +3818,7 @@
    "id": "ItemUniqueCitrineSnake",
    "pack": "PotS",
    "name": "Citrine Snake",
+   "nameKey": "UNIQUE_ITEM_CITRINE_SNAKE",
    "traits": [
     "evidence",
     "relic",
@@ -3522,6 +3830,7 @@
    "id": "ItemUniqueJadeCrocodile",
    "pack": "PotS",
    "name": "Jade Crocodile",
+   "nameKey": "UNIQUE_ITEM_JADE_CROCODILE",
    "traits": [
     "evidence",
     "relic",
@@ -3533,6 +3842,7 @@
    "id": "ItemUniqueObsidianJaguar",
    "pack": "PotS",
    "name": "Obsidian Jaguar",
+   "nameKey": "UNIQUE_ITEM_OBSIDIAN_JAGUAR",
    "traits": [
     "evidence",
     "relic",
@@ -3544,6 +3854,7 @@
    "id": "ItemUniqueTurquoiseEagle",
    "pack": "PotS",
    "name": "Turquoise Eagle",
+   "nameKey": "UNIQUE_ITEM_TURQUOISE_EAGLE",
    "traits": [
     "evidence",
     "relic",
@@ -3555,6 +3866,7 @@
    "id": "ItemUniqueMysteriousSerpent",
    "pack": "PotS",
    "name": "Mysterious Snake",
+   "nameKey": "UNIQUE_ITEM_MYSTERIOUS_SNAKE",
    "traits": [
     "ally",
     "unique"
@@ -3565,6 +3877,7 @@
    "id": "ItemSpellBanishment",
    "pack": "PotS",
    "name": "Banishment",
+   "nameKey": "SPELL_BANISHMENT",
    "traits": [
     "spell",
     "spelldefence"
@@ -3575,6 +3888,7 @@
    "id": "ItemSpellSummoning",
    "pack": "PotS",
    "name": "Summoning",
+   "nameKey": "SPELL_SUMMONING",
    "traits": [
     "spell",
     "spelldefence"
@@ -3585,6 +3899,7 @@
    "id": "ItemCommonBulletproofVest",
    "pack": "SoA",
    "name": "Bulletproof Vest",
+   "nameKey": "COMMON_ITEM_BULLETPROOF_VEST",
    "traits": [
     "equipment",
     "common"
@@ -3595,6 +3910,7 @@
    "id": "ItemCommonEnhancingSerum",
    "pack": "SoA",
    "name": "Enhancing Serum",
+   "nameKey": "COMMON_ITEM_ENHANCING_SERUM",
    "traits": [
     "equipment",
     "common"
@@ -3605,6 +3921,7 @@
    "id": "ItemCommonFlask",
    "pack": "SoA",
    "name": "Flask",
+   "nameKey": "COMMON_ITEM_FLASK",
    "traits": [
     "equipment",
     "common"
@@ -3615,6 +3932,7 @@
    "id": "ItemCommonGamblersDice",
    "pack": "SoA",
    "name": "Gamblers Dice",
+   "nameKey": "COMMON_ITEM_GAMBLERS_DICE",
    "traits": [
     "equipment",
     "common"
@@ -3625,6 +3943,7 @@
    "id": "ItemCommonMentalStimulant",
    "pack": "SoA",
    "name": "Mental Stimulant",
+   "nameKey": "COMMON_ITEM_MENTAL_STIMULANT",
    "traits": [
     "equipment",
     "common"
@@ -3635,6 +3954,7 @@
    "id": "ItemCommonMoonPotion",
    "pack": "SoA",
    "name": "Moon Potion",
+   "nameKey": "COMMON_ITEM_MOON_POTION",
    "traits": [
     "equipment",
     "common"
@@ -3645,6 +3965,7 @@
    "id": "ItemCommonMutationJuice",
    "pack": "SoA",
    "name": "Mutation Juice",
+   "nameKey": "COMMON_ITEM_MUTATION_JUICE",
    "traits": [
     "equipment",
     "common"
@@ -3655,6 +3976,7 @@
    "id": "ItemCommonOcularExtract",
    "pack": "SoA",
    "name": "Ocular Extract",
+   "nameKey": "COMMON_ITEM_OCULAR_EXTRACT",
    "traits": [
     "equipment",
     "common"
@@ -3665,6 +3987,7 @@
    "id": "ItemCommonScalpel",
    "pack": "SoA",
    "name": "Scalpel",
+   "nameKey": "COMMON_ITEM_SCALPEL",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3676,6 +3999,7 @@
    "id": "ItemCommonSnubnoseRevolver",
    "pack": "SoA",
    "name": "Snubnose Revolver",
+   "nameKey": "COMMON_ITEM_SNUBNOSE_REVOLVER",
    "traits": [
     "weapon",
     "firearm",
@@ -3687,6 +4011,7 @@
    "id": "ItemCommonThermos",
    "pack": "SoA",
    "name": "Thermos",
+   "nameKey": "COMMON_ITEM_THERMOS",
    "traits": [
     "equipment",
     "common"
@@ -3697,6 +4022,7 @@
    "id": "ItemUniqueBecky",
    "pack": "SoA",
    "name": "Becky",
+   "nameKey": "UNIQUE_ITEM_BECKY",
    "traits": [
     "weapon",
     "firearm",
@@ -3708,6 +4034,7 @@
    "id": "ItemUniqueBonePipes",
    "pack": "SoA",
    "name": "Bone Pipes",
+   "nameKey": "UNIQUE_ITEM_BONE_PIPES",
    "traits": [
     "relic",
     "unique"
@@ -3718,6 +4045,7 @@
    "id": "ItemUniqueDeVermisMysteriis",
    "pack": "SoA",
    "name": "De Vermis Mysteriis",
+   "nameKey": "UNIQUE_ITEM_DE_VERMIS_MYSTERIIS",
    "traits": [
     "evidence",
     "tome",
@@ -3729,6 +4057,7 @@
    "id": "ItemUniqueLedger",
    "pack": "SoA",
    "name": "Ledger",
+   "nameKey": "UNIQUE_ITEM_LEDGER",
    "traits": [
     "evidence",
     "tome",
@@ -3740,6 +4069,7 @@
    "id": "ItemUniqueMysteriousIdol",
    "pack": "SoA",
    "name": "Mysterious Idol",
+   "nameKey": "UNIQUE_ITEM_MYSTERIOUS_IDOL",
    "traits": [
     "relic",
     "unique"
@@ -3750,6 +4080,7 @@
    "id": "ItemUniqueOldMap",
    "pack": "SoA",
    "name": "Old Map",
+   "nameKey": "UNIQUE_ITEM_OLD_MAP",
    "traits": [
     "evidence",
     "unique"
@@ -3760,6 +4091,7 @@
    "id": "ItemUniqueStarCalendar",
    "pack": "SoA",
    "name": "Star Calendar",
+   "nameKey": "UNIQUE_ITEM_STAR_CALENDAR",
    "traits": [
     "relic",
     "unique"
@@ -3770,6 +4102,7 @@
    "id": "ItemUniqueStoneChest",
    "pack": "SoA",
    "name": "Stone Chest",
+   "nameKey": "UNIQUE_ITEM_STONE_CHEST",
    "traits": [
     "relic",
     "unique"
@@ -3780,6 +4113,7 @@
    "id": "ItemUniqueStrangeTablet",
    "pack": "SoA",
    "name": "Strange Tablet",
+   "nameKey": "UNIQUE_ITEM_STRANGE_TABLET",
    "traits": [
     "relic",
     "unique"
@@ -3790,6 +4124,7 @@
    "id": "ItemSpellAzureFlame",
    "pack": "SoA",
    "name": "Azure Flame",
+   "nameKey": "SPELL_AZURE_FLAME",
    "traits": [
     "spell",
     "spellattack"
@@ -3800,6 +4135,7 @@
    "id": "ItemSpellForcedLearning",
    "pack": "SoA",
    "name": "Forced Learning",
+   "nameKey": "SPELL_FORCED_LEARNING",
    "traits": [
     "spell",
     "spelldefence"
@@ -3810,6 +4146,7 @@
    "id": "ItemSpellImplantSuggestion",
    "pack": "SoA",
    "name": "Implant Suggestion",
+   "nameKey": "SPELL_IMPLANT_SUGGESTION",
    "traits": [
     "spell",
     "spelldefence"
@@ -3820,6 +4157,7 @@
    "id": "ItemElixir",
    "pack": "SoA",
    "name": "Elixir",
+   "nameKey": "UNIQUE_ITEM_ELIXIR",
    "traits": [
     "elixir"
    ],
@@ -3829,6 +4167,7 @@
    "id": "ItemCommonPainkillers",
    "pack": "SoT",
    "name": "Painkillers",
+   "nameKey": "COMMON_ITEM_PAINKILLERS",
    "traits": [
     "equipment",
     "common"
@@ -3839,6 +4178,7 @@
    "id": "ItemCommonBindingPowder",
    "pack": "SoT",
    "name": "Binding Powder",
+   "nameKey": "COMMON_ITEM_BINDING_POWDER",
    "traits": [
     "equipment",
     "common"
@@ -3849,6 +4189,7 @@
    "id": "ItemCommonConvincingDummy",
    "pack": "SoT",
    "name": "Convincing Dummy",
+   "nameKey": "COMMON_ITEM_CONVINCING_DUMMY",
    "traits": [
     "equipment",
     "common"
@@ -3859,6 +4200,7 @@
    "id": "ItemCommonLuckyRing",
    "pack": "SoT",
    "name": "Lucky Ring",
+   "nameKey": "COMMON_ITEM_LUCKY_RING",
    "traits": [
     "equipment",
     "common"
@@ -3869,6 +4211,7 @@
    "id": "ItemCommonRiotWhistle",
    "pack": "SoT",
    "name": "Riot Whistle",
+   "nameKey": "COMMON_ITEM_RIOT_WHISTLE",
    "traits": [
     "equipment",
     "common"
@@ -3879,6 +4222,7 @@
    "id": "ItemCommonSensibleShoes",
    "pack": "SoT",
    "name": "Sensible Shoes",
+   "nameKey": "COMMON_ITEM_SENSIBLE_SHOES",
    "traits": [
     "equipment",
     "common"
@@ -3889,6 +4233,7 @@
    "id": "ItemCommonSilverTwilightDagger",
    "pack": "SoT",
    "name": "Silver Twilight Dagger",
+   "nameKey": "COMMON_ITEM_SILVER_TWILIGHT_DAGGER",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3900,6 +4245,7 @@
    "id": "ItemCommonSwordCane",
    "pack": "SoT",
    "name": "Sword Cane",
+   "nameKey": "COMMON_ITEM_SWORD_CANE",
    "traits": [
     "weapon",
     "bladedweapon",
@@ -3912,6 +4258,7 @@
    "id": "ItemCommonToteBag",
    "pack": "SoT",
    "name": "Tote Bag",
+   "nameKey": "COMMON_ITEM_TOTE_BAG",
    "traits": [
     "equipment",
     "common"
@@ -3922,6 +4269,7 @@
    "id": "ItemCommonTrackShoes",
    "pack": "SoT",
    "name": "Track Shoes",
+   "nameKey": "COMMON_ITEM_TRACK_SHOES",
    "traits": [
     "equipment",
     "common"
@@ -3932,6 +4280,7 @@
    "id": "ItemUniqueMembershipRing",
    "pack": "SoT",
    "name": "Membership Ring",
+   "nameKey": "UNIQUE_ITEM_MEMBERSHIP_RING",
    "traits": [
     "evidence",
     "unique"
@@ -3942,6 +4291,7 @@
    "id": "ItemUniqueTwilightDiadem",
    "pack": "SoT",
    "name": "Twilight Diadem",
+   "nameKey": "UNIQUE_ITEM_TWILIGHT_DIADEM",
    "traits": [
     "relic",
     "unique"
@@ -3952,6 +4302,7 @@
    "id": "ItemSpellBinding",
    "pack": "SoT",
    "name": "Binding",
+   "nameKey": "SPELL_BINDING",
    "traits": [
     "spell",
     "spelldefence"
@@ -3962,6 +4313,7 @@
    "id": "ItemSpellSpectralRazor",
    "pack": "SoT",
    "name": "Spectral Razor",
+   "nameKey": "SPELL_SPECTRAL_RAZOR",
    "traits": [
     "spell",
     "spellattack"

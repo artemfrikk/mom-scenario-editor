@@ -51,14 +51,17 @@ export function Picker({
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Names arrive later, when the player's texts are connected: redo the list then.
+  const names = useImages((st) => st.names);
   const current = options.find((o) => o.value === value);
   const filtered = useMemo(() => {
+    void names; // option labels read the names, so a change of names must redo the list
     const q = query.trim().toLowerCase();
     const list = q
       ? options.filter((o) => (o.label + ' ' + o.value + ' ' + (o.note ?? '')).toLowerCase().includes(q))
       : options;
     return list.slice(0, 200);
-  }, [options, query]);
+  }, [options, query, names]);
 
   useEffect(() => {
     if (!open) return;

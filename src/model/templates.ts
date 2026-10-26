@@ -103,7 +103,7 @@ export const TEMPLATES: Template[] = [
     id: 'ambush',
     icon: '👹',
     title: 'Засада монстра',
-    what: 'Событие с описанием, при котором на карте появляется монстр.',
+    what: 'Событие с описанием, а следом монстр выходит на поле.',
     needsEvent: true,
   },
   {
@@ -195,13 +195,15 @@ export function buildTemplate(s: Scenario, lang: string, id: string, hook?: Hook
       return { scenario: out, first: door, events: [door, key, open], facts: { [fact]: label } };
     }
     case 'ambush': {
+      // In Valkyrie a monster appears when its Spawn is reached by a button (add= only places tiles, doors, tokens and pictures).
       let out: Scenario, ev: string, spawn: string;
       [out, ev] = addComponent(s, 'Event', {}, 'Ambush');
       [out, spawn] = addComponent(out, 'Spawn', { monster: firstMonster }, 'Ambush');
-      out = updateData(out, ev, { add: spawn });
+      out = setButtonTargets(out, ev, 1, [spawn]);
       out = t(out, ev, 'Из темноты на вас бросается чудовище!', 'К бою');
+      out = t(out, spawn, 'Монстр вышел на поле. Опишите, что видят сыщики.', 'Продолжить');
       out = link(out, hook, ev);
-      return { scenario: out, first: ev, events: [ev], facts: {} };
+      return { scenario: out, first: ev, events: [ev, spawn], facts: {} };
     }
     case 'choice': {
       let out: Scenario, ev: string, a: string, b: string;

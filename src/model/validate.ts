@@ -62,7 +62,8 @@ export function validate(s: Scenario): Issue[] {
 
   const added = new Set(s.components.flatMap((c) => (c.data.add ?? '').split(/\s+/).filter(Boolean)));
   for (const c of s.components) {
-    if (BOARD_TYPES.includes(c.type) && !added.has(c.name)) {
+    // MPlace only marks where a monster stands; nothing has to show it.
+    if (BOARD_TYPES.includes(c.type) && c.type !== 'MPlace' && !added.has(c.name)) {
       issues.push({ level: 'warning', component: c.name, message: `${c.name}: ни одно событие не показывает его на карте, игроки его не увидят.`, fix: startEvent(s) ? { kind: 'showAtStart', target: c.name } : undefined });
     }
   }

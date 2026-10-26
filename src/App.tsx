@@ -9,7 +9,7 @@ import { LANGUAGE_LABEL } from './ui/labels';
 import { MapView } from './ui/MapView';
 import { CheckPage, QuestPage, TextsPage } from './ui/Pages';
 import { StoryView } from './ui/StoryView';
-import { PlayView } from './ui/PlayView';
+import { GameView } from './ui/GameView';
 import { tourSeen } from './tour';
 import { Tour } from './ui/Tour';
 import { Wizard } from './ui/Wizard';
@@ -22,7 +22,7 @@ const NAV: { view: View; icon: string; label: string }[] = [
   { view: 'quest', icon: '📖', label: 'Сценарий' },
   { view: 'story', icon: '🕸', label: 'Сюжет' },
   { view: 'map', icon: '🗺', label: 'Карта' },
-  { view: 'play', icon: '▶', label: 'Проба' },
+  { view: 'play', icon: '▶', label: 'Играть' },
   { view: 'texts', icon: '🌐', label: 'Тексты' },
   { view: 'check', icon: '✔', label: 'Проверка' },
 ];
@@ -191,7 +191,7 @@ export default function App() {
             {view === 'quest' && <QuestPage />}
             {view === 'story' && <StoryView />}
             {view === 'map' && <MapView />}
-            {view === 'play' && <PlayView />}
+            {view === 'play' && <GameView />}
             {view === 'texts' && <TextsPage />}
             {view === 'check' && <CheckPage />}
           </main>
