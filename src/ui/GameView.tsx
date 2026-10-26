@@ -160,7 +160,9 @@ export function GameView() {
   const spawned = current?.type === 'Spawn' ? game.monsters.find((m) => m.spawn === current.name) : undefined;
   const busy = !!game.current;
   const itemName = (q: string) => {
-    const id = (getComponent(s, q)?.data.itemname ?? '').split(/\s+/)[0];
+    const qi = getComponent(s, q);
+    if (qi && !qi.data.itemname && (qi.data.traits ?? '').includes('weapon')) return 'случайное оружие';
+    const id = (qi?.data.itemname ?? '').split(/\s+/)[0];
     const it = catalog.items.find((x) => x.id === id);
     return it ? labelOf(it.name, it.nameKey) : q;
   };

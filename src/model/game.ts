@@ -196,6 +196,9 @@ export function next(s: Scenario, st: GameState, rng: Rng = Math.random, depth =
   if (!c || isDisabled(s, out, name)) return next(s, out, rng, depth + 1);
 
   out = { ...out, vars: runOps(c.data.operations, out.vars) };
+  // The variable "clues" is the constructor's way of handing the investigators a clue.
+  const found = (out.vars.clues ?? 0) - (st.vars.clues ?? 0);
+  if (found) out = { ...out, clues: Math.max(0, out.clues + found) };
   if (c.type === 'Spawn') out = spawnMonster(s, out, c, rng);
   out = addComponents(s, out, c);
   out = { ...out, log: [...out.log, name], hero: out.heroes.length ? pick(out.heroes, rng) : '' };

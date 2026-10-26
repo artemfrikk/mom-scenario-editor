@@ -9,6 +9,7 @@ import { freeTileOptions } from './options';
 import { tokenIcon } from './labels';
 import { ImagesButton } from './ImagesDialog';
 import { Picker } from './widgets';
+import { ObjectPanel } from './ObjectPanel';
 import { TilePalette } from './TilePalette';
 
 const tileById = new Map(catalog.tiles.map((t) => [t.id, t]));
@@ -349,6 +350,7 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
           onPick={(side, shownBy, dir) => createTileBeside(side, shownBy, dir)}
         />
       )}
+      {!embedded && !only && <ObjectPanel />}
       <svg
         ref={svgRef}
         className={'map-svg' + (panning ? ' panning' : '') + (only ? ' play' : '')}
