@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { factLabel } from '../model/facts';
 import {
   adjustHp,
@@ -13,7 +13,8 @@ import {
   windowText,
   type GameState,
 } from '../model/game';
-import { buttonLabel, buttonsOf, getComponent } from '../model/ops';
+import { buttonLabel, buttonsOf, getComponent, getText, resolveText } from '../model/ops';
+import type { QComponent } from '../format/scenario';
 import catalog from '../content/catalog.json';
 import { useStore } from '../store';
 import { Thumb } from './widgets';
@@ -24,6 +25,10 @@ import { labelOf, plainText, previewHtml } from './options';
 // How a {c:Name} in a window is called: a Spawn by its monster, in Russian when the game's texts are connected.
 function windowLabel(spawnName: string): string | undefined {
   const c = useStore.getState().scenario.components.find((x) => x.name === spawnName);
+  if (c?.type === 'Tile') {
+    const tile = catalog.tiles.find((x) => x.id === c.data.side);
+    return tile ? labelOf(tile.name, tile.nameKey).split(' · ')[0] : undefined;
+  }
   const id = (c?.data.monster ?? '').split(/\s+/)[0];
   const m = catalog.monsters.find((x) => x.id === id);
   return m ? labelOf(m.name, m.nameKey).split(' · ')[0] : undefined;
@@ -100,6 +105,7 @@ export function GameView() {
   return (
     <div className="game">
       <div className="game-map">
+        <GameUi game={game} onPress={busy || game.ended ? undefined : (n) => act((g) => touch(s, g, n))} />
         <MapView embedded only={game.visible} onPick={busy || game.ended ? undefined : (n) => act((g) => touch(s, g, n))} />
         {current && (
           <div className="game-window" role="dialog">
@@ -238,6 +244,57 @@ export function GameView() {
           <div className="game-log">{game.log.slice(-30).join(' → ')}</div>
         </details>
       </aside>
+    </div>
+  );
+}
+
+// Screen elements of the scenario (the intro screen, for example). They sit over the map; sizes are fractions of the map height.
+function GameUi({ game, onPress }: { game: GameState; onPress?: (name: string) => void }) {
+  const s = useStore((st) => st.scenario);
+  const lang = useStore((st) => st.lang);
+  const box = useRef<HTMLDivElement>(null);
+  const [h, setH] = useState(600);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setH(e.contentRect.height));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const items = game.visible.map((n) => getComponent(s, n)).filter((c) => c?.type === 'UI');
+  if (!items.length) return null;
+  const textOf = (c: QComponent) => resolveText(s, lang, getText(s, lang, c.name + '.uitext')).trim();
+  const goes = (c: QComponent) => buttonsOf(c).some((b) => b.targets.length);
+  const at = (c: QComponent) => `${c.data.xposition ?? 0},${c.data.yposition ?? 0}`;
+  const labelled = new Set(items.filter((c) => c && goes(c) && textOf(c)).map((c) => at(c!)));
+  return (
+    <div className="game-ui" ref={box}>
+      {items.map((c) => {
+        if (!c) return null;
+        const d = c.data;
+        const size = Number(d.size ?? 1) || 1;
+        const text = textOf(c);
+        const press = goes(c);
+        // The whole-screen picture is the intro's dark background; other pictures live in the scenario's own files.
+        if (!text && !press) return size >= 1 ? <div key={c.name} className="game-ui-bg" /> : null;
+        // A picture-only button is drawn only when nothing with text sits in the same place; tiny ones are secret buttons.
+        if (!text && (size < 0.02 || labelled.has(at(c)))) return null;
+        const x = Number(d.xposition ?? 0) || 0;
+        const y = Number(d.yposition ?? 0) || 0;
+        const textsize = Number(d.textsize ?? 1) || 1;
+        const style = { left: `calc(50% + ${x * h}px)`, top: `calc(50% + ${y * h}px)`, ...(press ? { minWidth: 150 } : { width: size * h }), maxHeight: h * 0.8, fontSize: Math.max(11, textsize * h * 0.028), color: press ? undefined : d.textcolor || undefined } as const;
+        return (
+          <div
+            key={c.name}
+            className={'game-ui-item' + (press ? ' press' : '')}
+            style={style}
+            onClick={press && onPress ? () => onPress(c.name) : undefined}
+            role={press ? 'button' : undefined}
+          >
+            <span dangerouslySetInnerHTML={{ __html: previewHtml(text) || 'Продолжить' }} />
+          </div>
+        );
+      })}
     </div>
   );
 }

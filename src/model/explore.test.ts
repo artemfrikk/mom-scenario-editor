@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { newScenario } from '../format/scenario';
 import { explore } from './explore';
 import { buildTemplate, WIZARD_DEFAULTS, wizardScenario } from './templates';
-import { setButtonTargets, updateData } from './ops';
+import { addComponent, setButtonTargets, updateData } from './ops';
 
 describe('explore', () => {
   it('finds both endings of the wizard scenario', () => {
@@ -36,5 +36,19 @@ describe('explore', () => {
     s = updateData(s, 'EventWin', { vartests: 'VarOperation:never,>,0' });
     const r = explore(s);
     expect(r.neverReached).toContain('EventWin');
+  });
+});
+
+describe('explore with screen elements', () => {
+  it('presses a UI button that leads on, like the intro screen of imported scenarios', () => {
+    let s = newScenario('Russian');
+    s = updateData(s, 'EventStart', { display: 'false' });
+    let win = '';
+    let ui = '';
+    [s, win] = addComponent(s, 'Event', { operations: '$end,=,1' }, 'Win');
+    [s, ui] = addComponent(s, 'UI', { buttons: '1', event1: win }, 'Go');
+    s = updateData(s, 'EventStart', { add: ui });
+    const r = explore(s);
+    expect(r.endings.map((e) => e.event)).toContain(win);
   });
 });

@@ -73,7 +73,9 @@ export function explore(s: Scenario, heroes = ['Сыщик 1', 'Сыщик 2']):
       } else {
         for (const n of st.visible) {
           const c = getComponent(s, n);
-          if (c && (c.type === 'Token' || c.type === 'Door') && isEventLike(c.type)) moves.push([`нажать ${n}`, (rng) => touch(s, st, n, rng)]);
+          // A UI element (the intro's "continue" for example) can be pressed when it leads somewhere.
+          const pressable = c && (c.type === 'Token' || c.type === 'Door' || (c.type === 'UI' && buttonsOf(c).some((b) => b.targets.length)));
+          if (c && pressable && isEventLike(c.type)) moves.push([`нажать ${n}`, (rng) => touch(s, st, n, rng)]);
         }
         if (st.phase === 'investigator') moves.push(['конец хода сыщиков', (rng) => endInvestigatorPhase(s, st, rng)]);
         if (st.phase === 'mythos' && st.round < MAX_ROUND) moves.push(['новый раунд', (rng) => newRound(s, st, rng)]);
