@@ -3,11 +3,13 @@ import { factLabel } from '../model/facts';
 import {
   adjustHp,
   buttonState,
+  closable,
   choose,
   defeat,
   eliminated,
   endInvestigatorPhase,
   newGame,
+  nextPhase,
   newRound,
   touch,
   windowText,
@@ -33,6 +35,8 @@ function windowLabel(spawnName: string): string | undefined {
   const m = catalog.monsters.find((x) => x.id === id);
   return m ? labelOf(m.name, m.nameKey).split(' · ')[0] : undefined;
 }
+
+const PHASE = { investigator: 'ход сыщиков', mythos: 'фаза мифов', monsters: 'ход монстров', horror: 'фаза ужаса' } as const;
 
 const monsterImage = (id: string) => catalog.monsters.find((m) => m.id === id);
 
@@ -123,7 +127,7 @@ export function GameView() {
             )}
             <div className="game-text" dangerouslySetInnerHTML={{ __html: previewHtml(windowText(s, game, lang, current.name, windowLabel)) || '<i>Текст не написан</i>' }} />
             <div className="play-buttons">
-              {buttonsOf(current).map((b) => {
+              {buttonsOf(current).filter(() => !(current.type === 'Token' && !(current.data.buttons ?? '').trim())).map((b) => {
                 const state = buttonState(current, b.index, game.vars);
                 if (state === 'hidden') return null;
                 return (
@@ -133,6 +137,11 @@ export function GameView() {
                   </button>
                 );
               })}
+              {closable(current) && (
+                <button className="ghost" onClick={() => act((g) => choose(s, g, 0))}>
+                  Закрыть
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -153,16 +162,20 @@ export function GameView() {
       <aside className="game-side">
         <div className="card">
           <b>
-            Раунд {game.round} · {game.phase === 'investigator' ? 'ход сыщиков' : 'фаза мифов'}
+            Раунд {game.round} · {PHASE[game.phase]}
           </b>
           <div className="row" style={{ marginTop: 8, flexWrap: 'wrap' }}>
             {game.phase === 'investigator' ? (
               <button className="primary" disabled={busy || game.ended} onClick={() => act((g) => endInvestigatorPhase(s, g))}>
                 Сыщики закончили ход
               </button>
-            ) : (
+            ) : game.phase === 'horror' ? (
               <button className="primary" disabled={busy || game.ended} onClick={() => act((g) => newRound(s, g))}>
-                Монстры походили, новый раунд
+                Фаза ужаса закончена, новый раунд
+              </button>
+            ) : (
+              <button className="primary" disabled={busy || game.ended} onClick={() => act((g) => nextPhase(g))}>
+                {game.phase === 'mythos' ? 'События мифов сыграны, ходят монстры' : 'Монстры походили, фаза ужаса'}
               </button>
             )}
           </div>

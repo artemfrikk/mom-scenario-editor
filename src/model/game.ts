@@ -26,7 +26,7 @@ export interface GameState {
   stack: string[]; // events waiting; the last one goes first
   current: string | null; // event whose window is open
   hero: string; // the hero named by {rnd:hero} in the open window
-  phase: 'investigator' | 'mythos';
+  phase: 'investigator' | 'mythos' | 'monsters' | 'horror'; // Valkyrie's MoM round: sleuths, mythos events, monsters, horror
   round: number;
   pendingNewRound: boolean;
   ended: boolean;
@@ -146,6 +146,9 @@ function customTriggers(s: Scenario, st: GameState): GameState {
   return out;
 }
 
+// Valkyrie adds no "Continue" to a token without buttons; such a window, like a cancelable one, has only a close cross.
+export const closable = (c: QComponent) => c.data.cancelable === 'true' || (c.type === 'Token' && !(c.data.buttons ?? '').trim());
+
 export type ButtonState = 'ok' | 'disabled' | 'hidden';
 
 export function buttonState(c: QComponent, index: number, vars: Vars): ButtonState {
@@ -184,6 +187,8 @@ export function choose(s: Scenario, st: GameState, index: number, rng: Rng = Mat
   const c = st.current ? getComponent(s, st.current) : undefined;
   let out: GameState = { ...st, current: null };
   if (!c) return next(s, out, rng, depth + 1);
+  // Button 0 is the window's close cross of a "cancelable" event: it closes the window and goes nowhere.
+  if (index === 0) return next(s, out, rng, depth + 1);
   const targets = buttonsOf(c).find((b) => b.index === index)?.targets ?? [];
   const enabled = targets.filter((t) => !isDisabled(s, out, t) && getComponent(s, t));
   for (const t of targets) if (!getComponent(s, t)) out = note(out, `Предупреждение: нет события «${t}».`);
@@ -211,8 +216,16 @@ export function endInvestigatorPhase(s: Scenario, st: GameState, rng: Rng = Math
   return next(s, out, rng);
 }
 
+// Mythos events are done: the monsters act, then the horror phase follows (Valkyrie's RoundControllerMoM).
+export function nextPhase(st: GameState): GameState {
+  if (st.current || st.ended) return st;
+  if (st.phase === 'mythos') return { ...st, phase: 'monsters', log: [...st.log, '— Монстры действуют —'] };
+  if (st.phase === 'monsters') return { ...st, phase: 'horror', log: [...st.log, '— Фаза ужаса —'] };
+  return st;
+}
+
 export function newRound(s: Scenario, st: GameState, rng: Rng = Math.random): GameState {
-  if (st.current || st.phase !== 'mythos' || st.ended) return st;
+  if (st.current || st.phase === 'investigator' || st.ended) return st;
   let out: GameState = { ...st, pendingNewRound: true };
   out = queueTrigger(s, out, 'EndRound');
   out = queueTrigger(s, out, 'EndRound' + st.round);
