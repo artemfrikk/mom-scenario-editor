@@ -10,6 +10,8 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 export type Lookup = (key: string) => string | undefined;
 
 export function tokenLabel(token: string, lookup?: Lookup): string {
+  // {@City}: a name that differs from quest to quest in a big package
+  if (token.startsWith('{@')) return '⟨' + token.slice(2, -1) + '⟩';
   const m = token.match(/^\{([a-z]+)(?::([^}]*))?\}$/i);
   if (!m) return token;
   const [, kind, arg = ''] = m;

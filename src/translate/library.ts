@@ -8,6 +8,7 @@ import { canSaveToFolder, chooseFolder, savedFolder, writeToFolder } from '../fo
 import { openPackage } from './package';
 import { workKey, type Translations } from './store';
 import { needsNoTranslation } from './tokens';
+import { existingOf, unitsOf } from './units';
 
 export interface ScenarioInfo {
   fileName: string;
@@ -52,11 +53,11 @@ export async function describe(file: File, target = 'Russian'): Promise<Scenario
     const languages = Object.keys(pkg.texts);
     const source = languages.find((l) => l !== target && l === pkg.defaultLanguage) ?? languages.find((l) => l !== target) ?? languages[0];
     const title = pkg.texts[target]?.get('quest.name') || pkg.texts[source]?.get('quest.name') || file.name.replace(/\.valkyrie$/i, '');
-    const keys = [...(pkg.texts[source] ?? new Map<string, string>())].filter(([, v]) => !needsNoTranslation(v)).map(([k]) => k);
+    const units = unitsOf(pkg, source).filter((u) => !needsNoTranslation(u.source));
     const saved = (await get<Translations>(workKey(file.name, source, target)).catch(() => undefined)) ?? {};
-    const old = pkg.texts[target];
-    const translated = keys.filter((k) => (saved[k]?.text ?? old?.get(k) ?? '').trim()).length;
-    return { fileName: file.name, title, languages, file, total: keys.length, translated, inFile: !!old };
+    const old = existingOf(pkg, source, target);
+    const translated = units.filter((u) => (saved[u.id]?.text ?? old.get(u.id) ?? '').trim()).length;
+    return { fileName: file.name, title, languages, file, total: units.length, translated, inFile: old.size > 0 };
   } catch (e) {
     return { fileName: file.name, title: file.name, languages: [], file, total: 0, translated: 0, inFile: false, error: (e as Error).message };
   }

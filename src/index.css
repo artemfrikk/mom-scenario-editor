@@ -511,3 +511,4 @@ button.tk.add { cursor: pointer; border-style: dashed; color: var(--err); }
 .tr-scenario-state .bad { color: var(--err); }
 .tr-scenario-actions { display: flex; gap: 6px; }
 @media (max-width: 700px) { .tr-scenario { grid-template-columns: 1fr; } }
+.tr-engine { width: auto; }

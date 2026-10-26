@@ -75,24 +75,27 @@ interface Running {
   fileName: string;
   done: number;
   total: number;
+  wait: number;
   saving: boolean;
 }
+
+const switchedNote = ' Google ограничил перевод, поэтому остаток перевёл встроенный переводчик Chrome.';
 
 // Opens, machine-translates what is missing, and writes the file back (or downloads it). Returns a message for the person.
 async function translateAndSave(item: ScenarioInfo, onProgress: (r: Running) => void, signal: AbortSignal): Promise<string> {
   const tr = useTranslator.getState();
   await tr.open(item.file, item.fileName);
   const rows = tr.missing();
-  onProgress({ fileName: item.fileName, done: 0, total: rows.length, saving: false });
-  const lost = rows.length ? await tr.machine(rows, (done) => onProgress({ fileName: item.fileName, done, total: rows.length, saving: false }), signal) : 0;
+  onProgress({ fileName: item.fileName, done: 0, total: rows.length, wait: 0, saving: false });
+  const { lost, switched } = rows.length ? await tr.auto(rows, (p) => onProgress({ fileName: item.fileName, ...p, saving: false }), signal) : { lost: 0, switched: false };
   if (signal.aborted) return 'Перевод остановлен. Уже переведённое сохранено в браузере.';
-  onProgress({ fileName: item.fileName, done: rows.length, total: rows.length, saving: true });
+  onProgress({ fileName: item.fileName, done: rows.length, total: rows.length, wait: 0, saving: true });
   const blob = await tr.build();
   const lib = useLibrary.getState();
   const inFolder = await lib.write(item.fileName, blob).catch(() => false);
   if (!inFolder) download(blob, item.fileName);
   await lib.refreshOne(item.fileName, inFolder ? undefined : new File([blob], item.fileName));
-  const marks = lost ? ` В ${lost} текстах потерялись значки игры, их стоит поправить вручную.` : '';
+  const marks = (lost ? ` В ${lost} текстах потерялись значки игры, их стоит поправить вручную.` : '') + (switched ? switchedNote : '');
   return (inFolder ? `«${item.title}» переведён и сохранён в папку. Можно играть!` : `«${item.title}» переведён и скачан. Положите файл в папку Download с заменой.`) + marks;
 }
 
@@ -252,7 +255,13 @@ function TranslatorStart({ onOpen, onContinue, editorReady }: { onOpen: (f: Blob
                         {i.error ? (
                           <span className="bad">не открывается</span>
                         ) : busy ? (
-                          <span>{running!.saving ? 'Сохраняю…' : `Перевожу ${running!.done} из ${running!.total}`}</span>
+                          <span>
+                            {running!.saving
+                              ? 'Сохраняю…'
+                              : running!.wait
+                                ? `Google попросил паузу, продолжу через ${running!.wait} с`
+                                : `Перевожу ${running!.done} из ${running!.total}`}
+                          </span>
                         ) : isDone(i) ? (
                           <span className="good">✓ Есть русский</span>
                         ) : i.translated > 0 ? (
@@ -341,7 +350,9 @@ function TranslatorWork({ onBack }: { onBack: () => void }) {
   const [page, setPage] = useState({ key: viewKey, n: PAGE });
   const shown = page.key === viewKey ? page.n : PAGE;
   const setShown = (n: number) => setPage({ key: viewKey, n });
-  const [machine, setMachine] = useState<{ done: number; total: number; abort: AbortController } | null>(null);
+  const [machine, setMachine] = useState<{ done: number; total: number; wait: number; abort: AbortController } | null>(null);
+  const engine = useTranslator((st) => st.engine);
+  const browserAvailable = useTranslator((st) => st.browserAvailable);
   const [dialog, setDialog] = useState<'ai' | 'replace' | 'saved' | null>(null);
 
   const languages = Object.keys(pkg.texts);
@@ -381,11 +392,14 @@ function TranslatorWork({ onBack }: { onBack: () => void }) {
       return;
     }
     const abort = new AbortController();
-    setMachine({ done: 0, total: todo.length, abort });
+    setMachine({ done: 0, total: todo.length, wait: 0, abort });
     try {
-      const lost = await useTranslator.getState().machine(todo, (done) => setMachine((m) => (m ? { ...m, done } : m)), abort.signal);
+      const { lost, switched } = await useTranslator.getState().auto(todo, (p) => setMachine((m) => (m ? { ...m, ...p } : m)), abort.signal);
       if (!abort.signal.aborted)
-        flash(lost ? `Готово. В ${lost} текстах потерялись значки игры: они в фильтре «Есть ошибки».` : 'Готово! Теперь пройдитесь по текстам и поправьте их.');
+        flash(
+          (lost ? `Готово. В ${lost} текстах потерялись значки игры: они в фильтре «Есть ошибки».` : 'Готово! Теперь пройдитесь по текстам и поправьте их.') +
+            (switched ? switchedNote : ''),
+        );
     } catch (e) {
       if (!abort.signal.aborted) flash('Перевод остановился: ' + (e as Error).message + ' Уже переведённое сохранено.');
     } finally {
@@ -457,9 +471,7 @@ function TranslatorWork({ onBack }: { onBack: () => void }) {
       <div className="tr-actions">
         {machine ? (
           <div className="tr-running">
-            <span>
-              Перевожу… {machine.done} из {machine.total}
-            </span>
+            <span>{machine.wait ? `Google попросил паузу, продолжу через ${machine.wait} с` : `Перевожу… ${machine.done} из ${machine.total}`}</span>
             <div className="bar">
               <div className="auto" style={{ width: `${(100 * machine.done) / machine.total}%` }} />
             </div>
@@ -467,9 +479,20 @@ function TranslatorWork({ onBack }: { onBack: () => void }) {
           </div>
         ) : (
           <>
-            <button className="primary" onClick={() => void runMachine()} title="Google переведёт все тексты, у которых ещё нет перевода">
+            <button className="primary" onClick={() => void runMachine()} title="Перевести все тексты, у которых ещё нет перевода">
               ⚡ Перевести автоматически
             </button>
+            {browserAvailable && (
+              <select
+                className="tr-engine"
+                value={engine}
+                onChange={(e) => useTranslator.getState().setEngine(e.target.value as 'google' | 'browser')}
+                title="Google переводит лучше, но ограничивает большие объёмы. Встроенный переводчик Chrome работает прямо на компьютере и без ограничений."
+              >
+                <option value="google">через Google</option>
+                <option value="browser">встроенным переводчиком Chrome</option>
+              </select>
+            )}
             <button onClick={() => setDialog('ai')} title="Художественный перевод через ChatGPT, Claude или другой чат-ассистент">
               🤖 Через ChatGPT / Claude
             </button>
@@ -614,8 +637,8 @@ function RowCard({ row, group, showGroup, onMachine, busy }: { row: Row; group: 
             </div>
           )}
           <div className="tr-row-actions">
-            <button className="ghost" disabled={busy} onClick={onMachine} title="Перевести этот текст через Google заново">
-              ⚡ Google
+            <button className="ghost" disabled={busy} onClick={onMachine} title="Перевести этот текст машинным переводом заново">
+              ⚡ Перевести
             </button>
             <button className="ghost" onClick={() => useTranslator.getState().setText(row.key, row.source)} title="Вставить текст оригинала, чтобы править поверх него">
               📋 Как в оригинале
