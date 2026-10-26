@@ -25,7 +25,7 @@ import {
 import { buttonLabel, buttonsOf, getComponent, getText, resolveText } from '../model/ops';
 import type { QComponent } from '../format/scenario';
 import catalog from '../content/catalog.json';
-import { assetUrl } from '../assets';
+import { assetUrl, soundUrl } from '../assets';
 import { useStore } from '../store';
 import { puzzleMoves } from '../model/puzzles';
 import { PuzzleWindow } from './PuzzleWindow';
@@ -63,6 +63,38 @@ export function GameView() {
   const [names, setNames] = useState<string[]>(() => Array.from({ length: Math.min(max, Math.max(min, 2)) }, (_, i) => `Сыщик ${i + 1}`));
   const [game, setGame] = useState<GameState | null>(null);
   const [history, setHistory] = useState<GameState[]>([]);
+  const [muted, setMuted] = useState(() => {
+    try {
+      return localStorage.getItem('mse-muted') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const music = useRef<HTMLAudioElement | null>(null);
+  const cue = game?.cue;
+  const over = game === null;
+  // Sounds and music the events ask for, taken from the scenario's own files. Only a new cue plays, not a changed mute or language.
+  useEffect(() => {
+    if (!cue) return;
+    const effect = cue.audio && !muted ? soundUrl(s, cue.audio, lang) : undefined;
+    if (effect) new Audio(effect).play().catch(() => {});
+    if (cue.music) {
+      music.current?.pause();
+      music.current = null;
+      const url = /^nosound/i.test(cue.music) ? undefined : soundUrl(s, cue.music, lang);
+      if (url && !muted) {
+        const a = new Audio(url);
+        a.loop = true;
+        a.play().catch(() => {});
+        music.current = a;
+      }
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [cue?.id]);
+  useEffect(() => {
+    if (muted || over) music.current?.pause();
+  }, [muted, over]);
+  useEffect(() => () => music.current?.pause(), []);
   const [clues, setClues] = useState(1);
   const [kit, setKit] = useState<'none' | 'random' | 'pick'>('random');
   const [kitCount, setKitCount] = useState(3);
@@ -261,6 +293,21 @@ export function GameView() {
             )}
           </div>
           <div className="hint" style={{ marginTop: 8 }}>
+            <button
+              className="small ghost"
+              style={{ float: 'right' }}
+              title="Включить или выключить музыку и звуки сценария"
+              onClick={() => {
+                setMuted(!muted);
+                try {
+                  localStorage.setItem('mse-muted', muted ? '0' : '1');
+                } catch {
+                  /* the choice just is not remembered */
+                }
+              }}
+            >
+              {muted ? '🔇 Звук выключен' : '🔊 Звук включён'}
+            </button>
             {busy ? 'Сначала закройте окно события.' : 'Тронуть жетон или дверь: нажмите на них на карте.'}
           </div>
         </div>

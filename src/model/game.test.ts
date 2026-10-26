@@ -179,4 +179,12 @@ describe('window text', () => {
     expect(st.vars.opened).toBe(1);
     expect(st.puzzles[p]).toBeUndefined();
   });
+
+  it('an event that names a sound or music leaves a cue for the screen', () => {
+    let s = newScenario('Russian');
+    [s] = addComponent(s, 'Event', { trigger: 'StartRound', audio: 'door.ogg', music: 'theme.ogg', display: 'false' }, 'Sound');
+    let st = newGame(s, heroes, rng);
+    st = choose(s, st, 1, rng); // the intro, then the sound event runs
+    expect(st.cue).toEqual({ id: 1, audio: 'door.ogg', music: 'theme.ogg' });
+  });
 });

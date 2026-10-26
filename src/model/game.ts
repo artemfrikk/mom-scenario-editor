@@ -25,6 +25,7 @@ export interface GameState {
   items: string[]; // quest items the investigators received
   clues: number; // clues the investigators hold
   startItems: string[]; // catalog items the investigators began with
+  cue: { id: number; audio: string; music: string } | null; // the newest sound an event asked for
   puzzle: PuzzleState | null; // the puzzle on the table while its window is open
   puzzles: Record<string, PuzzleState>; // puzzles put aside half way, by component name
   monsters: Monster[];
@@ -79,6 +80,7 @@ export function newGame(s: Scenario, heroes: string[], rng: Rng = Math.random, s
     items: given,
     clues: Math.max(0, Math.min(MAX_START, Math.floor(start.clues))),
     startItems: start.items.slice(0, MAX_START),
+    cue: null,
     puzzle: null,
     puzzles: {},
     monsters: [],
@@ -206,6 +208,8 @@ export function next(s: Scenario, st: GameState, rng: Rng = Math.random, depth =
   if (found) out = { ...out, clues: Math.max(0, out.clues + found) };
   if (c.type === 'Spawn') out = spawnMonster(s, out, c, rng);
   out = addComponents(s, out, c);
+  // A sound or music the event asks for; the screen plays it.
+  if (c.data.audio || c.data.music) out = { ...out, cue: { id: (out.cue?.id ?? 0) + 1, audio: c.data.audio ?? '', music: c.data.music ?? '' } };
   out = { ...out, log: [...out.log, name], hero: out.heroes.length ? pick(out.heroes, rng) : '' };
 
   if (c.type === 'Puzzle') {
