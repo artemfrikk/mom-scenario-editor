@@ -6,6 +6,7 @@
 import { clear, createStore, entries, set as idbSet } from 'idb-keyval';
 import { create } from 'zustand';
 import catalog from './content/catalog.json';
+import { ddsToPng } from './dds';
 import { parseLocalization } from './format/localization';
 
 const ROOT_KEY = 'mse-valkyrie-root';
@@ -34,11 +35,16 @@ const store = createStore('mse-images', 'files');
 const namesStore = createStore('mse-names', 'files');
 // Valkyrie's own import keeps the official texts in text/Localization_<Language>.txt (digits in the name mean other files).
 const TEXT_FILE = /^Localization[^\d]*\.txt$/i;
-const IMAGE_EXT = /\.(png|jpe?g|webp)$/i;
+const IMAGE_EXT = /\.(png|jpe?g|webp|dds)$/i;
 const MAX_DEPTH = 4;
 
 export function imageKey(path: string | undefined): string {
   return (path ?? '').split(/[\\/]/).pop()!.replace(/\.[a-z0-9]+$/i, '').toLowerCase();
+}
+
+// Valkyrie's own pictures are .dds, which a browser cannot show: they are turned into PNG on the way in.
+async function readable(name: string, file: Blob): Promise<Blob | null> {
+  return /\.dds$/i.test(name) ? ddsToPng(file) : file;
 }
 
 // Only pictures the editor can actually show are copied, the rest of the folder is skipped.
@@ -137,7 +143,9 @@ export const useImages = create<ImagesState>((set, get) => {
           } else if (IMAGE_EXT.test(entry.name)) {
             const key = imageKey(entry.name);
             if (!WANTED.has(key) || blobs.has(key)) continue;
-            blobs.set(key, await (entry as FileSystemFileHandle).getFile());
+            const blob = await readable(entry.name, await (entry as FileSystemFileHandle).getFile());
+            if (!blob) continue;
+            blobs.set(key, blob);
             set({ found: blobs.size });
           }
         }
@@ -163,7 +171,10 @@ export const useImages = create<ImagesState>((set, get) => {
         }
         if (!IMAGE_EXT.test(f.name)) continue;
         const key = imageKey(f.name);
-        if (WANTED.has(key) && !blobs.has(key)) blobs.set(key, f);
+        if (!WANTED.has(key) || blobs.has(key)) continue;
+        const blob = await readable(f.name, f);
+        if (blob) blobs.set(key, blob);
+        set({ found: blobs.size });
       }
       await finish(blobs, names);
     },
