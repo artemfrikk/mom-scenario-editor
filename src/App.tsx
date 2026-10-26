@@ -20,6 +20,7 @@ import { FolderSave } from './ui/FolderSave';
 import { snapshotNow } from './versions';
 import { PrintSheet } from './ui/PrintSheet';
 import { VersionsDialog } from './ui/VersionsDialog';
+import { TranslatorPage } from './ui/Translator';
 
 const NAV: { view: View; icon: string; label: string }[] = [
   { view: 'quest', icon: '📖', label: 'Сценарий' },
@@ -52,6 +53,17 @@ export default function App() {
   const [tour, setTour] = useState(false);
   const [versions, setVersions] = useState(false);
   const [printing, setPrinting] = useState(false);
+  // The translator lives at #translate so it can be bookmarked.
+  const [translator, setTranslator] = useState(() => window.location.hash === '#translate');
+  useEffect(() => {
+    const onHash = () => setTranslator(window.location.hash === '#translate');
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+  const openTranslator = (on: boolean) => {
+    window.location.hash = on ? 'translate' : '';
+    setTranslator(on);
+  };
   const issues = useMemo(() => validate(s), [s]);
   const errors = issues.filter((i) => i.level === 'error').length;
 
@@ -100,7 +112,7 @@ export default function App() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
-      if (!mod) return;
+      if (!mod || translator) return;
       const inField = (e.target as HTMLElement).closest('input, textarea');
       const k = e.key.toLowerCase();
       if ((k === 'z' || k === 'я') && !e.shiftKey && !inField) {
@@ -122,6 +134,24 @@ export default function App() {
   const languages = Object.keys(s.texts);
   const title = getText(s, lang, 'quest.name') || 'Без названия';
   const withInspector = view === 'story' || view === 'map' || view === 'rooms';
+
+  if (translator) {
+    return (
+      <div className="app">
+        <header className="topbar">
+          <div className="brand">
+            Особняки безумия <small>переводчик сценариев</small>
+          </div>
+          <div className="title" />
+          <button onClick={() => openTranslator(false)}>← В редактор</button>
+        </header>
+        <main className="workspace">
+          <TranslatorPage editorReady={started} />
+        </main>
+        {toast && <div className="toast">{toast}</div>}
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -157,6 +187,9 @@ export default function App() {
           Новый
         </button>
         <button onClick={() => fileInput.current?.click()}>Открыть…</button>
+        <button className="ghost" onClick={() => openTranslator(true)} title="Перевести любой сценарий Valkyrie на русский или другой язык">
+          🌍 Переводчик
+        </button>
         <button className="ghost" onClick={() => setVersions(true)} title="Вернуться к более раннему состоянию сценария">
           🕘 Версии
         </button>
@@ -185,6 +218,7 @@ export default function App() {
             setStarted(true);
           }}
           onDrop={doOpen}
+          onTranslate={() => openTranslator(true)}
         />
       ) : (
         <div className={'main' + (withInspector ? '' : ' no-inspector')}>
@@ -235,7 +269,19 @@ export default function App() {
   );
 }
 
-function Welcome({ onNew, onOpen, onSample, onDrop }: { onNew: () => void; onOpen: () => void; onSample: () => void; onDrop: (f: File | undefined) => void }) {
+function Welcome({
+  onNew,
+  onOpen,
+  onSample,
+  onDrop,
+  onTranslate,
+}: {
+  onNew: () => void;
+  onOpen: () => void;
+  onSample: () => void;
+  onDrop: (f: File | undefined) => void;
+  onTranslate: () => void;
+}) {
   return (
     <div
       className="page"
@@ -262,6 +308,10 @@ function Welcome({ onNew, onOpen, onSample, onDrop }: { onNew: () => void; onOpe
           <button onClick={onSample}>
             <b>📖 Открыть образец</b>
             <span>Готовая маленькая история про маяк. Сыграйте в ней и посмотрите, как она устроена.</span>
+          </button>
+          <button onClick={onTranslate}>
+            <b>🌍 Перевести сценарий</b>
+            <span>Переведите чужой сценарий на русский: автоматически, а потом поправьте вручную.</span>
           </button>
         </div>
         <div className="card">
