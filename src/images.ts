@@ -49,7 +49,7 @@ async function readable(name: string, file: Blob): Promise<Blob | null> {
 
 // Only pictures the editor can actually show are copied, the rest of the folder is skipped.
 const WANTED = new Set(
-  [...catalog.tiles, ...catalog.monsters, ...catalog.items].map((x) => imageKey(x.image)).filter(Boolean),
+  [...catalog.tiles, ...catalog.monsters, ...catalog.items, ...catalog.tokens].map((x) => imageKey((x as { image?: string }).image)).filter(Boolean),
 );
 
 const WANTED_KEYS = new Set([...catalog.tiles, ...catalog.monsters, ...catalog.items].map((x) => x.nameKey).filter(Boolean) as string[]);
@@ -88,6 +88,10 @@ function toUrls(blobs: Map<string, Blob>, previous: Record<string, string>): Rec
 
 export const useImages = create<ImagesState>((set, get) => {
   async function finish(blobs: Map<string, Blob>, names: Names = {}) {
+    if (blobs.size === 0 && Object.keys(get().urls).length > 0) {
+      set({ status: 'ready', error: 'В этой папке не нашлось новых картинок игры.' });
+      return;
+    }
     if (blobs.size === 0) {
       set({
         status: 'none',
@@ -96,15 +100,23 @@ export const useImages = create<ImagesState>((set, get) => {
       return;
     }
     try {
-      await clear(store);
+      // New pictures are added to the ones already kept, so the program's own icons and the import folder can be connected one after another.
       await Promise.all([...blobs].map(([key, blob]) => idbSet(key, blob, store)));
-      await clear(namesStore);
-      await Promise.all(Object.entries(names).map(([lang, map]) => idbSet(lang, map, namesStore)));
+      await Promise.all(Object.entries(names).map(([lang, map]) => idbSet(lang, { ...(get().names[lang] ?? {}), ...map }, namesStore)));
       void navigator.storage?.persist?.();
     } catch {
       // Storage may be full or blocked; the pictures still work until the tab is closed.
     }
-    set({ status: 'ready', urls: toUrls(blobs, get().urls), count: blobs.size, names, error: '', found: blobs.size });
+    const all = new Map<string, Blob>();
+    try {
+      for (const [k, b] of await entries<string, Blob>(store)) all.set(k, b);
+    } catch {
+      // storage blocked: only what was just read
+    }
+    for (const [k, b] of blobs) all.set(k, b);
+    const merged: Names = { ...get().names };
+    for (const [lang, map] of Object.entries(names)) merged[lang] = { ...merged[lang], ...map };
+    set({ status: 'ready', urls: toUrls(all, get().urls), count: all.size, names: merged, error: '', found: blobs.size });
   }
 
   return {
@@ -190,12 +202,12 @@ export const useImages = create<ImagesState>((set, get) => {
 export const canPickFolder = () => typeof window !== 'undefined' && 'showDirectoryPicker' in window;
 
 // Opens the browser's folder dialog. Returns false when the user cancelled or the browser refused.
-export async function pickFolder(): Promise<boolean> {
+export async function pickFolder(id = 'valkyrie-img'): Promise<boolean> {
   const w = window as unknown as {
     showDirectoryPicker: (o?: { id?: string; mode?: string }) => Promise<FileSystemDirectoryHandle>;
   };
   try {
-    const dir = await w.showDirectoryPicker({ id: 'valkyrie-img', mode: 'read' });
+    const dir = await w.showDirectoryPicker({ id, mode: 'read' });
     await useImages.getState().fromHandle(dir);
     return true;
   } catch (e) {

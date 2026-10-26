@@ -12,6 +12,8 @@ import { Picker } from './widgets';
 import { TilePalette } from './TilePalette';
 
 const tileById = new Map(catalog.tiles.map((t) => [t.id, t]));
+const tokenById = new Map<string, { image?: string; pps?: number }>(catalog.tokens.map((t) => [t.id, t]));
+const TOKEN_SIZE = 0.7; // a round token, half of what it used to be
 const PX_PER_UNIT = 1024 / SQUARE; // Valkyrie MoM tile images: 1024 px per 3.5 units
 
 interface View {
@@ -72,8 +74,8 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
   // Measure the pictures of tiles that are on the map, to draw them at their real size.
   useEffect(() => {
     for (const c of pieces) {
-      if (c.type !== 'Tile') continue;
-      const key = imageKey(tileById.get(c.data.side ?? '')?.image);
+      if (c.type !== 'Tile' && c.type !== 'Token') continue;
+      const key = imageKey(c.type === 'Tile' ? tileById.get(c.data.side ?? '')?.image : tokenById.get(c.data.type ?? '')?.image);
       const url = urls[key];
       if (!url || imgSize[key]) continue;
       const img = new Image();
@@ -81,6 +83,19 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
       img.src = url;
     }
   }, [pieces, urls, imgSize]);
+
+  // A token with its picture: round icons are drawn half the size they used to be, wall-like pieces by their pixels per square.
+  function tokenLook(c: QComponent) {
+    const def = tokenById.get(c.data.type ?? '');
+    const key = imageKey(def?.image);
+    const url = key ? urls[key] : undefined;
+    if (!url) return null;
+    const px = imgSize[key];
+    if (!px) return { url, w: TOKEN_SIZE, h: TOKEN_SIZE };
+    if (def?.pps) return { url, w: (px[0] * PX_PER_UNIT / def.pps) * SQUARE, h: (px[1] * PX_PER_UNIT / def.pps) * SQUARE };
+    const k = TOKEN_SIZE / Math.max(px[0], px[1]);
+    return { url, w: px[0] * k, h: px[1] * k };
+  }
 
   function tileGeom(c: QComponent) {
     const t = tileById.get(c.data.side ?? '');
@@ -383,6 +398,7 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
           const p = position(c) ?? { x: 0, y: 0 };
           const rot = Number(c.data.rotation ?? 0) || 0;
           const sel = c.name === selected;
+          const look = c.type === 'Token' ? tokenLook(c) : null;
           if (c.type === 'Door') {
             return (
               <g key={c.name} className={'piece' + (sel ? ' sel' : '') + (highlight.has(c.name) ? ' hl' : '')} opacity={dim(c)} transform={`translate(${p.x} ${-p.y}) rotate(${-rot})`} onPointerDown={(e) => startMove(e, c)}>
@@ -402,10 +418,17 @@ export function MapView({ embedded = false, only, onPick }: { embedded?: boolean
           }
           return (
             <g key={c.name} className={'piece tok' + (sel ? ' sel' : '') + (highlight.has(c.name) ? ' hl' : '')} opacity={dim(c)} transform={`translate(${p.x} ${-p.y})`} onPointerDown={(e) => startMove(e, c)}>
-              <circle r={0.7} fill="#3f7f8c" />
-              <text textAnchor="middle" y={0.3}>
-                {tokenIcon(c.data.type ?? '')}
-              </text>
+              {look ? (
+                <image href={look.url} x={-look.w / 2} y={-look.h / 2} width={look.w} height={look.h} />
+              ) : (
+                <>
+                  <circle r={TOKEN_SIZE / 2} fill="#3f7f8c" />
+                  <text textAnchor="middle" y={0.15}>
+                    {tokenIcon(c.data.type ?? '')}
+                  </text>
+                </>
+              )}
+              {look && <circle r={Math.max(look.w, look.h) / 2} className="tok-hit" fill="transparent" />}
             </g>
           );
         })}

@@ -158,7 +158,8 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 .map-svg .tile.sel .outline { stroke: var(--accent); stroke-width: 0.15; fill: none; }
 .map-svg .piece { cursor: move; }
 .map-svg .tok circle { stroke: #0009; stroke-width: 0.06; }
-.map-svg .tok text { font-size: 0.8px; pointer-events: none; }
+.map-svg .tok text { font-size: 0.4px; pointer-events: none; }
+.map-svg .tok circle.tok-hit { stroke: none; }
 
 .empty-state { display: grid; place-items: center; height: 100%; color: var(--muted); text-align: center; padding: 30px; }
 
