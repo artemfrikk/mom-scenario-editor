@@ -497,3 +497,4 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 
 .object-panel { position: absolute; bottom: 12px; right: 12px; width: 290px; max-height: 62%; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 5; box-shadow: 0 8px 30px #0008; }
 .door-mode { text-align: left; }
+.game-ui-pic { position: absolute; transform: translate(-50%, -50%); object-fit: contain; pointer-events: none; }

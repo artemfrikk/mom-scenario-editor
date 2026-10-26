@@ -21,6 +21,7 @@ import {
 import { buttonLabel, buttonsOf, getComponent, getText, resolveText } from '../model/ops';
 import type { QComponent } from '../format/scenario';
 import catalog from '../content/catalog.json';
+import { assetUrl } from '../assets';
 import { useStore } from '../store';
 import { Picker, Thumb } from './widgets';
 import { ITEM_OPTIONS } from './options';
@@ -362,7 +363,13 @@ function GameUi({ game, onPress }: { game: GameState; onPress?: (name: string) =
         const size = Number(d.size ?? 1) || 1;
         const text = textOf(c);
         const press = goes(c);
-        // The whole-screen picture is the intro's dark background; other pictures live in the scenario's own files.
+        // A picture from the scenario's own files; Valkyrie's built-in pictures are drawn as the dark background or not at all.
+        const picture = assetUrl(s, d.image ?? '');
+        if (picture && !text && !press) {
+          const px = Number(d.xposition ?? 0) || 0;
+          const py = Number(d.yposition ?? 0) || 0;
+          return <img key={c.name} className="game-ui-pic" src={picture} alt="" style={{ left: `calc(50% + ${px * h}px)`, top: `calc(50% + ${py * h}px)`, width: size * h, maxHeight: h }} />;
+        }
         if (!text && !press) return size >= 1 ? <div key={c.name} className="game-ui-bg" /> : null;
         // A picture-only button is drawn only when nothing with text sits in the same place; tiny ones are secret buttons.
         if (!text && (size < 0.02 || labelled.has(at(c)))) return null;
