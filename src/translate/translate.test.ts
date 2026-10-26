@@ -171,3 +171,94 @@ describe('package', () => {
     for (const r of rows) expect(ru.entries.get(r.key)).toBe(r.source + ' (ru)');
   });
 });
+
+describe('markup for the text field', () => {
+  it('shows colours as styled text and game marks as blocks', async () => {
+    const { toHtml, tokenLabel } = await import('./markup');
+    expect(toHtml('Сыщик на <color=Cyan>{c:TileDock}</color> и {clue}\nдальше', (k) => (k === 'TileDock.name' ? 'Пирс' : undefined))).toBe(
+      'Сыщик на <span class="tk-color" data-color="Cyan" style="color:Cyan"><span class="tk" contenteditable="false" data-t="{c:TileDock}" title="{c:TileDock}">Пирс</span></span> и <span class="tk" contenteditable="false" data-t="{clue}" title="{clue}">🔎</span><br>дальше',
+    );
+    // an unpaired tag stays a visible block instead of swallowing the rest of the text
+    expect(toHtml('a </b> b')).toContain('data-t="&lt;/b&gt;"');
+    expect(tokenLabel('{qst:CONTINUE}', () => 'Продолжить')).toBe('«Продолжить»');
+  });
+});
+
+describe('big packages with many quests', () => {
+  async function campaign(): Promise<Uint8Array> {
+    const zip = new JSZip();
+    zip.file('quest.ini', '[Quest]\r\nformat=18\r\ndefaultlanguage=English\r\n\r\n[QuestText]\r\nLocalization.English_global.txt\r\n\r\n[QuestData]\r\nevents.ini\r\n');
+    zip.file('Localization.English_global.txt', '.,English\r\nquest.name,Campaign\r\nCONTINUE,Continue');
+    zip.file('events.ini', '[EventStart]\r\nbuttons=1\r\n');
+    const towns = [
+      ['Arkham', 'Lynch'],
+      ['Innsmouth', 'Marsh'],
+    ];
+    towns.forEach(([city, family], i) => {
+      const dir = `parts/folder_000${i + 1}/`;
+      zip.file(dir + 'quest.ini', '[Quest]\r\nformat=18\r\nhidden=True\r\n\r\n[QuestText]\r\nLocalization.English.txt\r\n../../Localization.English_global.txt\r\n\r\n[QuestData]\r\ntokens.ini\r\n');
+      zip.file(
+        dir + 'Localization.English.txt',
+        `.,English\r\nCity,${city}\r\nFamily,${family}\r\nstreet1,The main street of "${city}".\r\nEventA.text,The ${family} house is quiet.\r\nEventB.text,Search the room.`,
+      );
+      zip.file(dir + 'tokens.ini', '[TokenA]\r\nx=1\r\n');
+    });
+    return zip.generateAsync({ type: 'uint8array' });
+  }
+
+  it('reads every quest and translates each sentence once, with the names put back per quest', async () => {
+    const { unitsOf } = await import('./units');
+    const pkg = await openPackage(await campaign(), 'campaign.valkyrie');
+    expect(pkg.multi).toBe(true);
+    expect(pkg.quests.map((q) => q.path)).toEqual(['quest.ini', 'parts/folder_0001/quest.ini', 'parts/folder_0002/quest.ini']);
+    const units = unitsOf(pkg, 'English');
+    expect(units.map((u) => u.source).sort()).toEqual(
+      ['Arkham', 'Campaign', 'Continue', 'Innsmouth', 'Lynch', 'Marsh', 'Search the room.', 'The main street of "{@City}".', 'The {@Family} house is quiet.'].sort(),
+    );
+    const ru: Record<string, string> = {
+      Arkham: 'Аркхем',
+      Innsmouth: 'Иннсмут',
+      Lynch: 'Линч',
+      Campaign: 'Кампания',
+      'The main street of "{@City}".': 'Главная улица «{@City}».',
+      'The {@Family} house is quiet.': 'В доме {@Family} тихо.',
+    };
+    const map = new Map(units.filter((u) => ru[u.source]).map((u) => [u.id, ru[u.source]]));
+    const zip = await JSZip.loadAsync(await (await buildPackage(pkg, 'English', 'Russian', map)).arrayBuffer());
+    const part2 = parseLocalization(await zip.file('parts/folder_0002/Localization.Russian.txt')!.async('string'));
+    // Marsh has no translation, so the English name goes into the Russian sentence.
+    expect([...part2.entries]).toEqual([
+      ['City', 'Иннсмут'],
+      ['street1', 'Главная улица «Иннсмут».'],
+      ['EventA.text', 'В доме Marsh тихо.'],
+    ]);
+    expect(parseLocalization(await zip.file('Localization.Russian_global.txt')!.async('string')).entries.get('quest.name')).toBe('Кампания');
+    const ini = await zip.file('parts/folder_0001/quest.ini')!.async('string');
+    expect(ini).toContain('[QuestText]\r\n../../Localization.Russian_global.txt\r\nLocalization.Russian.txt\r\nLocalization.English.txt');
+    expect(await zip.file('quest.ini')!.async('string')).toContain('[QuestText]\r\nLocalization.Russian_global.txt\r\nLocalization.English_global.txt');
+  });
+});
+
+describe('when Google limits translation', () => {
+  it('waits and goes on, and gives up with a clear message', async () => {
+    let calls = 0;
+    const waits: number[] = [];
+    const flaky = (async (_u: string, init?: RequestInit) => {
+      calls++;
+      if (calls === 1) throw new TypeError('Failed to fetch');
+      if (calls === 2) return new Response('', { status: 429 });
+      const q = decodeURIComponent(String(init!.body).substring(2));
+      return new Response(JSON.stringify([[['ok ' + q, q]]]), { status: 200 });
+    }) as unknown as Fetch;
+    const out: string[] = [];
+    await translateAll(['a'], 'English', 'Russian', (i, r) => (out[i] = r.text), { fetchImpl: flaky, waits: [0, 0], onWait: (s) => waits.push(s) });
+    expect(out).toEqual(['ok a']);
+    expect(calls).toBe(3);
+
+    const blocked = (async () => {
+      throw new TypeError('Failed to fetch');
+    }) as unknown as Fetch;
+    const { ThrottledError } = await import('./machine');
+    await expect(translateAll(['a'], 'English', 'Russian', () => {}, { fetchImpl: blocked, waits: [0] })).rejects.toBeInstanceOf(ThrottledError);
+  });
+});
