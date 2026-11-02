@@ -96,6 +96,29 @@ describe('compile', () => {
     expect(st.ended).toBe(true);
   });
 
+  it('a skill test gives the gifts only on success and keeps the token after a failure', () => {
+    const p = sample();
+    p.pieces[1].outcome.test = { skill: 'lore', need: 2, pass: 'Замок поддался.', fail: 'Не выходит.' };
+    p.pieces[1].outcome.text = 'Стол заперт.';
+    const s = compile(p);
+    expect(s.texts.Russian['EventP2.text']).toBe('Стол заперт.\n\n<b>Проверка {lore}</b>, нужно 2 {success}');
+    expect(s.texts.Russian['EventP2.button2']).toBe('Провал');
+    let st = play(s);
+    st = touch(s, st, 'TokenP2', () => 0);
+    st = choose(s, st, 2, () => 0); // Провал
+    expect(st.current).toBe('EventFailP2');
+    st = closeAll(s, st);
+    expect(st.items).not.toContain('QItemP2');
+    expect(st.visible).toContain('TokenP2');
+    st = touch(s, st, 'TokenP2', () => 0);
+    st = choose(s, st, 1, () => 0); // Успех
+    expect(st.current).toBe('EventPassP2');
+    st = closeAll(s, st);
+    expect(st.items).toContain('QItemP2');
+    expect(st.clues).toBe(1);
+    expect(st.visible).not.toContain('TokenP2');
+  });
+
   it('two doors to the same room open it only once', () => {
     const p = sample();
     p.pieces.push(piece('P5', 'R1', 'explore', 'TokenExplore', { reveal: ['R2'] }));

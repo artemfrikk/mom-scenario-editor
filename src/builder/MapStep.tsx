@@ -1,13 +1,14 @@
 // The map step: a palette on the left, the board in the middle, the chosen room on the right.
 // Anything in the palette can be dragged onto the board, or tapped to put it into the chosen room.
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import catalog from '../content/catalog.json';
 import { imageUrl, useImages } from '../images';
 import { roomAt, type Sizes } from '../build/board';
-import { addPiece, addRoom, rotateRoom } from '../build/edit';
+import { addPiece, addRoom, flipRoom, rotateRoom } from '../build/edit';
+import { reverseOf } from '../model/tiles';
 import { useOwned } from '../build/owned';
-import { deleteRoom, piecesIn, roomOf, startRoom, updateRoom, type PieceKind, type Project } from '../build/project';
+import { deletePiece, deleteRoom, piecesIn, roomOf, startRoom, updateRoom, type PieceKind, type Project } from '../build/project';
 import { useBuilder } from '../build/store';
 import { Board, type BoardApi } from './Board';
 import { imageOf, KINDS, tilesFree, kindInfo, MARK_TOKENS, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
@@ -32,6 +33,23 @@ export function MapStep() {
     const start = startRoom(p);
     return new Set(p.rooms.filter((r) => r !== start).map((r) => r.id));
   }, [p]);
+
+  // Delete (or Backspace) removes the chosen room or piece; Ctrl+Z brings it back.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+      if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return;
+      const target = open ? { kind: 'piece' as const, id: open } : selected;
+      if (!target) return;
+      e.preventDefault();
+      change((q) => (target.kind === 'room' ? deleteRoom(q, target.id) : deletePiece(q, target.id)));
+      select(null);
+      setOpen(null);
+      flash(target.kind === 'room' ? 'Комната убрана. Ctrl+Z вернёт её.' : 'Убрано с карты. Ctrl+Z вернёт.');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, selected, change, select, flash]);
 
   const room = selected?.kind === 'room' ? roomOf(p, selected.id) : selected?.kind === 'piece' ? roomOf(p, p.pieces.find((x) => x.id === selected.id)?.room ?? '') : undefined;
 
@@ -200,7 +218,12 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
         <button className="small" onClick={() => change((q) => rotateRoom(q, id))} title="Повернуть">
           ⟳
         </button>
-        <button className="small danger" onClick={() => (change((q) => deleteRoom(q, id)), select(null))} title="Убрать комнату">
+        {reverseOf(r.tile) && (
+          <button className="small" onClick={() => change((q) => flipRoom(q, id))} title="Перевернуть карточку на другую сторону">
+            ⇆
+          </button>
+        )}
+        <button className="small danger" onClick={() => (change((q) => deleteRoom(q, id)), select(null))} title="Убрать комнату (Delete)">
           🗑
         </button>
       </div>

@@ -9,9 +9,20 @@ export const PROJECT_FORMAT = 1;
 
 export type PieceKind = 'start' | 'search' | 'explore' | 'interact' | 'npc' | 'monster' | 'sight' | 'mark';
 
+export type Skill = 'strength' | 'agility' | 'observation' | 'lore' | 'influence' | 'will';
+
+// A skill test before the result: the players roll and press "Успех" or "Провал".
+export interface SkillTest {
+  skill: Skill;
+  need: number; // successes needed
+  pass: string; // text on success; the outcome's gifts come with it
+  fail: string; // text on failure; the piece stays, so they can try again
+}
+
 // What happens when the investigators use a piece (for a monster: when it is defeated).
 export interface Outcome {
-  text: string;
+  text: string; // with a test: what they read before rolling
+  test?: SkillTest;
   item?: string; // catalog item id the investigators receive
   clues?: number; // clues the investigators receive
   reveal?: string[]; // ids of rooms that appear on the map

@@ -1,5 +1,6 @@
 // Changes the author makes on the map. Pure functions: a project in, a new project out.
 
+import { reverseOf } from '../model/tiles';
 import { junction, placeBeside, type Side } from '../model/geometry';
 import { freeSpot, roomBox, snap, SNAP_PIECE, SNAP_TILE, tileSize, type Sizes } from './board';
 import { KIND_TOKEN } from './compile';
@@ -92,4 +93,12 @@ export function rotateRoom(p: Project, id: string): Project {
     // a quarter turn counter-clockwise about the middle
     pieces: p.pieces.map((q) => (q.room === id ? { ...q, x: cx - (q.y - cy), y: cy + (q.x - cx) } : q)),
   };
+}
+
+// Room cards are double-sided: turn the card over, the room stays where it is with its pieces.
+export function flipRoom(p: Project, id: string): Project {
+  const r = roomOf(p, id);
+  const back = r && reverseOf(r.tile);
+  if (!r || !back) return p;
+  return { ...p, rooms: p.rooms.map((q) => (q.id === id ? { ...q, tile: back } : q)) };
 }

@@ -227,5 +227,7 @@ export function imageUrl(urls: Record<string, string>, path: string | undefined)
 
 // The official name of a tile, monster or item in the editor's language, when the player's import has it.
 export function localName(names: Names, key: string | undefined, language = 'Russian'): string | undefined {
-  return key ? names[language]?.[key] : undefined;
+  const v = key ? names[language]?.[key] : undefined;
+  // game texts carry symbols from Valkyrie's own font (private-use characters) that browsers draw as boxes
+  return v?.replace(/[\uE000-\uF8FF]|\{[a-z]+\}/g, '').replace(/\s{2,}/g, ' ').trim() || undefined;
 }
