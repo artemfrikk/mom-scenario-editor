@@ -661,3 +661,21 @@ button.link { background: none; border: none; padding: 4px 0; color: var(--accen
   .pal-item { padding: 10px 6px; }
   .room-add button, .presets button { padding: 10px 12px; }
 }
+
+/* skill test in "Что произойдёт?" */
+.wh-test { margin: 4px 0 12px; }
+.skill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.skill-row button.on, .skill-need button.on { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.skill-need { align-items: center; gap: 6px; margin: 8px 0; }
+.skill-need > * { flex: 0 0 auto; } .skill-need button { width: auto; min-width: 40px; }
+.small-presets { margin: 0 0 6px; }
+.wh-text + .wh-text { min-height: 0; margin-top: 8px; }
+.wh-btns { display: flex; justify-content: center; gap: 10px; }
+.wh-btns .wh-btn { margin: 14px 0 0; }
+.wh-btn.pass { background: #2f5d2f; }
+.wh-btn.fail { background: #7a2a22; }
+
+/* tools over the chosen room on the board */
+.room-tools { position: absolute; display: flex; gap: 4px; transform: translateY(calc(-100% - 6px)); z-index: 2; }
+.room-tools button { padding: 6px 10px; font-size: 14px; white-space: nowrap; box-shadow: 0 2px 8px #0008; }
+@media (pointer: coarse) { .room-tools button { padding: 10px 12px; } }

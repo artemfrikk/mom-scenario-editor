@@ -7,7 +7,7 @@ import { useImages } from '../images';
 import type { Sizes } from '../build/board';
 import { roomBehindDoor } from '../build/edit';
 import { useOwned } from '../build/owned';
-import { deletePiece, pieceOf, updateOutcome, updatePiece, type Outcome, type Piece, type Project } from '../build/project';
+import { deletePiece, pieceOf, updateOutcome, updatePiece, type Outcome, type Piece, type Project, type Skill, type SkillTest } from '../build/project';
 import { useBuilder } from '../build/store';
 import { itemTitle, kindInfo, tilesFree, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
 import { Picker, type Option } from '../ui/widgets';
@@ -121,9 +121,19 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
           )}
 
           <label className="field">
-            <span>{x.kind === 'monster' ? 'Что игроки прочтут, когда монстр побеждён' : x.kind === 'explore' ? 'Что игроки прочтут, открыв дверь' : 'Что игроки прочтут'}</span>
+            <span>
+              {x.kind === 'monster'
+                ? 'Что игроки прочтут, когда монстр побеждён'
+                : o.test
+                  ? 'Что игроки прочтут перед проверкой'
+                  : x.kind === 'explore'
+                    ? 'Что игроки прочтут, открыв дверь'
+                    : 'Что игроки прочтут'}
+            </span>
             <textarea rows={5} value={o.text} placeholder={x.kind === 'explore' ? 'Дверь со скрипом поддаётся…' : 'Напишите текст для игроков'} onChange={(e) => set({ text: e.target.value }, 'text' + id)} />
           </label>
+
+          {x.kind !== 'monster' && <TestPart id={id} test={o.test} set={set} />}
 
           {o.item !== undefined && (
             <label className="field">
@@ -186,6 +196,70 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
         <Preview p={p} x={x} />
       </div>
     </Dialog>
+  );
+}
+
+const SKILLS: { id: Skill; icon: string; label: string }[] = [
+  { id: 'strength', icon: '💪', label: 'Сила' },
+  { id: 'agility', icon: '🏃', label: 'Ловкость' },
+  { id: 'observation', icon: '👁', label: 'Наблюдательность' },
+  { id: 'lore', icon: '📚', label: 'Знания' },
+  { id: 'influence', icon: '🗣', label: 'Влияние' },
+  { id: 'will', icon: '🧠', label: 'Воля' },
+];
+
+const FAILS = [
+  { label: '😱 Ужас 1', text: 'Вас охватывает дрожь. Сыщик получает 1 ужас.' },
+  { label: '🩸 Урон 1', text: 'Неудачное движение, и вы ранитесь. Сыщик получает 1 урон.' },
+  { label: '🔁 Не вышло', text: 'Ничего не выходит. Можно попробовать ещё раз.' },
+];
+
+// The skill test: players roll the dice for the chosen skill and press "Успех" or "Провал".
+function TestPart({ id, test, set }: { id: string; test: SkillTest | undefined; set: (o: Partial<Outcome>, key?: string) => void }) {
+  const put = (patch: Partial<SkillTest>, key?: string) =>
+    set({ test: { skill: 'observation', need: 1, pass: 'Получилось!', fail: FAILS[2].text, ...test, ...patch } }, key);
+  return (
+    <div className="field wh-test">
+      <span>🎲 Проверка навыка</span>
+      <div className="skill-row">
+        <button className={!test ? 'on' : ''} onClick={() => set({ test: undefined })}>
+          Без проверки
+        </button>
+        {SKILLS.map((k) => (
+          <button key={k.id} className={test?.skill === k.id ? 'on' : ''} onClick={() => put({ skill: k.id })}>
+            {k.icon} {k.label}
+          </button>
+        ))}
+      </div>
+      {test && (
+        <>
+          <div className="row skill-need">
+            <span className="hint">Нужно успехов:</span>
+            {[1, 2, 3].map((n) => (
+              <button key={n} className={'small' + (test.need === n ? ' on' : '')} onClick={() => put({ need: n })}>
+                {n}
+              </button>
+            ))}
+          </div>
+          <label className="field">
+            <span>✅ Если успех</span>
+            <textarea rows={2} value={test.pass} onChange={(e) => put({ pass: e.target.value }, 'pass' + id)} />
+          </label>
+          <label className="field">
+            <span>❌ Если провал</span>
+            <textarea rows={2} value={test.fail} onChange={(e) => put({ fail: e.target.value }, 'fail' + id)} />
+          </label>
+          <div className="presets small-presets">
+            {FAILS.map((f) => (
+              <button key={f.label} onClick={() => put({ fail: f.text })}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div className="hint">Предмет, улики, комнаты и победу сыщики получат только при успехе. При провале жетон остаётся, можно попробовать снова.</div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -278,18 +352,52 @@ function Preview({ p, x }: { p: Project; x: Piece }) {
     if (q) lines.push(`Появляется: ${monsterTitle(q.look)}`);
   }
   if (o.win) lines.push('Победа!');
+  const t = o.test;
+  const skill = t && SKILLS.find((k) => k.id === t.skill);
+  const effects = lines.length > 0 && (
+    <ul className="wh-effects">
+      {lines.map((l) => (
+        <li key={l}>{l}</li>
+      ))}
+    </ul>
+  );
+  if (t && skill) {
+    return (
+      <div className="wh-preview">
+        <div className="hint">Так увидят игроки</div>
+        <div className="wh-card">
+          {o.text && <div className="wh-text">{o.text}</div>}
+          <div className="wh-text">
+            <b>
+              Проверка {skill.icon} {skill.label}
+              {t.need > 1 ? `, нужно успехов: ${t.need}` : ''}
+            </b>
+          </div>
+          <div className="wh-btns">
+            <div className="wh-btn pass">Успех</div>
+            <div className="wh-btn fail">Провал</div>
+          </div>
+        </div>
+        <div className="hint">После «Успех»</div>
+        <div className="wh-card">
+          <div className="wh-text">{t.pass || <span className="hint">Без текста</span>}</div>
+          {effects}
+          <div className="wh-btn">Далее</div>
+        </div>
+        <div className="hint">После «Провал»</div>
+        <div className="wh-card">
+          <div className="wh-text">{t.fail || <span className="hint">Без текста</span>}</div>
+          <div className="wh-btn">Далее</div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="wh-preview">
       <div className="hint">Так увидят игроки</div>
       <div className="wh-card">
         <div className="wh-text">{o.text || <span className="hint">Текст пока пуст. Если оставить так, окно не появится.</span>}</div>
-        {lines.length > 0 && (
-          <ul className="wh-effects">
-            {lines.map((l) => (
-              <li key={l}>{l}</li>
-            ))}
-          </ul>
-        )}
+        {effects}
         <div className="wh-btn">Далее</div>
       </div>
     </div>

@@ -8,7 +8,7 @@
 import catalog from '../content/catalog.json';
 import { CURRENT_FORMAT, type QComponent, type Scenario } from '../format/scenario';
 import { setIntro } from '../model/intro';
-import { PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Room } from './project';
+import { PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Room, type SkillTest } from './project';
 
 export const LANG = 'Russian';
 
@@ -23,6 +23,8 @@ const actName = (x: Piece) => 'Event' + x.id;
 const defeatName = (x: Piece) => 'EventDefeated' + x.id;
 const openName = (r: Room) => 'EventOpen' + r.id;
 const itemName = (x: Piece) => 'QItem' + x.id;
+const passName = (x: Piece) => 'EventPass' + x.id;
+const failName = (x: Piece) => 'EventFail' + x.id;
 const START = 'EventStart';
 const GOAL = 'EventGoal';
 const WIN = 'EventWin';
@@ -37,6 +39,12 @@ export const KIND_TOKEN: Record<string, string> = {
   interact: 'TokenInteract',
   sight: 'TokenSight',
 };
+
+// "Проверка {lore}": Valkyrie draws the skill's symbol in place of the tag.
+export function testText(before: string, t: SkillTest): string {
+  const line = `<b>Проверка {${t.skill}}</b>` + (t.need > 1 ? `, нужно ${t.need} {success}` : '');
+  return (before.trim() ? before.trim() + '\n\n' : '') + line;
+}
 
 export function usedPacks(p: Project): string[] {
   const ids = [...p.rooms.map((r) => r.tile), ...p.pieces.map((x) => x.look), ...p.pieces.map((x) => x.outcome.item ?? '')];
@@ -139,7 +147,27 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       }
       continue;
     }
-    outcomeEvent(actName(x), x);
+    const test = x.outcome.test;
+    if (!test) {
+      outcomeEvent(actName(x), x);
+      continue;
+    }
+    // A skill test: the players roll and press the button; the gifts come only with success.
+    put(actName(x), 'Event', 'events.ini', {
+      buttons: '2',
+      event1: passName(x),
+      event2: failName(x),
+      buttoncolor1: 'green',
+      buttoncolor2: 'red',
+      audio: x.outcome.sound || undefined,
+    });
+    text(actName(x) + '.text', testText(x.outcome.text, test));
+    text(actName(x) + '.button1', 'Успех');
+    text(actName(x) + '.button2', 'Провал');
+    outcomeEvent(passName(x), { ...x, outcome: { ...x.outcome, text: test.pass, sound: undefined } });
+    put(failName(x), 'Event', 'events.ini', { display: test.fail.trim() ? undefined : 'false', buttons: '1', event1: '' });
+    text(failName(x) + '.text', test.fail);
+    if (test.fail.trim()) text(failName(x) + '.button1', 'Далее');
   }
 
   // A room appears once, however many doors lead to it.

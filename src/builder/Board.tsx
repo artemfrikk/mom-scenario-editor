@@ -5,7 +5,9 @@ import { useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } f
 import catalog from '../content/catalog.json';
 import { imageKey, useImages } from '../images';
 import { roomAt, roomBox, snap, SNAP_PIECE, SNAP_TILE, SQUARE, type Sizes } from '../build/board';
-import { moveRoom, updatePiece, type Piece } from '../build/project';
+import { flipRoom, rotateRoom } from '../build/edit';
+import { deleteRoom, moveRoom, updatePiece, type Piece } from '../build/project';
+import { reverseOf } from '../model/tiles';
 import { useBuilder } from '../build/store';
 import { imageOf, kindInfo, roomTitle } from './names';
 
@@ -222,6 +224,8 @@ export function Board({
   }, [p, ghost]);
 
   const sel = selected?.id;
+  const selRoomData = selected?.kind === 'room' ? p.rooms.find((r) => r.id === sel) : undefined;
+  const selRoom = selRoomData && { id: selRoomData.id, tile: selRoomData.tile, box: roomBox(selRoomData, sizes) };
   const t = `matrix(${view.scale} 0 0 ${view.scale} ${-view.x * view.scale} ${-view.y * view.scale})`;
 
   return (
@@ -269,11 +273,37 @@ export function Board({
           ))}
         </g>
       </svg>
+      {selRoom && !ghost && (
+        <RoomTools
+          left={Math.max(4, (selRoom.box.minX - view.x) * view.scale)}
+          top={Math.max(48, (-selRoom.box.maxY - view.y) * view.scale)}
+          canFlip={!!reverseOf(selRoom.tile)}
+          onRotate={() => change((q) => rotateRoom(q, selRoom.id))}
+          onFlip={() => change((q) => flipRoom(q, selRoom.id))}
+          onDelete={() => (change((q) => deleteRoom(q, selRoom.id)), select(null))}
+        />
+      )}
       <div className="board-zoom">
         <button onClick={() => fit()} title="Показать всю карту">⤢</button>
         <button onClick={() => zoomAt(size.w / 2 + svgRef.current!.getBoundingClientRect().left, size.h / 2 + svgRef.current!.getBoundingClientRect().top, 1.25)}>＋</button>
         <button onClick={() => zoomAt(size.w / 2 + svgRef.current!.getBoundingClientRect().left, size.h / 2 + svgRef.current!.getBoundingClientRect().top, 0.8)}>－</button>
       </div>
+    </div>
+  );
+}
+
+function RoomTools({ left, top, canFlip, onRotate, onFlip, onDelete }: { left: number; top: number; canFlip: boolean; onRotate: () => void; onFlip: () => void; onDelete: () => void }) {
+  return (
+    <div className="room-tools" style={{ left, top }} onPointerDown={(e) => e.stopPropagation()}>
+      <button onClick={onRotate} title="Повернуть на 90°">⟳ Повернуть</button>
+      {canFlip && (
+        <button onClick={onFlip} title="Показать другую сторону карточки">
+          ⇆ Перевернуть
+        </button>
+      )}
+      <button className="danger" onClick={onDelete} title="Убрать комнату (Delete)">
+        🗑
+      </button>
     </div>
   );
 }

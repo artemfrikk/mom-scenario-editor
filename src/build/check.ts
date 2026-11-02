@@ -71,7 +71,7 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
     if (x.kind === 'monster' && x.when === 'event' && !p.pieces.some((q) => (q.outcome.spawn ?? []).includes(x.id))) {
       out.push({ level: 'warning', text: `Монстр в комнате «${where}» ждёт сигнала, но его никто не зовёт.`, piece: x.id, room: x.room, step: 'map' });
     }
-    if (['search', 'interact', 'npc', 'sight'].includes(x.kind) && !x.outcome.text.trim() && !x.outcome.item && !x.outcome.clues && !x.outcome.win && !(x.outcome.reveal ?? []).length) {
+    if (['search', 'interact', 'npc', 'sight'].includes(x.kind) && !x.outcome.text.trim() && !x.outcome.test && !x.outcome.item && !x.outcome.clues && !x.outcome.win && !(x.outcome.reveal ?? []).length) {
       out.push({ level: 'warning', text: `Жетон в комнате «${where}» ничего не делает. Напишите, что найдут сыщики.`, piece: x.id, room: x.room, step: 'map' });
     }
     for (const m of x.outcome.spawn ?? []) if (!pieceOf(p, m)) out.push({ level: 'warning', text: `Жетон в комнате «${where}» зовёт монстра, которого больше нет.`, piece: x.id, step: 'map' });
