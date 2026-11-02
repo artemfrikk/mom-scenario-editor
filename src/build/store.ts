@@ -124,7 +124,7 @@ function same(a: Uint8Array, b: Uint8Array): boolean {
 // Files the author added and then stopped using are not packed. Files of a scenario made elsewhere always stay.
 function unused(p: Project, assets: Assets): Assets {
   if (p.raw) return assets;
-  const used = new Set([p.cover, p.prologue.image, p.prologue.music, ...p.pieces.map((x) => x.outcome.sound ?? '')].filter(Boolean));
+  const used = new Set([p.cover, p.prologue.image, p.prologue.music, ...p.pieces.map((x) => x.outcome.sound ?? ''), ...p.pieces.map((x) => x.outcome.puzzle?.image ?? '')].filter(Boolean));
   return Object.fromEntries(Object.entries(assets).filter(([k]) => used.has(k)));
 }
 

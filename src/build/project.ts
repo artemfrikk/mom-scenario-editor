@@ -11,18 +11,48 @@ export type PieceKind = 'start' | 'search' | 'explore' | 'interact' | 'npc' | 'm
 
 export type Skill = 'strength' | 'agility' | 'observation' | 'lore' | 'influence' | 'will';
 
+export type HarmKind = 'damage' | 'horror';
+
+// What a failed test costs.
+export interface Harm {
+  kind: HarmKind;
+  amount: number;
+  who: 'one' | 'all'; // the investigator who tried, or every investigator in the room
+}
+
 // A skill test before the result: the players roll and press "Успех" or "Провал".
 export interface SkillTest {
   skill: Skill;
   need: number; // successes needed
   pass: string; // text on success; the outcome's gifts come with it
   fail: string; // text on failure; the piece stays, so they can try again
+  harm?: Harm;
+}
+
+export type PuzzleKind = 'slide' | 'code' | 'image' | 'tower';
+
+// One of Valkyrie's puzzle windows before the result; solving it gives the outcome's gifts.
+export interface PuzzleSpec {
+  kind: PuzzleKind;
+  skill: Skill; // the skill the investigator may use for help
+  level: number; // slide, tower: how hard; code: symbols in the code; image: columns
+  alt: number; // code: how many different symbols; image: rows
+  image?: string; // image puzzle: a picture inside the package
+  pass: string; // text once solved
+}
+
+// Closed until other pieces were used: a key found, a lever pulled, a monster defeated.
+export interface Lock {
+  needs: string[]; // ids of pieces whose outcome must have happened (all of them)
+  text: string; // what the players read while it is still closed
 }
 
 // What happens when the investigators use a piece (for a monster: when it is defeated).
 export interface Outcome {
   text: string; // with a test: what they read before rolling
   test?: SkillTest;
+  puzzle?: PuzzleSpec;
+  lock?: Lock;
   item?: string; // catalog item id the investigators receive
   clues?: number; // clues the investigators receive
   reveal?: string[]; // ids of rooms that appear on the map
@@ -170,8 +200,9 @@ function forget(p: Project, rooms: Set<string>, pieces: Set<string>): Project {
       const o = x.outcome;
       const reveal = o.reveal?.filter((r) => !rooms.has(r));
       const spawn = o.spawn?.filter((m) => !pieces.has(m));
-      if (reveal?.length === o.reveal?.length && spawn?.length === o.spawn?.length) return x;
-      return { ...x, outcome: { ...o, reveal, spawn } };
+      const needs = o.lock?.needs.filter((m) => !pieces.has(m));
+      if (reveal?.length === o.reveal?.length && spawn?.length === o.spawn?.length && needs?.length === o.lock?.needs.length) return x;
+      return { ...x, outcome: { ...o, reveal, spawn, lock: o.lock && { ...o.lock, needs: needs ?? [] } } };
     }),
   };
 }

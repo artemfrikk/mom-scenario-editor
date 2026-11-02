@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { scenarioFromFiles, scenarioToFiles } from '../format/valkyrie';
-import { choose, defeat, newGame, touch, type GameState } from '../model/game';
+import { choose, defeat, newGame, puzzleFinish, puzzleSolve, touch, type GameState } from '../model/game';
 import { getComponent } from '../model/ops';
 import type { Scenario } from '../format/scenario';
 import { compile, tileName, tokenName, usedPacks } from './compile';
@@ -117,6 +117,45 @@ describe('compile', () => {
     expect(st.items).toContain('QItemP2');
     expect(st.clues).toBe(1);
     expect(st.visible).not.toContain('TokenP2');
+  });
+
+  it('a failed test says what it costs', () => {
+    const p = sample();
+    p.pieces[1].outcome.test = { skill: 'will', need: 4, pass: '', fail: 'Шёпот в голове.', harm: { kind: 'horror', amount: 2, who: 'all' } };
+    const s = compile(p);
+    expect(s.texts.Russian['EventP2.text']).toContain('нужно 4 {success}');
+    expect(s.texts.Russian['EventFailP2.text']).toBe('Шёпот в голове.\n\n<i>Каждый сыщик в этой комнате получает 2 ужаса.</i>');
+  });
+
+  it('a locked door opens only after the key is found', () => {
+    const p = sample();
+    p.pieces[2].outcome.lock = { needs: ['P2'], text: 'Заперто.' };
+    const s = compile(p);
+    let st = play(s);
+    st = touch(s, st, 'TokenP3', () => 0);
+    expect(st.current).toBe('EventLockedP3');
+    st = closeAll(s, st);
+    expect(st.visible).not.toContain('TileR2');
+    st = closeAll(s, touch(s, st, 'TokenP2', () => 0)); // the key
+    st = touch(s, st, 'TokenP3', () => 0);
+    expect(st.current).toBe('EventP3');
+    st = closeAll(s, st);
+    expect(st.visible).toContain('TileR2');
+  });
+
+  it('a puzzle gives the gifts once solved', () => {
+    const p = sample();
+    p.pieces[1].outcome.puzzle = { kind: 'tower', skill: 'lore', level: 2, alt: 3, pass: 'Тайник открыт.' };
+    const s = compile(p);
+    expect(getComponent(s, 'PuzzleP2')?.data).toMatchObject({ class: 'tower', skill: '{lore}', puzzlelevel: '2', event1: 'EventPassP2' });
+    let st = play(s);
+    st = touch(s, st, 'TokenP2', () => 0);
+    st = choose(s, st, 1, () => 0); // "В столе ключ." -> the puzzle
+    expect(st.current).toBe('PuzzleP2');
+    st = puzzleFinish(s, puzzleSolve(st), () => 0);
+    expect(st.current).toBe('EventPassP2');
+    st = closeAll(s, st);
+    expect(st.items).toContain('QItemP2');
   });
 
   it('two doors to the same room open it only once', () => {

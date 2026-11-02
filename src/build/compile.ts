@@ -8,7 +8,7 @@
 import catalog from '../content/catalog.json';
 import { CURRENT_FORMAT, type QComponent, type Scenario } from '../format/scenario';
 import { setIntro } from '../model/intro';
-import { PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Room, type SkillTest } from './project';
+import { PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Harm, type PuzzleSpec, type Room, type SkillTest } from './project';
 
 export const LANG = 'Russian';
 
@@ -25,6 +25,8 @@ const openName = (r: Room) => 'EventOpen' + r.id;
 const itemName = (x: Piece) => 'QItem' + x.id;
 const passName = (x: Piece) => 'EventPass' + x.id;
 const failName = (x: Piece) => 'EventFail' + x.id;
+const lockedName = (x: Piece) => 'EventLocked' + x.id;
+const puzzleName = (x: Piece) => 'Puzzle' + x.id;
 const START = 'EventStart';
 const GOAL = 'EventGoal';
 const WIN = 'EventWin';
@@ -45,6 +47,20 @@ export function testText(before: string, t: SkillTest): string {
   const line = `<b>Проверка {${t.skill}}</b>` + (t.need > 1 ? `, нужно ${t.need} {success}` : '');
   return (before.trim() ? before.trim() + '\n\n' : '') + line;
 }
+
+// "Сыщик получает 2 урона", "Каждый сыщик в этой комнате получает 1 ужас".
+export function harmText(h: Harm): string {
+  const word = h.kind === 'damage' ? (h.amount === 1 ? 'урон' : 'урона') : h.amount === 1 ? 'ужас' : 'ужаса';
+  return `${h.who === 'all' ? 'Каждый сыщик в этой комнате получает' : 'Сыщик получает'} ${h.amount} ${word}.`;
+}
+
+const PUZZLE_HINT: Record<PuzzleSpec['kind'], string> = {
+  slide: 'Выдвиньте выделенный брусок наружу.',
+  code: 'Подберите верную комбинацию.',
+  image: 'Соберите картинку.',
+  tower: 'Перенесите все кольца на одну башню.',
+};
+const puzzleHint = (p: PuzzleSpec) => PUZZLE_HINT[p.kind];
 
 export function usedPacks(p: Project): string[] {
   const ids = [...p.rooms.map((r) => r.tile), ...p.pieces.map((x) => x.look), ...p.pieces.map((x) => x.outcome.item ?? '')];
@@ -71,6 +87,8 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   const rawHas = (trigger: string) => rawEvents.some((c) => c.data.trigger === trigger);
   const monsters = p.pieces.filter((x) => x.kind === 'monster');
   const roomById = new Map(p.rooms.map((r) => [r.id, r]));
+  // pieces something else waits for: their result is remembered in a variable
+  const needed = new Set(p.pieces.flatMap((x) => x.outcome.lock?.needs ?? []));
 
   // --- the map ---
   for (const r of p.rooms) {
@@ -101,6 +119,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     if (o.clues) ops.push(`clues,+,${o.clues}`);
     for (const r of o.reveal ?? []) if (roomById.has(r)) ops.push(`@open_${r},=,1`);
     for (const m of o.spawn ?? []) if (monsters.some((q) => q.id === m)) ops.push(`@spawn_${m},=,1`);
+    if (needed.has(x.id)) ops.push(`done_${x.id},=,1`);
     if (o.win) ops.push('@win,=,1');
     return ops;
   };
@@ -142,14 +161,51 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       text(tokenName(x) + '.text', x.title.trim() ? `Появляется ${x.title.trim()}!` : r ? 'Из темноты появляется чудовище!' : '');
       text(tokenName(x) + '.button1', 'Далее');
       const o = x.outcome;
-      if (o.text.trim() || o.win || o.reveal?.length || o.spawn?.length || o.clues || o.item) {
+      if (o.text.trim() || o.win || o.reveal?.length || o.spawn?.length || o.clues || o.item || needed.has(x.id)) {
         outcomeEvent(defeatName(x), x, { trigger: 'Defeated' + tokenName(x) });
       }
       continue;
     }
-    const test = x.outcome.test;
+    const o = x.outcome;
+    const lock = o.lock?.needs.length ? o.lock : undefined;
+    const vartests = lock ? lock.needs.map((n) => `VarOperation:done_${n},==,1`).join(' ') : undefined;
+    if (lock) {
+      // Valkyrie runs the first event whose tests pass: the result when it is open, else "closed"
+      const tok = comps.find((c) => c.name === tokenName(x));
+      if (tok) tok.data.event1 = `${actName(x)} ${lockedName(x)}`;
+      put(lockedName(x), 'Event', 'events.ini', { buttons: '1', event1: '' });
+      text(lockedName(x) + '.text', lock.text.trim() || 'Заперто.');
+      text(lockedName(x) + '.button1', 'Далее');
+    }
+    const test = o.test;
+    const puzzle = o.puzzle;
+    if (puzzle) {
+      // The players read the words, then the puzzle window opens; solving it gives the gifts.
+      put(actName(x), 'Event', 'events.ini', {
+        display: o.text.trim() ? undefined : 'false',
+        buttons: '1',
+        event1: puzzleName(x),
+        vartests,
+        audio: o.sound || undefined,
+      });
+      text(actName(x) + '.text', o.text);
+      if (o.text.trim()) text(actName(x) + '.button1', 'К головоломке');
+      put(puzzleName(x), 'Puzzle', 'puzzles.ini', {
+        class: puzzle.kind,
+        skill: `{${puzzle.skill}}`,
+        puzzlelevel: String(puzzle.level),
+        puzzlealtlevel: puzzle.kind === 'code' || puzzle.kind === 'image' ? String(puzzle.alt) : undefined,
+        image: puzzle.kind === 'image' ? puzzle.image : undefined,
+        buttons: '1',
+        event1: passName(x),
+      });
+      text(puzzleName(x) + '.text', puzzleHint(puzzle));
+      text(puzzleName(x) + '.button1', 'Готово');
+      outcomeEvent(passName(x), { ...x, outcome: { ...o, text: puzzle.pass, sound: undefined } });
+      continue;
+    }
     if (!test) {
-      outcomeEvent(actName(x), x);
+      outcomeEvent(actName(x), x, { vartests });
       continue;
     }
     // A skill test: the players roll and press the button; the gifts come only with success.
@@ -159,15 +215,17 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       event2: failName(x),
       buttoncolor1: 'green',
       buttoncolor2: 'red',
-      audio: x.outcome.sound || undefined,
+      vartests,
+      audio: o.sound || undefined,
     });
-    text(actName(x) + '.text', testText(x.outcome.text, test));
+    text(actName(x) + '.text', testText(o.text, test));
     text(actName(x) + '.button1', 'Успех');
     text(actName(x) + '.button2', 'Провал');
-    outcomeEvent(passName(x), { ...x, outcome: { ...x.outcome, text: test.pass, sound: undefined } });
-    put(failName(x), 'Event', 'events.ini', { display: test.fail.trim() ? undefined : 'false', buttons: '1', event1: '' });
-    text(failName(x) + '.text', test.fail);
-    if (test.fail.trim()) text(failName(x) + '.button1', 'Далее');
+    outcomeEvent(passName(x), { ...x, outcome: { ...o, text: test.pass, sound: undefined } });
+    const failText = [test.fail.trim(), test.harm && test.harm.amount > 0 ? `<i>${harmText(test.harm)}</i>` : ''].filter(Boolean).join('\n\n');
+    put(failName(x), 'Event', 'events.ini', { display: failText ? undefined : 'false', buttons: '1', event1: '' });
+    text(failName(x) + '.text', failText);
+    if (failText) text(failName(x) + '.button1', 'Далее');
   }
 
   // A room appears once, however many doors lead to it.

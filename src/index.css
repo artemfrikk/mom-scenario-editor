@@ -679,3 +679,7 @@ button.link { background: none; border: none; padding: 4px 0; color: var(--accen
 .room-tools { position: absolute; display: flex; gap: 4px; transform: translateY(calc(-100% - 6px)); z-index: 2; }
 .room-tools button { padding: 6px 10px; font-size: 14px; white-space: nowrap; box-shadow: 0 2px 8px #0008; }
 @media (pointer: coarse) { .room-tools button { padding: 10px 12px; } }
+.challenge { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0 10px; padding-left: 12px; border-left: 2px solid #3a3342; }
+.skill-need input { width: 64px; text-align: center; }
+.puzzle-pic { max-width: 220px; max-height: 140px; border-radius: 4px; display: block; margin: 4px 0; }
+label.check input { width: auto; flex: 0 0 auto; }
