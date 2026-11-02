@@ -277,6 +277,9 @@ function summary(p: Project, id: string): string {
   const o = x.outcome;
   const bits: string[] = [];
   if (x.kind === 'monster') bits.push(x.when === 'event' ? 'ждёт сигнала' : 'выходит с комнатой');
+  if (o.lock) bits.push('🔒');
+  if (o.test) bits.push('🎲 проверка');
+  if (o.puzzle) bits.push('🧩 головоломка');
   if (o.item) bits.push('предмет');
   if (o.clues) bits.push('улика');
   if (o.reveal?.length) bits.push('→ ' + o.reveal.map((r) => roomTitle(p, r)).join(', '));
