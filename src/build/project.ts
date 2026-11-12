@@ -96,6 +96,24 @@ export interface RawPart {
   quest: Record<string, string>;
 }
 
+// How hard Valkyrie's own mythos events hit: 0 only atmosphere, 1 weak, 2 medium, 3 strong.
+export type MythosLevel = 0 | 1 | 2 | 3;
+
+// The threat over time: the level at the start and the rounds where it grows.
+export interface Mythos {
+  level: MythosLevel;
+  rises: { round: number; level: MythosLevel }[];
+}
+
+// Something that happens in the mythos phase of a round, by itself.
+export interface TimedEvent {
+  id: string;
+  round: number; // from this round
+  every: boolean; // again in every round after it, not only once
+  outcome: Outcome; // text and gifts; once is not used
+  lose?: boolean; // time is up: the investigators lose
+}
+
 export interface Project {
   format: number;
   title: string;
@@ -113,6 +131,8 @@ export interface Project {
   pieces: Piece[];
   winText: string;
   loseText: string;
+  mythos?: Mythos; // left out: Valkyrie decides (scenarios made elsewhere)
+  timeline?: TimedEvent[];
   nextId: number;
   raw?: RawPart;
 }
@@ -139,12 +159,14 @@ export function newProject(): Project {
     pieces: [],
     winText: 'Вы справились. Тайна раскрыта, и кошмар отступает.',
     loseText: 'Сыщиков больше нет. Тьма поглощает дом.',
+    mythos: { level: 1, rises: [{ round: 4, level: 2 }, { round: 8, level: 3 }] },
+    timeline: [],
     nextId: 1,
   };
 }
 
 // A short id that stays readable inside the Valkyrie files (TileR3, TokenP7).
-export function takeId(p: Project, prefix: 'R' | 'P'): [Project, string] {
+export function takeId(p: Project, prefix: 'R' | 'P' | 'T'): [Project, string] {
   return [{ ...p, nextId: p.nextId + 1 }, prefix + p.nextId];
 }
 
@@ -194,8 +216,10 @@ export function deletePiece(p: Project, id: string): Project {
 }
 
 function forget(p: Project, rooms: Set<string>, pieces: Set<string>): Project {
+  const clean = (o: Outcome): Outcome => ({ ...o, reveal: o.reveal?.filter((r) => !rooms.has(r)), spawn: o.spawn?.filter((m) => !pieces.has(m)) });
   return {
     ...p,
+    timeline: p.timeline?.map((t) => ({ ...t, outcome: clean(t.outcome) })),
     pieces: p.pieces.map((x) => {
       const o = x.outcome;
       const reveal = o.reveal?.filter((r) => !rooms.has(r));

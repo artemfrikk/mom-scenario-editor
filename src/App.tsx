@@ -4,6 +4,7 @@ import { compile } from './build/compile';
 import { useOwned } from './build/owned';
 import { restoreAutosave, useBuilder, type Step } from './build/store';
 import { MapStep } from './builder/MapStep';
+import { ThreatStep } from './builder/ThreatStep';
 import { tileTitle } from './builder/names';
 import { CoverStep, EndingsStep, OwnedDialog, PlayStep, Problems, PrologueStep } from './builder/Steps';
 import { useImages } from './images';
@@ -15,6 +16,7 @@ const STEPS: { step: Step; icon: string; label: string }[] = [
   { step: 'cover', icon: '📖', label: 'Обложка' },
   { step: 'prologue', icon: '🕯', label: 'Вступление' },
   { step: 'map', icon: '🗺', label: 'Карта' },
+  { step: 'threat', icon: '⏳', label: 'Угроза' },
   { step: 'endings', icon: '🏁', label: 'Финалы' },
   { step: 'play', icon: '▶', label: 'Сыграть' },
 ];
@@ -183,6 +185,7 @@ export default function App() {
             {step === 'cover' && <CoverStep />}
             {step === 'prologue' && <PrologueStep />}
             {step === 'map' && <MapStep />}
+            {step === 'threat' && <ThreatStep />}
             {step === 'endings' && <EndingsStep />}
             {step === 'play' && <PlayStep />}
           </main>
@@ -211,7 +214,7 @@ function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => v
         <div className="actions">
           <button onClick={onNew}>
             <b>✨ Новый сценарий</b>
-            <span>Пять шагов: обложка, вступление, карта, финалы, пробная игра.</span>
+            <span>Шесть шагов: обложка, вступление, карта, угроза, финалы, пробная игра.</span>
           </button>
           <button onClick={onOpen}>
             <b>📂 Открыть .valkyrie</b>

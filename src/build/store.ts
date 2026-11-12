@@ -7,7 +7,7 @@ import { compile } from './compile';
 import { projectFromScenario } from './load';
 import { newProject, type Assets, type Project } from './project';
 
-export type Step = 'cover' | 'prologue' | 'map' | 'endings' | 'play';
+export type Step = 'cover' | 'prologue' | 'map' | 'threat' | 'endings' | 'play';
 export type Selection = { kind: 'room' | 'piece'; id: string } | null;
 
 const AUTOSAVE_KEY = 'mse-builder';

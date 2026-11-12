@@ -270,7 +270,7 @@ function SkillPick({ value, onChange }: { value: Skill; onChange: (s: Skill) => 
   );
 }
 
-function Count({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (n: number) => void }) {
+export function Count({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (n: number) => void }) {
   return (
     <label className="row skill-need">
       <span className="hint">{label}</span>
@@ -447,7 +447,10 @@ function MonsterPart({ p, x, setPiece }: { p: Project; x: Piece; setPiece: (patc
       },
       image: m.image,
     }));
-  const callers = p.pieces.filter((q) => (q.outcome.spawn ?? []).includes(x.id));
+  const callers = [
+    ...p.pieces.filter((q) => (q.outcome.spawn ?? []).includes(x.id)).map((c) => c.title || kindInfo(c.kind).title),
+    ...(p.timeline ?? []).filter((t) => (t.outcome.spawn ?? []).includes(x.id)).map((t) => `раунд ${t.round}`),
+  ];
   return (
     <>
       <label className="field">
@@ -460,10 +463,10 @@ function MonsterPart({ p, x, setPiece }: { p: Project; x: Piece; setPiece: (patc
           <input type="radio" checked={(x.when ?? 'room') === 'room'} onChange={() => setPiece({ when: 'room' })} /> Сразу, как только сыщики откроют эту комнату
         </label>
         <label className="check">
-          <input type="radio" checked={x.when === 'event'} onChange={() => setPiece({ when: 'event' })} /> Позже, по сигналу (обыск, разговор, рычаг)
+          <input type="radio" checked={x.when === 'event'} onChange={() => setPiece({ when: 'event' })} /> Позже, по сигналу (обыск, разговор, рычаг, раунд)
         </label>
         {x.when === 'event' && (
-          <div className="hint">{callers.length ? `Позовёт: ${callers.map((c) => c.title || kindInfo(c.kind).title).join(', ')}.` : 'Откройте нужный жетон и в «Ещё» отметьте этого монстра.'}</div>
+          <div className="hint">{callers.length ? `Позовёт: ${callers.join(', ')}.` : 'Откройте нужный жетон и в «Ещё» отметьте этого монстра, или выберите раунд на шаге «Угроза».'}</div>
         )}
       </div>
     </>
@@ -500,7 +503,7 @@ function DoorPart({ p, x, sizes, set, onNewRoom }: { p: Project; x: Piece; sizes
   );
 }
 
-function RoomChecks({ p, rooms, value, onChange }: { p: Project; rooms: string[]; value: string[]; onChange: (v: string[]) => void }) {
+export function RoomChecks({ p, rooms, value, onChange }: { p: Project; rooms: string[]; value: string[]; onChange: (v: string[]) => void }) {
   return (
     <div className="checks">
       {rooms.map((r) => (

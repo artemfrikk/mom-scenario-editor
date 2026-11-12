@@ -62,6 +62,13 @@ const PUZZLE_HINT: Record<PuzzleSpec['kind'], string> = {
 };
 const puzzleHint = (p: PuzzleSpec) => PUZZLE_HINT[p.kind];
 
+// Valkyrie's own mythos events read these flags (as in SmugglersPoint): the higher, the nastier.
+const MYTHOS_FLAGS: Record<number, [number, number, number, number]> = { 0: [1, 0, 0, 0], 1: [1, 1, 0, 0], 2: [0, 1, 1, 0], 3: [0, 0, 1, 1] };
+export function mythosOps(level: number): string[] {
+  const [flavor, minor, major, deadly] = MYTHOS_FLAGS[level] ?? MYTHOS_FLAGS[1];
+  return [`$mythosFlavor,=,${flavor}`, `$mythosMinor,=,${minor}`, `$mythosMajor,=,${major}`, `$mythosDeadly,=,${deadly}`, '$mythosHelp,=,0'];
+}
+
 export function usedPacks(p: Project): string[] {
   const ids = [...p.rooms.map((r) => r.tile), ...p.pieces.map((x) => x.look), ...p.pieces.map((x) => x.outcome.item ?? '')];
   const packs = new Set<string>();
@@ -230,7 +237,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
 
   // A room appears once, however many doors lead to it.
   const start = startRoom(p);
-  const revealed = new Set(p.pieces.flatMap((x) => x.outcome.reveal ?? []));
+  const revealed = new Set([...p.pieces, ...(p.timeline ?? [])].flatMap((x) => x.outcome.reveal ?? []));
   for (const r of p.rooms) {
     if (r === start || !revealed.has(r.id)) continue;
     const opened = `opened_${r.id}`;
@@ -251,7 +258,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   // --- the beginning and the endings ---
   if (!rawHas('EventStart')) {
     const goal = p.goal.trim();
-    const startOps = start ? comesOut(start).map((m) => `@spawn_${m.id},=,1`) : [];
+    const startOps = [...(p.mythos ? mythosOps(p.mythos.level) : []), ...(start ? comesOut(start).map((m) => `@spawn_${m.id},=,1`) : [])];
     put(START, 'Event', 'events.ini', {
       trigger: 'EventStart',
       buttons: '1',
@@ -277,7 +284,26 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       text(openName(start) + '.button1', 'Далее');
     }
   }
-  if (!p.raw || p.pieces.some((x) => x.outcome.win)) {
+  // --- time: Valkyrie's own mythos events get stronger, and the author's events come in their rounds ---
+  for (const r of p.mythos?.rises ?? []) {
+    if (r.round < 2) continue;
+    // set at the end of the round before, so the mythos phase of this round is already stronger
+    put(`EventMythos${r.round}`, 'Event', 'events.ini', { trigger: `EndRound${r.round - 1}`, display: 'false', buttons: '1', event1: '', operations: mythosOps(r.level).join(' ') });
+  }
+  for (const t of p.timeline ?? []) {
+    const name = 'EventTime' + t.id;
+    const x: Piece = { id: t.id, room: '', kind: 'interact', look: '', x: 0, y: 0, title: '', outcome: { ...t.outcome, once: false } };
+    outcomeEvent(name, x, { trigger: 'Mythos', vartests: `VarOperation:#round,${t.every ? '>=' : '=='},${t.round}` });
+    if (t.lose) {
+      const c = comps.find((q) => q.name === name)!;
+      c.data.operations = [c.data.operations, '$end,=,1'].filter(Boolean).join(' ');
+      delete c.data.display;
+      text(name + '.text', t.outcome.text.trim() || p.loseText || 'Время вышло.');
+      text(name + '.button1', 'Завершить');
+    }
+  }
+
+  if (!p.raw || p.pieces.some((x) => x.outcome.win) || (p.timeline ?? []).some((t) => t.outcome.win)) {
     put(WIN, 'Event', 'events.ini', { trigger: 'Varwin', buttons: '1', event1: '', operations: '$end,=,1' });
     text(WIN + '.text', p.winText || 'Победа!');
     text(WIN + '.button1', 'Завершить');

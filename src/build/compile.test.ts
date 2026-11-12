@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { scenarioFromFiles, scenarioToFiles } from '../format/valkyrie';
-import { choose, defeat, newGame, puzzleFinish, puzzleSolve, touch, type GameState } from '../model/game';
+import { choose, defeat, endInvestigatorPhase, newGame, newRound, nextPhase, puzzleFinish, puzzleSolve, touch, type GameState } from '../model/game';
 import { getComponent } from '../model/ops';
 import type { Scenario } from '../format/scenario';
 import { compile, tileName, tokenName, usedPacks } from './compile';
@@ -156,6 +156,42 @@ describe('compile', () => {
     expect(st.current).toBe('EventPassP2');
     st = closeAll(s, st);
     expect(st.items).toContain('QItemP2');
+  });
+
+  it('the mythos events grow stronger with the rounds', () => {
+    const p = { ...sample(), mythos: { level: 1 as const, rises: [{ round: 4, level: 3 as const }] } };
+    const s = compile(p);
+    expect(getComponent(s, 'EventStart')?.data.operations).toContain('$mythosMinor,=,1');
+    expect(getComponent(s, 'EventMythos4')?.data).toMatchObject({ trigger: 'EndRound3', operations: expect.stringContaining('$mythosDeadly,=,1') });
+  });
+
+  it('a timed event comes in the mythos phase of its round, and time running out ends the game', () => {
+    const p = sample();
+    p.pieces[3] = { ...p.pieces[3], when: 'event' };
+    p.timeline = [
+      { id: 'T8', round: 2, every: false, outcome: { text: 'Кто-то идёт.', spawn: ['P4'], reveal: ['R2'], once: false } },
+      { id: 'T9', round: 3, every: false, lose: true, outcome: { text: 'Поздно.', once: false } },
+    ];
+    const s = compile(p);
+    const round = (st: GameState) => {
+      st = endInvestigatorPhase(s, st, () => 0);
+      st = closeAll(s, st);
+      return st;
+    };
+    const after = (st: GameState) => closeAll(s, newRound(s, nextPhase(nextPhase(st)), () => 0));
+    let st = round(play(s)); // round 1: nothing yet
+    expect(st.visible).not.toContain('TileR2');
+    st = after(st);
+    st = endInvestigatorPhase(s, st, () => 0); // round 2
+    expect(st.current).toBe('EventTimeT8');
+    st = closeAll(s, st);
+    expect(st.visible).toContain('TileR2');
+    expect(st.monsters.map((m) => m.spawn)).toEqual(['SpawnP4']);
+    st = after(st);
+    st = endInvestigatorPhase(s, st, () => 0); // round 3
+    expect(st.current).toBe('EventTimeT9');
+    st = choose(s, st, 1, () => 0);
+    expect(st.ended).toBe(true);
   });
 
   it('two doors to the same room open it only once', () => {

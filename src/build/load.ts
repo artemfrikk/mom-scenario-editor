@@ -30,7 +30,8 @@ export function projectFromScenario(s: Scenario): { project: Project; assets: As
 function fromForeign(s: Scenario): Project {
   const lang = texts(s);
   const t = (key: string) => getText(s, lang, key);
-  const p = newProject();
+  // the scenario keeps its own rounds and mythos as they were
+  const p: Project = { ...newProject(), mythos: undefined, timeline: [] };
   const q = s.quest;
   const rooms = s.components
     .filter((c) => c.type === 'Tile' && c.name.startsWith('Tile') && c.name.length > 4)

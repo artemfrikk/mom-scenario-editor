@@ -9,7 +9,7 @@ export interface Problem {
   text: string;
   room?: string;
   piece?: string;
-  step?: 'cover' | 'prologue' | 'map' | 'endings';
+  step?: 'cover' | 'prologue' | 'map' | 'threat' | 'endings';
 }
 
 const tileName = new Map(catalog.tiles.map((t) => [t.id, t.name]));
@@ -39,7 +39,8 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
   }
 
   // rooms nobody opens
-  const opened = new Set(p.pieces.flatMap((x) => x.outcome.reveal ?? []));
+  const timeline = p.timeline ?? [];
+  const opened = new Set([...p.pieces, ...timeline].flatMap((x) => x.outcome.reveal ?? []));
   if (!p.raw) {
     for (const r of p.rooms) {
       if (r === start || opened.has(r.id)) continue;
@@ -68,7 +69,7 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
     if (x.kind === 'explore' && !(x.outcome.reveal ?? []).length) {
       out.push({ level: 'warning', text: `Дверь в комнате «${where}» никуда не ведёт. Выберите, какую комнату она открывает.`, piece: x.id, room: x.room, step: 'map' });
     }
-    if (x.kind === 'monster' && x.when === 'event' && !p.pieces.some((q) => (q.outcome.spawn ?? []).includes(x.id))) {
+    if (x.kind === 'monster' && x.when === 'event' && ![...p.pieces, ...timeline].some((q) => (q.outcome.spawn ?? []).includes(x.id))) {
       out.push({ level: 'warning', text: `Монстр в комнате «${where}» ждёт сигнала, но его никто не зовёт.`, piece: x.id, room: x.room, step: 'map' });
     }
     if (['search', 'interact', 'npc', 'sight'].includes(x.kind) && !x.outcome.text.trim() && !x.outcome.test && !x.outcome.puzzle && !x.outcome.item && !x.outcome.clues && !x.outcome.win && !(x.outcome.reveal ?? []).length) {
@@ -86,7 +87,16 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
     for (const m of x.outcome.spawn ?? []) if (!pieceOf(p, m)) out.push({ level: 'warning', text: `Жетон в комнате «${where}» зовёт монстра, которого больше нет.`, piece: x.id, step: 'map' });
   }
 
-  if (!p.raw && !p.pieces.some((x) => x.outcome.win)) {
+  for (const t of timeline) {
+    if (!t.outcome.text.trim() && !t.lose && !t.outcome.win && !(t.outcome.spawn ?? []).length && !(t.outcome.reveal ?? []).length)
+      out.push({ level: 'warning', text: `Событие раунда ${t.round} ничего не делает. Напишите, что происходит.`, step: 'threat' });
+  }
+  const lose = timeline.filter((t) => t.lose).sort((a, b) => a.round - b.round)[0];
+  for (const t of timeline) {
+    if (lose && t !== lose && t.round > lose.round)
+      out.push({ level: 'warning', text: `Событие раунда ${t.round} не наступит: игра кончается на раунде ${lose.round}.`, step: 'threat' });
+  }
+  if (!p.raw && ![...p.pieces, ...timeline].some((x) => x.outcome.win)) {
     out.push({ level: 'error', text: 'Пока нельзя победить. Выберите, после чего сыщики побеждают: находка, разговор или побеждённый монстр.', step: 'map' });
   }
   if (!p.winText.trim()) out.push({ level: 'warning', text: 'Нет текста победы.', step: 'endings' });

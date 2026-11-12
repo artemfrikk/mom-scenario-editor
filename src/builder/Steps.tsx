@@ -181,7 +181,7 @@ export function EndingsStep() {
   return (
     <div className="page step-page">
       <h1>Финалы</h1>
-      <div className="lead">Победа наступает после того, что вы отметили значком 🏆 на карте. Поражение, когда все сыщики выбыли.</div>
+      <div className="lead">Победа наступает после того, что вы отметили значком 🏆. Поражение, когда все сыщики выбыли или вышло время (шаг «Угроза»).</div>
       <label className="field">
         <span>🏆 Победа</span>
         <textarea rows={4} value={p.winText} onChange={(e) => set({ winText: e.target.value }, 'win')} />
