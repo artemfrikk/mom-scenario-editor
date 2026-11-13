@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { scenarioFromFiles, scenarioToFiles } from '../format/valkyrie';
-import { choose, defeat, newGame, puzzleFinish, puzzleSolve, touch, type GameState } from '../model/game';
+import { choose, defeat, endInvestigatorPhase, newGame, newRound, nextPhase, puzzleFinish, puzzleSolve, touch, type GameState } from '../model/game';
 import { getComponent } from '../model/ops';
 import type { Scenario } from '../format/scenario';
 import { compile, tileName, tokenName, usedPacks } from './compile';
@@ -158,6 +158,72 @@ describe('compile', () => {
     expect(st.items).toContain('QItemP2');
   });
 
+  it('the mythos events grow stronger with the rounds', () => {
+    const p = { ...sample(), mythos: { level: 1 as const, rises: [{ round: 4, level: 3 as const }] } };
+    const s = compile(p);
+    expect(getComponent(s, 'EventStart')?.data.operations).toContain('$mythosMinor,=,1');
+    expect(getComponent(s, 'EventMythos4')?.data).toMatchObject({ trigger: 'EndRound3', operations: expect.stringContaining('$mythosDeadly,=,1') });
+  });
+
+  it('a timed event comes in the mythos phase of its round, and time running out ends the game', () => {
+    const p = sample();
+    p.pieces[3] = { ...p.pieces[3], when: 'event' };
+    p.timeline = [
+      { id: 'T8', round: 2, every: false, outcome: { text: 'Кто-то идёт.', spawn: ['P4'], reveal: ['R2'], once: false } },
+      { id: 'T9', round: 3, every: false, lose: true, outcome: { text: 'Поздно.', once: false } },
+    ];
+    const s = compile(p);
+    const round = (st: GameState) => {
+      st = endInvestigatorPhase(s, st, () => 0);
+      st = closeAll(s, st);
+      return st;
+    };
+    const after = (st: GameState) => closeAll(s, newRound(s, nextPhase(nextPhase(st)), () => 0));
+    let st = round(play(s)); // round 1: nothing yet
+    expect(st.visible).not.toContain('TileR2');
+    st = after(st);
+    st = endInvestigatorPhase(s, st, () => 0); // round 2
+    expect(st.current).toBe('EventTimeT8');
+    st = closeAll(s, st);
+    expect(st.visible).toContain('TileR2');
+    expect(st.monsters.map((m) => m.spawn)).toEqual(['SpawnP4']);
+    st = after(st);
+    st = endInvestigatorPhase(s, st, () => 0); // round 3
+    expect(st.current).toBe('EventTimeT9');
+    st = choose(s, st, 1, () => 0);
+    expect(st.ended).toBe(true);
+  });
+
+  it('a conversation remembers the answer, and a lock can wait for one answer', () => {
+    const p = sample();
+    p.pieces.push(
+      piece('P9', 'R1', 'npc', 'TokenGreyMan', {
+        text: 'Кто вы?',
+        once: false,
+        choices: [
+          { id: 'c1', label: 'Солгать', outcome: { text: 'Он не верит.', once: false } },
+          { id: 'c2', label: 'Сказать правду', outcome: { text: 'Он даёт ключ.', item: 'ItemUniqueBrassKey', once: false } },
+        ],
+      }),
+    );
+    p.pieces[2].outcome.lock = { needs: ['P9.c2'], text: 'Заперто.' };
+    const s = compile(p);
+    expect(s.texts.Russian['EventP9.button2']).toBe('Сказать правду');
+    let st = play(s);
+    st = touch(s, st, 'TokenP9', () => 0);
+    st = closeAll(s, choose(s, st, 1, () => 0)); // a lie
+    st = touch(s, st, 'TokenP3', () => 0);
+    expect(st.current).toBe('EventLockedP3');
+    st = closeAll(s, st);
+    st = touch(s, st, 'TokenP9', () => 0);
+    st = choose(s, st, 2, () => 0); // the truth
+    expect(st.current).toBe('EventAnswerP9c2');
+    st = closeAll(s, st);
+    expect(st.items).toContain('QItemP9c2');
+    st = touch(s, st, 'TokenP3', () => 0);
+    expect(st.current).toBe('EventP3');
+  });
+
   it('two doors to the same room open it only once', () => {
     const p = sample();
     p.pieces.push(piece('P5', 'R1', 'explore', 'TokenExplore', { reveal: ['R2'] }));
@@ -222,5 +288,43 @@ describe('compile', () => {
     expect(again.components.filter((c) => c.data.trigger === 'EventStart')).toHaveLength(1);
     expect(again.texts.Russian['EventP2.text']).toBe('В столе ключ.\n\n<i>Сыщик получает улику.</i>');
     expect(tokenName(p.pieces[3])).toBe('SpawnP4');
+  });
+
+  it('a monster with its own name and texts becomes a CustomMonster with them', async () => {
+    const { monsterMoment } = await import('../model/game');
+    const p = sample();
+    p.pieces[3] = { ...p.pieces[3], title: 'Брат Иезекииль', voice: { attack: 'Он режет вас ножом.', hit: 'Он смеётся.', horror: 'Проверка {will}.' } };
+    const s = compile(p);
+    const own = getComponent(s, 'CustomMonsterP4')!;
+    expect(own.data.base).toBe('MonsterCultist');
+    expect(own.data.activation).toBe('P4');
+    expect(own.data.attacks).toBe('heavy:1 bladed:1 firearm:1 spell:1 unarmed:1');
+    expect(own.data.horrorevent).toBe('EventHorrorP4');
+    expect(getComponent(s, 'SpawnP4')!.data.monster).toBe('CustomMonsterP4');
+    expect(s.texts.Russian['CustomMonsterP4.monstername']).toBe('Брат Иезекииль');
+    expect(s.texts.Russian['ActivationP4.master']).toBe('Он режет вас ножом.');
+    expect(s.texts.Russian['CustomMonsterP4.Attack_firearm_1']).toBe('Он смеётся.');
+    // the files Valkyrie reads keep them
+    const back = scenarioFromFiles(scenarioToFiles(s));
+    expect(getComponent(back, 'ActivationP4')?.type).toBe('Activation');
+
+    let st = play(s);
+    st = closeAll(s, touch(s, st, 'TokenP3', () => 0));
+    expect(st.monsters[0].name).toBe('Брат Иезекииль');
+    expect(st.monsters[0].look).toBe('MonsterCultist');
+    st = monsterMoment(s, st, 0, 'attack');
+    expect(st.log.at(-1)).toContain('Он режет вас ножом.');
+    st = monsterMoment(s, st, 0, 'horror');
+    expect(st.current).toBe('EventHorrorP4');
+    st = closeAll(s, st);
+    // defeating it still wins
+    st = defeat(s, st, 0, () => 0);
+    expect(st.vars['@win'] ?? st.vars.win).toBeTruthy();
+  });
+
+  it('a monster without its own texts stays the game\'s monster', () => {
+    const s = compile(sample());
+    expect(getComponent(s, 'SpawnP4')!.data.monster).toBe('MonsterCultist');
+    expect(s.components.some((c) => c.type === 'CustomMonster')).toBe(false);
   });
 });

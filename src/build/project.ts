@@ -41,9 +41,16 @@ export interface PuzzleSpec {
   pass: string; // text once solved
 }
 
+// One answer in a conversation: the button the players press and what follows from it.
+export interface Choice {
+  id: string; // c1, c2... inside its piece
+  label: string;
+  outcome: Outcome; // its own text and gifts; once, test, puzzle and lock are not used
+}
+
 // Closed until other pieces were used: a key found, a lever pulled, a monster defeated.
 export interface Lock {
-  needs: string[]; // ids of pieces whose outcome must have happened (all of them)
+  needs: string[]; // ids of pieces whose outcome must have happened (all of them); "P5.c2" is one answer of a conversation, "%ch1m4" a campaign mark
   text: string; // what the players read while it is still closed
 }
 
@@ -52,6 +59,8 @@ export interface Outcome {
   text: string; // with a test: what they read before rolling
   test?: SkillTest;
   puzzle?: PuzzleSpec;
+  choices?: Choice[]; // the players choose an answer instead of reading one result
+  remember?: string[]; // campaign marks set by this result, read in later chapters
   lock?: Lock;
   item?: string; // catalog item id the investigators receive
   clues?: number; // clues the investigators receive
@@ -80,7 +89,16 @@ export interface Piece {
   y: number;
   title: string; // the author's name for it: "Письменный стол", "Дворецкий"
   when?: 'room' | 'event'; // monsters: come out with the room, or when an outcome calls them
+  voice?: MonsterVoice; // monsters: the author's own texts instead of the game's
   outcome: Outcome;
+}
+
+// A monster's own words in the game windows. Left empty, Valkyrie shows its usual texts for this monster.
+export interface MonsterVoice {
+  attack?: string; // the monster attacks (monster phase): what happens to the investigator
+  move?: string; // the monster phase, before the attack: how it moves
+  hit?: string; // an investigator attacks it: what to roll and what happens
+  horror?: string; // the horror check against it
 }
 
 export interface Prologue {
@@ -94,6 +112,50 @@ export interface RawPart {
   components: QComponent[];
   texts: Record<string, Record<string, string>>;
   quest: Record<string, string>;
+}
+
+// How hard Valkyrie's own mythos events hit: 0 only atmosphere, 1 weak, 2 medium, 3 strong.
+export type MythosLevel = 0 | 1 | 2 | 3;
+
+// The threat over time: the level at the start and the rounds where it grows.
+export interface Mythos {
+  level: MythosLevel;
+  rises: { round: number; level: MythosLevel }[];
+  own?: MythosCard[]; // the author's own mythos events
+  mode?: 'mix' | 'only'; // own events come along with Valkyrie's (sometimes), or instead of them (every round)
+  adapt?: boolean; // the rounds of the threat move with the number of investigators
+}
+
+// One of the author's mythos events: Valkyrie picks one of them at random in the mythos phase.
+export interface MythosCard {
+  id: string; // Y1, Y2...
+  from: number; // can come from this round on
+  once: boolean; // comes at most once in the game
+  outcome: Outcome; // the words, a test with harm on failure, and the usual gifts
+}
+
+// How many rounds later (or earlier) things happen for this many investigators; the base is 3–4.
+export const PACE: Record<number, number> = { 1: 2, 2: 1, 3: 0, 4: 0, 5: -1, 6: -1 };
+
+// Something that happens in the mythos phase of a round, by itself.
+export interface TimedEvent {
+  id: string;
+  round: number; // from this round
+  every: boolean; // again in every round after it, not only once
+  outcome: Outcome; // text and gifts; once is not used
+  lose?: boolean; // time is up: the investigators lose
+}
+
+// A campaign mark: something the next chapters remember ("Дворецкий спасён").
+export interface Mark {
+  id: string; // the chapter's id, "m" and a number: ch1m4
+  label: string;
+}
+
+// Where the campaign goes after a chapter ends: another chapter's id, or nothing for the end.
+export interface Next {
+  win?: string;
+  lose?: string;
 }
 
 export interface Project {
@@ -113,6 +175,14 @@ export interface Project {
   pieces: Piece[];
   winText: string;
   loseText: string;
+  mythos?: Mythos; // left out: Valkyrie decides (scenarios made elsewhere)
+  chapter?: string; // chapter id inside a campaign: ch1 is the main scenario
+  chapterTitle?: string;
+  next?: Next;
+  marks?: Mark[]; // marks this chapter sets; later chapters can read them
+  campaign?: Project[]; // the other chapters, only in the saved file (editor.json)
+  moreMonsters?: boolean; // with 4 or more investigators every ordinary monster comes with a twin
+  timeline?: TimedEvent[];
   nextId: number;
   raw?: RawPart;
 }
@@ -139,12 +209,14 @@ export function newProject(): Project {
     pieces: [],
     winText: 'Вы справились. Тайна раскрыта, и кошмар отступает.',
     loseText: 'Сыщиков больше нет. Тьма поглощает дом.',
+    mythos: { level: 1, rises: [{ round: 4, level: 2 }, { round: 8, level: 3 }] },
+    timeline: [],
     nextId: 1,
   };
 }
 
 // A short id that stays readable inside the Valkyrie files (TileR3, TokenP7).
-export function takeId(p: Project, prefix: 'R' | 'P'): [Project, string] {
+export function takeId(p: Project, prefix: 'R' | 'P' | 'T' | 'Y'): [Project, string] {
   return [{ ...p, nextId: p.nextId + 1 }, prefix + p.nextId];
 }
 
@@ -194,15 +266,34 @@ export function deletePiece(p: Project, id: string): Project {
 }
 
 function forget(p: Project, rooms: Set<string>, pieces: Set<string>): Project {
+  const clean = (o: Outcome): Outcome => ({
+    ...o,
+    reveal: o.reveal?.filter((r) => !rooms.has(r)),
+    spawn: o.spawn?.filter((m) => !pieces.has(m)),
+    choices: o.choices?.map((c) => ({ ...c, outcome: clean(c.outcome) })),
+    lock: o.lock && { ...o.lock, needs: o.lock.needs.filter((n) => !pieces.has(n.split('.')[0])) },
+  });
   return {
     ...p,
-    pieces: p.pieces.map((x) => {
-      const o = x.outcome;
-      const reveal = o.reveal?.filter((r) => !rooms.has(r));
-      const spawn = o.spawn?.filter((m) => !pieces.has(m));
-      const needs = o.lock?.needs.filter((m) => !pieces.has(m));
-      if (reveal?.length === o.reveal?.length && spawn?.length === o.spawn?.length && needs?.length === o.lock?.needs.length) return x;
-      return { ...x, outcome: { ...o, reveal, spawn, lock: o.lock && { ...o.lock, needs: needs ?? [] } } };
-    }),
+    timeline: p.timeline?.map((t) => ({ ...t, outcome: clean(t.outcome) })),
+    pieces: p.pieces.map((x) => ({ ...x, outcome: clean(x.outcome) })),
   };
 }
+
+// Every result in the scenario: the pieces', their answers' and the rounds'.
+export function allOutcomes(p: Project): Outcome[] {
+  const out: Outcome[] = [];
+  for (const x of p.pieces) out.push(x.outcome, ...(x.outcome.choices ?? []).map((c) => c.outcome));
+  for (const t of p.timeline ?? []) out.push(t.outcome);
+  for (const c of p.mythos?.own ?? []) out.push(c.outcome);
+  return out;
+}
+
+// The variable that remembers a piece was used ("P5") or an answer was chosen ("P5.c2").
+export const doneVar = (need: string) => (need.startsWith('%') ? markVar(need.slice(1)) : 'done_' + need.replace('.', '_'));
+
+// Variables starting with % survive the move to the next chapter (Valkyrie's VarManager.TrimQuest).
+export const markVar = (mark: string) => '%mark_' + mark;
+
+// Where a chapter's quest.ini lies inside the package; Valkyrie looks for it from the package's folder.
+export const chapterPath = (id: string) => (id === 'ch1' ? 'quest.ini' : `${id}/quest.ini`);

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import catalog from '../content/catalog.json';
-import { checkProject, type Problem } from '../build/check';
+import type { Problem } from '../build/check';
+import { useProblems } from './problems';
 import { compile, LANG, usedPacks } from '../build/compile';
 import { ALL_PACKS, useOwned } from '../build/owned';
 import type { Project } from '../build/project';
@@ -12,7 +13,7 @@ import { GameView } from '../ui/GameView';
 import { packName } from '../ui/options';
 import { Picker } from '../ui/widgets';
 import { Dialog } from './WhatHappens';
-import { tileTitle } from './names';
+import { NextChapter } from './Chapters';
 import { assetUrl } from './assetUrl';
 
 function FileButton({ accept, label, onFile }: { accept: string; label: string; onFile: (name: string) => void }) {
@@ -44,10 +45,34 @@ export function CoverStep() {
   const assets = useBuilder((s) => s.assets);
   const cover = assetUrl(assets, p.cover);
   const packs = usedPacks(p);
+  const chapters = useBuilder((s) => s.chapters.length);
+  const here = useBuilder((s) => s.chapter);
+  if (here > 0)
+    return (
+      <div className="page step-page">
+        <h1>Глава {here + 1}</h1>
+        <div className="lead">
+          Следующая глава кампании. В списке Valkyrie её не видно: игроки попадают сюда кнопкой «Следующая глава» в финале прошлой главы. Сыщики, предметы и
+          отметки «📜 Запомнить» переходят вместе с ними.
+        </div>
+        <label className="field">
+          <span>Название главы</span>
+          <input value={p.chapterTitle ?? ''} placeholder={`Глава ${here + 1}`} onChange={(e) => set({ chapterTitle: e.target.value }, 'chtitle')} autoFocus />
+        </label>
+        <div className="hint">Нужные коробки: {['Базовая игра', ...packs.map((x) => packName[x] ?? x)].join(', ')}.</div>
+        <NextButton to="prologue" label="Дальше: вступление →" />
+      </div>
+    );
   return (
     <div className="page step-page">
       <h1>Обложка</h1>
       <div className="lead">Так сценарий будет выглядеть в списке Valkyrie.</div>
+      {chapters > 1 && (
+        <label className="field">
+          <span>Название первой главы</span>
+          <input value={p.chapterTitle ?? ''} placeholder="Глава 1" onChange={(e) => set({ chapterTitle: e.target.value }, 'chtitle')} />
+        </label>
+      )}
       <div className="cover-grid">
         <div>
           <label className="field">
@@ -181,15 +206,17 @@ export function EndingsStep() {
   return (
     <div className="page step-page">
       <h1>Финалы</h1>
-      <div className="lead">Победа наступает после того, что вы отметили значком 🏆 на карте. Поражение, когда все сыщики выбыли.</div>
+      <div className="lead">Победа наступает после того, что вы отметили значком 🏆. Поражение, когда все сыщики выбыли или вышло время (шаг «Угроза»).</div>
       <label className="field">
         <span>🏆 Победа</span>
         <textarea rows={4} value={p.winText} onChange={(e) => set({ winText: e.target.value }, 'win')} />
       </label>
+      <NextChapter how="win" />
       <label className="field">
         <span>💀 Поражение</span>
         <textarea rows={4} value={p.loseText} onChange={(e) => set({ loseText: e.target.value }, 'lose')} />
       </label>
+      <NextChapter how="lose" />
       <Problems />
       <NextButton to="play" label="Сыграть пробную партию →" />
     </div>
@@ -197,8 +224,7 @@ export function EndingsStep() {
 }
 
 export function Problems({ compact = false }: { compact?: boolean }) {
-  const p = useBuilder((s) => s.project);
-  const list = useMemo(() => checkProject(p, tileTitle), [p]);
+  const list = useProblems();
   const go = (pr: Problem) => {
     const st = useBuilder.getState();
     if (pr.step) st.setStep(pr.step);
@@ -234,7 +260,14 @@ export function OwnedDialog({ onClose }: { onClose: () => void }) {
   const packs = useOwned((s) => s.packs);
   const setPacks = useOwned((s) => s.set);
   return (
-    <Dialog title="Мои коробки" icon="📦" onClose={onClose}>
+    <Dialog
+      title="Мои коробки"
+      icon="📦"
+      onClose={() => {
+        setPacks(packs); // closing counts as an answer, so the question is not asked again
+        onClose();
+      }}
+    >
       <p className="hint">Отметьте, что у вас есть. В палитре останутся только эти комнаты, монстры и жетоны.</p>
       {catalog.packs.map((pk) => (
         <label key={pk.id} className="check">

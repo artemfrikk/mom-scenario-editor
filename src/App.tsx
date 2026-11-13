@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { checkProject } from './build/check';
-import { compile } from './build/compile';
+import { useEffect, useRef, useState } from 'react';
+import { compileCampaign } from './build/campaign';
 import { useOwned } from './build/owned';
-import { restoreAutosave, useBuilder, type Step } from './build/store';
+import { allChapters, restoreAutosave, useBuilder, type Step } from './build/store';
+import { ChapterBar } from './builder/Chapters';
 import { MapStep } from './builder/MapStep';
-import { tileTitle } from './builder/names';
+import { ThreatStep } from './builder/ThreatStep';
 import { CoverStep, EndingsStep, OwnedDialog, PlayStep, Problems, PrologueStep } from './builder/Steps';
+import { useProblems } from './builder/problems';
+import { StartChoices, StartDialog } from './builder/Start';
+import type { Project } from './build/project';
 import { useImages } from './images';
 import { useStore } from './store';
 import { ImagesButton, ImagesDialog } from './ui/ImagesDialog';
@@ -15,6 +18,7 @@ const STEPS: { step: Step; icon: string; label: string }[] = [
   { step: 'cover', icon: '📖', label: 'Обложка' },
   { step: 'prologue', icon: '🕯', label: 'Вступление' },
   { step: 'map', icon: '🗺', label: 'Карта' },
+  { step: 'threat', icon: '⏳', label: 'Угроза' },
   { step: 'endings', icon: '🏁', label: 'Финалы' },
   { step: 'play', icon: '▶', label: 'Сыграть' },
 ];
@@ -36,7 +40,7 @@ export default function App() {
   const [started, setStarted] = useState(false);
   const [packs, setPacks] = useState(false);
   const [translator, setTranslator] = useState(() => window.location.hash === '#translate');
-  const problems = useMemo(() => checkProject(p, tileTitle), [p]);
+  const problems = useProblems();
   const errors = problems.filter((x) => x.level === 'error').length;
 
   useEffect(() => {
@@ -48,7 +52,7 @@ export default function App() {
   }, []);
 
   const openTranslator = (on: boolean) => {
-    if (on) useStore.setState({ scenario: compile(p, useBuilder.getState().assets), fileName, lang: 'Russian' });
+    if (on) useStore.setState({ scenario: compileCampaign(allChapters(), useBuilder.getState().assets), fileName, lang: 'Russian' });
     window.location.hash = on ? 'translate' : '';
     setTranslator(on);
   };
@@ -74,11 +78,14 @@ export default function App() {
     }
   };
 
-  const startNew = () => {
+  const [choosing, setChoosing] = useState(false);
+  const startNew = (from?: Project) => {
     if (dirty && !confirm('Начать новый сценарий? Несохранённые изменения пропадут.')) return;
-    reset();
+    setChoosing(false);
+    reset(from);
     setStarted(true);
     if (!askedPacks) setPacks(true);
+    if (from) flash(`Открыт пример «${from.title}». Меняйте в нём что угодно или сразу сыграйте на шаге «Сыграть».`);
   };
 
   useEffect(() => {
@@ -144,7 +151,7 @@ export default function App() {
             </button>
           </>
         )}
-        <button onClick={startNew}>Новый</button>
+        <button onClick={() => setChoosing(true)}>Новый</button>
         <button onClick={() => fileInput.current?.click()}>Открыть…</button>
         <ImagesButton />
         <button className="ghost" onClick={() => setPacks(true)} title="Какие коробки игры у вас есть">
@@ -165,6 +172,7 @@ export default function App() {
       ) : (
         <div className="builder">
           <nav className="steps-nav">
+            <ChapterBar />
             {STEPS.map((s, i) => {
               const count = s.step === 'play' ? 0 : problems.filter((x) => x.step === s.step).length;
               return (
@@ -183,19 +191,21 @@ export default function App() {
             {step === 'cover' && <CoverStep />}
             {step === 'prologue' && <PrologueStep />}
             {step === 'map' && <MapStep />}
+            {step === 'threat' && <ThreatStep />}
             {step === 'endings' && <EndingsStep />}
             {step === 'play' && <PlayStep />}
           </main>
         </div>
       )}
       {started && <ImagesDialog auto={step === 'map'} />}
+      {choosing && <StartDialog onPick={startNew} onClose={() => setChoosing(false)} />}
       {packs && <OwnedDialog onClose={() => setPacks(false)} />}
       {(notice || toast) && <div className="toast">{notice || toast}</div>}
     </div>
   );
 }
 
-function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => void; onDrop: (f: File | undefined) => void }) {
+function Welcome({ onNew, onOpen, onDrop }: { onNew: (from?: Project) => void; onOpen: () => void; onDrop: (f: File | undefined) => void }) {
   return (
     <div
       className="page"
@@ -208,11 +218,8 @@ function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => v
       <div className="welcome">
         <h1>Создайте свою историю для «Особняков безумия»</h1>
         <div className="lead">Напишите вступление, разложите комнаты и решите, что случится в каждой. Связи, переменные и события Valkyrie конструктор расставит сам.</div>
+        <StartChoices onPick={onNew} />
         <div className="actions">
-          <button onClick={onNew}>
-            <b>✨ Новый сценарий</b>
-            <span>Пять шагов: обложка, вступление, карта, финалы, пробная игра.</span>
-          </button>
           <button onClick={onOpen}>
             <b>📂 Открыть .valkyrie</b>
             <span>Продолжите свой сценарий. Можно перетащить файл сюда.</span>

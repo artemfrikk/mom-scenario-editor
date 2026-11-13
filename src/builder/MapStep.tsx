@@ -280,6 +280,7 @@ function summary(p: Project, id: string): string {
   if (o.lock) bits.push('🔒');
   if (o.test) bits.push('🎲 проверка');
   if (o.puzzle) bits.push('🧩 головоломка');
+  if (o.choices?.length) bits.push(`💬 ответов: ${o.choices.length}`);
   if (o.item) bits.push('предмет');
   if (o.clues) bits.push('улика');
   if (o.reveal?.length) bits.push('→ ' + o.reveal.map((r) => roomTitle(p, r)).join(', '));

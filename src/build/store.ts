@@ -3,18 +3,20 @@
 import { get as idbGet, set as idbSet } from 'idb-keyval';
 import { create } from 'zustand';
 import { loadValkyrie, saveValkyrie } from '../format/valkyrie';
-import { compile } from './compile';
+import { chaptersOf, compileCampaign, newChapter } from './campaign';
 import { projectFromScenario } from './load';
-import { newProject, type Assets, type Project } from './project';
+import { newProject, type Assets, type Outcome, type Project } from './project';
 
-export type Step = 'cover' | 'prologue' | 'map' | 'endings' | 'play';
+export type Step = 'cover' | 'prologue' | 'map' | 'threat' | 'endings' | 'play';
 export type Selection = { kind: 'room' | 'piece'; id: string } | null;
 
 const AUTOSAVE_KEY = 'mse-builder';
 const HISTORY_LIMIT = 200;
 
 interface State {
-  project: Project;
+  project: Project; // the chapter being edited
+  chapters: Project[]; // every chapter of the campaign; the one being edited is kept in project
+  chapter: number;
   assets: Assets;
   fileName: string;
   step: Step;
@@ -31,8 +33,11 @@ interface State {
   select: (s: Selection) => void;
   addAsset: (name: string, data: Uint8Array) => string;
   flash: (text: string) => void;
+  goChapter: (i: number) => void;
+  addChapter: () => void;
+  removeChapter: (i: number) => void;
   open: (file: File) => Promise<void>;
-  reset: () => void;
+  reset: (from?: Project) => void;
   save: () => Promise<Blob>;
 }
 
@@ -42,6 +47,8 @@ let noticeTimer: number | undefined;
 
 export const useBuilder = create<State>((set, get) => ({
   project: newProject(),
+  chapters: [newProject()],
+  chapter: 0,
   assets: {},
   fileName: 'scenario.valkyrie',
   step: 'cover',
@@ -90,11 +97,52 @@ export const useBuilder = create<State>((set, get) => ({
     window.clearTimeout(noticeTimer);
     noticeTimer = window.setTimeout(() => set({ notice: '' }), 4500);
   },
+  goChapter: (i) => {
+    const { chapter } = get();
+    if (i === chapter) return;
+    const chapters = allChapters();
+    if (!chapters[i]) return;
+    lastKey = undefined;
+    set({ chapters, chapter: i, project: chapters[i], past: [], future: [], selected: null, step: 'cover' });
+  },
+  addChapter: () => {
+    const chapters = allChapters();
+    if (chapters.length === 1 && !chapters[0].chapter) chapters[0] = { ...chapters[0], chapter: 'ch1', chapterTitle: chapters[0].chapterTitle ?? 'Глава 1' };
+    const fresh = newChapter(chapters);
+    const all = [...chapters, fresh];
+    lastKey = undefined;
+    set({ chapters: all, chapter: all.length - 1, project: fresh, past: [], future: [], selected: null, step: 'cover', dirty: true });
+  },
+  // The first chapter is the scenario itself and stays. Endings that led to a removed chapter end the campaign.
+  removeChapter: (i) => {
+    if (i <= 0) return;
+    const chapters = allChapters();
+    const gone = chapters[i]?.chapter;
+    if (!gone) return;
+    const unlink = (n?: string) => (n === gone ? undefined : n);
+    const left = chapters
+      .filter((_, k) => k !== i)
+      .map((c) => {
+        const remember = (o: Outcome): Outcome => ({ ...o, choices: o.choices?.map((c) => ({ ...c, outcome: remember(c.outcome) })), remember: o.remember?.filter((m) => !m.startsWith(gone + 'm')), lock: o.lock && { ...o.lock, needs: o.lock.needs.filter((n) => !n.startsWith('%' + gone + 'm')) } });
+        return {
+          ...c,
+          next: c.next && { win: unlink(c.next.win), lose: unlink(c.next.lose) },
+          pieces: c.pieces.map((x) => ({ ...x, outcome: remember(x.outcome) })),
+          timeline: c.timeline?.map((t) => ({ ...t, outcome: remember(t.outcome) })),
+        };
+      });
+    const chapter = Math.min(get().chapter >= i ? get().chapter - 1 : get().chapter, left.length - 1);
+    lastKey = undefined;
+    set({ chapters: left, chapter, project: left[chapter], past: [], future: [], selected: null, dirty: true });
+  },
   open: async (file) => {
     const s = await loadValkyrie(file);
     const { project, assets, foreign } = projectFromScenario(s);
+    const chapters = chaptersOf(project);
     set({
-      project,
+      project: chapters[0],
+      chapters,
+      chapter: 0,
       assets,
       foreign,
       fileName: file.name.endsWith('.valkyrie') ? file.name : file.name + '.valkyrie',
@@ -105,11 +153,13 @@ export const useBuilder = create<State>((set, get) => ({
       dirty: false,
     });
   },
-  reset: () =>
-    set({ project: newProject(), assets: {}, foreign: false, fileName: 'scenario.valkyrie', step: 'cover', selected: null, past: [], future: [], dirty: false }),
+  // A new scenario: empty, or one of the examples (which may be a whole campaign).
+  reset: (from) => {
+    const chapters = chaptersOf(from ?? newProject());
+    set({ project: chapters[0], chapters, chapter: 0, assets: {}, foreign: false, fileName: 'scenario.valkyrie', step: 'cover', selected: null, past: [], future: [], dirty: !!from });
+  },
   save: async () => {
-    const { project, assets } = get();
-    const blob = await saveValkyrie(compile(project, unused(project, assets)));
+    const blob = await saveValkyrie(compileCampaign(allChapters(), get().assets));
     set({ dirty: false });
     return blob;
   },
@@ -121,20 +171,24 @@ function same(a: Uint8Array, b: Uint8Array): boolean {
   return true;
 }
 
-// Files the author added and then stopped using are not packed. Files of a scenario made elsewhere always stay.
-function unused(p: Project, assets: Assets): Assets {
-  if (p.raw) return assets;
-  const used = new Set([p.cover, p.prologue.image, p.prologue.music, ...p.pieces.map((x) => x.outcome.sound ?? ''), ...p.pieces.map((x) => x.outcome.puzzle?.image ?? '')].filter(Boolean));
-  return Object.fromEntries(Object.entries(assets).filter(([k]) => used.has(k)));
+// Every chapter as it is now: the one being edited is in project.
+export function allChapters(): Project[] {
+  const { chapters, chapter, project } = useBuilder.getState();
+  const out = chapters.length ? [...chapters] : [project];
+  out[Math.min(chapter, out.length - 1)] = project;
+  return out;
 }
 
 // --- the browser keeps the work if the tab is closed ---------------------------------------------
 
 export async function restoreAutosave(): Promise<boolean> {
   try {
-    const saved = await idbGet<{ project: Project; assets: Assets; fileName: string; foreign?: boolean }>(AUTOSAVE_KEY);
+    const saved = await idbGet<{ project: Project; chapters?: Project[]; chapter?: number; assets: Assets; fileName: string; foreign?: boolean }>(AUTOSAVE_KEY);
     if (!saved?.project) return false;
-    useBuilder.setState({ project: { ...newProject(), ...saved.project }, assets: saved.assets ?? {}, fileName: saved.fileName, foreign: !!saved.foreign });
+    const chapters = (saved.chapters?.length ? saved.chapters : [saved.project]).map((c) => ({ ...newProject(), ...c }));
+    const chapter = Math.min(saved.chapter ?? 0, chapters.length - 1);
+    chapters[chapter] = { ...newProject(), ...saved.project };
+    useBuilder.setState({ project: chapters[chapter], chapters, chapter, assets: saved.assets ?? {}, fileName: saved.fileName, foreign: !!saved.foreign });
     return true;
   } catch {
     return false;
@@ -143,9 +197,9 @@ export async function restoreAutosave(): Promise<boolean> {
 
 let timer: number | undefined;
 useBuilder.subscribe((st, prev) => {
-  if (st.project === prev.project && st.assets === prev.assets) return;
+  if (st.project === prev.project && st.assets === prev.assets && st.chapters === prev.chapters) return;
   window.clearTimeout(timer);
   timer = window.setTimeout(() => {
-    idbSet(AUTOSAVE_KEY, { project: st.project, assets: st.assets, fileName: st.fileName, foreign: st.foreign }).catch(() => {});
+    idbSet(AUTOSAVE_KEY, { project: st.project, chapters: st.chapters, chapter: st.chapter, assets: st.assets, fileName: st.fileName, foreign: st.foreign }).catch(() => {});
   }, 800);
 });

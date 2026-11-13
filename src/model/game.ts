@@ -12,6 +12,7 @@ import { newPuzzle, puzzleSolved, solvePuzzle, type PuzzleState } from './puzzle
 export interface Monster {
   spawn: string; // the Spawn that brought it
   monsterId: string; // catalog id or CustomMonster name
+  look: string; // the catalog monster it looks like (a CustomMonster's base)
   name: string;
   hp: number;
   maxHp: number;
@@ -133,7 +134,8 @@ function spawnMonster(s: Scenario, st: GameState, c: QComponent, rng: Rng): Game
   const id = pickMonster(c, rng);
   if (!id) return note(st, `${c.name}: не выбран монстр.`);
   const custom = getComponent(s, id);
-  const base = catalog.monsters.find((m) => m.id === id);
+  const look = custom?.data.base ?? id;
+  const base = catalog.monsters.find((m) => m.id === look);
   const n = st.heroes.length;
   const health = Number(custom?.data.health ?? base?.health ?? 1);
   const perHero = Number(custom?.data.healthperhero ?? base?.healthperhero ?? 0);
@@ -142,7 +144,8 @@ function spawnMonster(s: Scenario, st: GameState, c: QComponent, rng: Rng): Game
   const monster: Monster = {
     spawn: c.name,
     monsterId: id,
-    name: base?.name ?? custom?.name ?? id,
+    look,
+    name: getText(s, Object.keys(s.texts)[0] ?? '', id + '.monstername') || base?.name || id,
     hp: Math.max(1, hp),
     maxHp: Math.max(1, hp),
     title: unique ? getText(s, Object.keys(s.texts)[0] ?? '', c.name + '.uniquetitle') : '',
@@ -264,7 +267,10 @@ export function choose(s: Scenario, st: GameState, index: number, rng: Rng = Mat
   if (index === 0) return next(s, out, rng, depth + 1);
   const targets = buttonsOf(c).find((b) => b.index === index)?.targets ?? [];
   const enabled = targets.filter((t) => !isDisabled(s, out, t) && getComponent(s, t));
-  for (const t of targets) if (!getComponent(s, t)) out = note(out, `Предупреждение: нет события «${t}».`);
+  // An event named after a quest.ini of the package moves the game to another chapter (Valkyrie's StartQuestEvent).
+  const chapter = targets.find((t) => /(^|\/)quest\.ini$/i.test(t) && !getComponent(s, t));
+  for (const t of targets) if (!getComponent(s, t) && t !== chapter) out = note(out, `Предупреждение: нет события «${t}».`);
+  if (chapter) return { ...note(out, `Дальше Valkyrie откроет следующую главу (${chapter}). Пробная игра проходит одну главу.`), ended: true, stack: [] };
 
   if ((out.vars['$end'] ?? 0) !== 0) return { ...out, ended: true, stack: [] };
   if (enabled.length) out = queueEvent(s, out, c.data.randomevents === 'true' ? pick(enabled, rng) : enabled[0]);
@@ -324,6 +330,22 @@ export function adjustClues(st: GameState, delta: number): GameState {
 
 export function adjustHp(st: GameState, index: number, delta: number): GameState {
   return { ...st, monsters: st.monsters.map((m, i) => (i === index ? { ...m, hp: Math.max(0, Math.min(m.maxHp, m.hp + delta)) } : m)) };
+}
+
+// What a monster's card says when it attacks, is attacked, or calls for a horror check.
+// A horror event of the scenario opens as a window; the other texts go to the log, as Valkyrie shows them in its own windows.
+export function monsterMoment(s: Scenario, st: GameState, index: number, what: 'attack' | 'hit' | 'horror', rng: Rng = Math.random): GameState {
+  const m = st.monsters[index];
+  if (!m || st.current || st.ended) return st;
+  const custom = getComponent(s, m.monsterId);
+  const lang = Object.keys(s.texts)[0] ?? '';
+  const say = (key: string) => getText(s, lang, key).replace(/\{0\}/g, m.name);
+  const title = what === 'attack' ? 'Атака монстра' : what === 'hit' ? 'Сыщик атакует' : 'Проверка ужаса';
+  if (what === 'horror' && custom?.data.horrorevent && getComponent(s, custom.data.horrorevent)) return next(s, queueEvent(s, st, custom.data.horrorevent), rng);
+  const act = custom?.data.activation?.split(/\s+/)[0];
+  const words =
+    what === 'attack' && act ? [say(`Activation${act}.ability`), say(`Activation${act}.master`)].filter(Boolean).join('\n') : what === 'hit' && custom?.data.attacks ? say(`${m.monsterId}.Attack_heavy_1`) : '';
+  return note(st, `${title} · ${m.name}: ${words || 'Valkyrie покажет свой текст для этого монстра.'}`);
 }
 
 // A monster is defeated: events "Defeated<monster id>" and "Defeated<spawn name>" fire.
