@@ -113,15 +113,25 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
   const match = (label: string) => !q || label.toLowerCase().includes(q);
 
   // Drag with mouse or finger. A short tap counts as "put it into the chosen room".
+  // A finger that moves mostly up or down scrolls the list; any other move drags the piece out.
+  // The browser does not scroll here (touch-action: none), so a diagonal drag towards the map is never lost.
   const grab = (e: React.PointerEvent, g: Grab) => {
     if (e.pointerType === 'mouse') e.preventDefault();
+    const touch = e.pointerType !== 'mouse';
+    const list = (e.currentTarget as HTMLElement).closest('.pal-list') as HTMLElement | null;
     const sx = e.clientX;
     const sy = e.clientY;
-    let moved = false;
+    const top = list?.scrollTop ?? 0;
+    let mode: '' | 'drag' | 'scroll' = '';
     const mv = (ev: PointerEvent) => {
-      if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
-      moved = true;
-      setGhost({ g, x: ev.clientX, y: ev.clientY });
+      const dx = ev.clientX - sx;
+      const dy = ev.clientY - sy;
+      if (!mode) {
+        if (Math.hypot(dx, dy) < 8) return;
+        mode = touch && list && Math.abs(dy) > Math.abs(dx) * 2.5 ? 'scroll' : 'drag';
+      }
+      if (mode === 'scroll') list!.scrollTop = top - dy;
+      else setGhost({ g, x: ev.clientX, y: ev.clientY });
     };
     const stop = () => {
       window.removeEventListener('pointermove', mv);
@@ -129,10 +139,10 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
       window.removeEventListener('pointercancel', stop);
       setGhost(null);
     };
-    // the finger scrolled the list instead: nothing is placed
     const finish = (ev: PointerEvent) => {
       stop();
-      if (!moved) return onPlace(g, null);
+      if (mode === 'scroll') return;
+      if (!mode) return onPlace(g, null);
       const at = board.current?.toWorld(ev.clientX, ev.clientY);
       if (at) onPlace(g, at);
     };
