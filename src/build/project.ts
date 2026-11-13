@@ -121,7 +121,21 @@ export type MythosLevel = 0 | 1 | 2 | 3;
 export interface Mythos {
   level: MythosLevel;
   rises: { round: number; level: MythosLevel }[];
+  own?: MythosCard[]; // the author's own mythos events
+  mode?: 'mix' | 'only'; // own events come along with Valkyrie's (sometimes), or instead of them (every round)
+  adapt?: boolean; // the rounds of the threat move with the number of investigators
 }
+
+// One of the author's mythos events: Valkyrie picks one of them at random in the mythos phase.
+export interface MythosCard {
+  id: string; // Y1, Y2...
+  from: number; // can come from this round on
+  once: boolean; // comes at most once in the game
+  outcome: Outcome; // the words, a test with harm on failure, and the usual gifts
+}
+
+// How many rounds later (or earlier) things happen for this many investigators; the base is 3–4.
+export const PACE: Record<number, number> = { 1: 2, 2: 1, 3: 0, 4: 0, 5: -1, 6: -1 };
 
 // Something that happens in the mythos phase of a round, by itself.
 export interface TimedEvent {
@@ -167,6 +181,7 @@ export interface Project {
   next?: Next;
   marks?: Mark[]; // marks this chapter sets; later chapters can read them
   campaign?: Project[]; // the other chapters, only in the saved file (editor.json)
+  moreMonsters?: boolean; // with 4 or more investigators every ordinary monster comes with a twin
   timeline?: TimedEvent[];
   nextId: number;
   raw?: RawPart;
@@ -201,7 +216,7 @@ export function newProject(): Project {
 }
 
 // A short id that stays readable inside the Valkyrie files (TileR3, TokenP7).
-export function takeId(p: Project, prefix: 'R' | 'P' | 'T'): [Project, string] {
+export function takeId(p: Project, prefix: 'R' | 'P' | 'T' | 'Y'): [Project, string] {
   return [{ ...p, nextId: p.nextId + 1 }, prefix + p.nextId];
 }
 
@@ -270,6 +285,7 @@ export function allOutcomes(p: Project): Outcome[] {
   const out: Outcome[] = [];
   for (const x of p.pieces) out.push(x.outcome, ...(x.outcome.choices ?? []).map((c) => c.outcome));
   for (const t of p.timeline ?? []) out.push(t.outcome);
+  for (const c of p.mythos?.own ?? []) out.push(c.outcome);
   return out;
 }
 

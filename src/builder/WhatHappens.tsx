@@ -382,7 +382,7 @@ export function Count({ label, value, min, max, onChange }: { label: string; val
 }
 
 // The skill test: players roll the dice for the chosen skill and press "Успех" or "Провал".
-function TestPart({ id, test, set }: { id: string; test: SkillTest; set: (o: Partial<Outcome>, key?: string) => void }) {
+export function TestPart({ id, test, set, note }: { id: string; test: SkillTest; set: (o: Partial<Outcome>, key?: string) => void; note?: string }) {
   const put = (patch: Partial<SkillTest>, key?: string) => set({ test: { ...test, ...patch } }, key);
   const harm = test.harm;
   const putHarm = (patch: Partial<Harm>) => put({ harm: { kind: 'damage', amount: 1, who: 'one', ...harm, ...patch } });
@@ -423,7 +423,7 @@ function TestPart({ id, test, set }: { id: string; test: SkillTest; set: (o: Par
           </>
         )}
       </div>
-      <div className="hint">Награду из этого окна сыщики получат только при успехе. При провале жетон остаётся, можно попробовать снова.</div>
+      <div className="hint">{note ?? 'Награду из этого окна сыщики получат только при успехе. При провале жетон остаётся, можно попробовать снова.'}</div>
     </div>
   );
 }

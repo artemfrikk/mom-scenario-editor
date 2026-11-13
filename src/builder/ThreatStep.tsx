@@ -2,8 +2,8 @@
 // own events that come in a given round (a monster arrives, a room opens, time runs out).
 
 import { useBuilder } from '../build/store';
-import { takeId, type Mythos, type MythosLevel, type Outcome, type Project, type TimedEvent } from '../build/project';
-import { Count, RoomChecks } from './WhatHappens';
+import { PACE, takeId, type Mythos, type MythosCard, type MythosLevel, type Outcome, type Project, type SkillTest, type TimedEvent } from '../build/project';
+import { Count, RoomChecks, TestPart } from './WhatHappens';
 import { monsterTitle, roomTitle } from './names';
 
 const LEVELS: { level: MythosLevel; icon: string; title: string; hint: string }[] = [
@@ -89,6 +89,29 @@ export function ThreatStep() {
         )}
       </div>
 
+      {p.mythos && <OwnMythos m={p.mythos} />}
+
+      <div className="card">
+        <b>👥 Баланс по числу сыщиков</b>
+        <label className="check">
+          <input type="checkbox" checked={!!p.moreMonsters} onChange={(e) => set((q) => ({ ...q, moreMonsters: e.target.checked || undefined }))} /> Больше монстров, если сыщиков
+          больше
+        </label>
+        <p className="hint">При 4–5 сыщиках каждый обычный монстр приходит вдвоём. Монстр, после победы над которым сыщики выигрывают, остаётся один.</p>
+        {p.mythos && (
+          <>
+            <label className="check">
+              <input type="checkbox" checked={!!p.mythos.adapt} onChange={(e) => set((q) => ({ ...q, mythos: { ...q.mythos!, adapt: e.target.checked || undefined } }))} /> Таймер угрозы
+              подстраивается сам
+            </label>
+            <p className="hint">
+              Раунды на полосе рассчитаны на 3–4 сыщиков. Одному сыщику угроза и события по раундам приходят на {PACE[1]} раунда позже, двоим на {PACE[2]}, пятерым на{' '}
+              {-PACE[5]} раньше. Так у маленькой команды хватает времени.
+            </p>
+          </>
+        )}
+      </div>
+
       <div className="card">
         <b>События по раундам</b>
         <p className="hint">Происходят сами, в фазу мифов нужного раунда. Например: на 3-м раунде просыпается монстр, на 6-м открывается подвал, на 10-м время выходит.</p>
@@ -141,6 +164,103 @@ function MythosPart({ m }: { m: Mythos }) {
       </div>
       <div className="hint">Сами события берутся из Valkyrie: у неё большой набор событий мифов для каждой силы.</div>
     </>
+  );
+}
+
+const CARD_PRESETS: { icon: string; title: string; make: () => Pick<MythosCard, 'outcome'> }[] = [
+  { icon: '🕯', title: 'Атмосфера', make: () => ({ outcome: { text: 'Сквозняк проносится по комнатам, и лампы на миг гаснут. В темноте кто-то тихо смеётся.', once: false } }) },
+  {
+    icon: '😱',
+    title: 'Проверка воли',
+    make: () => ({
+      outcome: {
+        text: 'Из стен доносится шёпот. Он знает ваши имена. Сыщик, ближайший к лестнице, прислушивается.',
+        once: false,
+        test: { skill: 'will', need: 1, pass: 'Вы заставляете себя не слушать.', fail: 'Шёпот проникает в мысли.', harm: { kind: 'horror', amount: 1, who: 'one' } },
+      },
+    }),
+  },
+  {
+    icon: '💥',
+    title: 'Ловушка',
+    make: () => ({
+      outcome: {
+        text: 'Над головой трещит потолок. Сыщик с наименьшим здоровьем видит, как на него падает люстра.',
+        once: false,
+        test: { skill: 'agility', need: 1, pass: 'Вы успеваете отскочить.', fail: 'Осколки режут руки и лицо.', harm: { kind: 'damage', amount: 2, who: 'one' } },
+      },
+    }),
+  },
+];
+
+// The author's own mythos events, picked at random by Valkyrie in the mythos phase.
+function OwnMythos({ m }: { m: Mythos }) {
+  const own = m.own ?? [];
+  const put = (patch: Partial<Mythos>) => set((q) => ({ ...q, mythos: { ...q.mythos!, ...patch } }));
+  const add = (pr: (typeof CARD_PRESETS)[number]) =>
+    set((q) => {
+      const [next, id] = takeId(q, 'Y');
+      const card: MythosCard = { id, from: 1, once: false, ...pr.make() };
+      return { ...next, mythos: { ...q.mythos!, own: [...(q.mythos?.own ?? []), card] } };
+    });
+  return (
+    <div className="card">
+      <b>📜 Свои события мифов</b>
+      <p className="hint">Каждый раунд в фазе мифов Valkyrie вытягивает случайное событие. Добавьте свои: с проверкой навыка, уроном или ужасом, они подходят к вашей истории.</p>
+      <div className="presets">
+        {CARD_PRESETS.map((pr) => (
+          <button key={pr.title} onClick={() => add(pr)}>
+            <span>{pr.icon}</span> {pr.title}
+          </button>
+        ))}
+      </div>
+      {own.length > 0 && (
+        <div className="field">
+          <label className="check">
+            <input type="radio" checked={(m.mode ?? 'mix') === 'mix'} onChange={() => put({ mode: 'mix' })} /> Вместе с событиями игры: мои выпадают примерно каждый второй раунд
+          </label>
+          <label className="check">
+            <input type="radio" checked={m.mode === 'only'} onChange={() => put({ mode: 'only' })} /> Только мои: события игры не выпадают
+          </label>
+        </div>
+      )}
+      {own.map((c) => (
+        <CardPart key={c.id} c={c} />
+      ))}
+    </div>
+  );
+}
+
+function CardPart({ c }: { c: MythosCard }) {
+  const put = (patch: Partial<MythosCard>, key?: string) =>
+    set((q) => ({ ...q, mythos: { ...q.mythos!, own: (q.mythos?.own ?? []).map((x) => (x.id === c.id ? { ...x, ...patch } : x)) } }), key);
+  const putOut = (patch: Partial<Outcome>, key?: string) => put({ outcome: { ...c.outcome, ...patch } }, key);
+  const o = c.outcome;
+  const sample: SkillTest = { skill: 'will', need: 1, pass: 'Вы справляетесь.', fail: '', harm: { kind: 'horror', amount: 1, who: 'one' } };
+  return (
+    <div className="timed">
+      <div className="timed-head">
+        <Count label="С раунда" value={c.from} min={1} max={40} onChange={(from) => put({ from })} />
+        <label className="check">
+          <input type="checkbox" checked={c.once} onChange={(e) => put({ once: e.target.checked })} /> только один раз за игру
+        </label>
+        <button
+          className="auto ghost danger"
+          title="Убрать событие"
+          onClick={() => set((q) => ({ ...q, mythos: { ...q.mythos!, own: (q.mythos?.own ?? []).filter((x) => x.id !== c.id) } }))}
+        >
+          🗑
+        </button>
+      </div>
+      <label className="field">
+        <span>Что прочтут игроки</span>
+        <textarea rows={2} value={o.text} onChange={(e) => putOut({ text: e.target.value }, 'my' + c.id)} />
+      </label>
+      <label className="check">
+        <input type="checkbox" checked={!!o.test} onChange={(e) => putOut({ test: e.target.checked ? sample : undefined })} /> 🎲 Проверка навыка
+      </label>
+      {o.test && <TestPart id={c.id} test={o.test} set={putOut} note="При провале сыщик теряет то, что выбрано выше." />}
+    </div>
   );
 }
 

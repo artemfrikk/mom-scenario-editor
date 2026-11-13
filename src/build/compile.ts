@@ -8,7 +8,7 @@
 import catalog from '../content/catalog.json';
 import { CURRENT_FORMAT, type QComponent, type Scenario } from '../format/scenario';
 import { setIntro } from '../model/intro';
-import { allOutcomes, chapterPath, doneVar, markVar, PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Harm, type PuzzleSpec, type Room, type SkillTest } from './project';
+import { allOutcomes, PACE, chapterPath, doneVar, markVar, PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Harm, type PuzzleSpec, type Room, type SkillTest } from './project';
 
 export const LANG = 'Russian';
 
@@ -73,6 +73,9 @@ const puzzleHint = (p: PuzzleSpec) => PUZZLE_HINT[p.kind];
 
 // Valkyrie's own mythos events read these flags (as in SmugglersPoint): the higher, the nastier.
 const MYTHOS_FLAGS: Record<number, [number, number, number, number]> = { 0: [1, 0, 0, 0], 1: [1, 1, 0, 0], 2: [0, 1, 1, 0], 3: [0, 0, 1, 1] };
+// In "only" mode the game's own mythos events stay silent: every flag is off.
+const NO_MYTHOS = ['$mythosFlavor,=,0', '$mythosMinor,=,0', '$mythosMajor,=,0', '$mythosDeadly,=,0', '$mythosHelp,=,0'];
+
 export function mythosOps(level: number): string[] {
   const [flavor, minor, major, deadly] = MYTHOS_FLAGS[level] ?? MYTHOS_FLAGS[1];
   return [`$mythosFlavor,=,${flavor}`, `$mythosMinor,=,${minor}`, `$mythosMajor,=,${major}`, `$mythosDeadly,=,${deadly}`, '$mythosHelp,=,0'];
@@ -99,6 +102,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   const text = (key: string, value: string) => {
     if (value.trim()) texts[key] = value.trim();
   };
+  const levelOps = (level: number) => (p.mythos?.mode === 'only' && p.mythos.own?.length ? NO_MYTHOS : mythosOps(level));
   const rawEvents = p.raw?.components ?? [];
   const rawHas = (trigger: string) => rawEvents.some((c) => c.data.trigger === trigger);
   const monsters = p.pieces.filter((x) => x.kind === 'monster');
@@ -161,6 +165,88 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     if (o.item) put(item, 'QItem', 'items.ini', { itemname: o.item, starting: 'False' });
   };
 
+  // What using a piece does: the words, then a test, a puzzle or answers, and the result. `when` adds tests of its own.
+  const actEvents = (x: Piece, when?: string, extra: Record<string, string | undefined> = {}) => {
+    const o = x.outcome;
+    const lock = o.lock?.needs.length ? o.lock : undefined;
+    const vartests = [when, ...(lock ? lock.needs.map((n) => `VarOperation:${doneVar(n)},==,1`) : [])].filter(Boolean).join(' ') || undefined;
+    if (lock) {
+      // Valkyrie runs the first event whose tests pass: the result when it is open, else "closed"
+      const tok = comps.find((c) => c.name === tokenName(x));
+      if (tok) tok.data.event1 = `${actName(x)} ${lockedName(x)}`;
+      put(lockedName(x), 'Event', 'events.ini', { buttons: '1', event1: '' });
+      text(lockedName(x) + '.text', lock.text.trim() || 'Заперто.');
+      text(lockedName(x) + '.button1', 'Далее');
+    }
+    const test = o.test;
+    const puzzle = o.puzzle;
+    const choices = o.choices?.filter((c) => c.label.trim()) ?? [];
+    if (choices.length) {
+      // A conversation: one button per answer, each answer has its own result and is remembered.
+      const data: Record<string, string | undefined> = { buttons: String(choices.length), vartests, audio: o.sound || undefined };
+      choices.forEach((c, i) => (data['event' + (i + 1)] = choiceName(x, c.id)));
+      put(actName(x), 'Event', 'events.ini', data);
+      text(actName(x) + '.text', o.text.trim() || '…');
+      choices.forEach((c, i) => text(actName(x) + '.button' + (i + 1), c.label.trim()));
+      for (const c of choices) {
+        const name = choiceName(x, c.id);
+        outcomeEvent(name, { ...x, outcome: { ...c.outcome, once: o.once } }, {}, itemName(x) + c.id);
+        if (needed.has(`${x.id}.${c.id}`)) {
+          const ev = comps.find((q) => q.name === name)!;
+          ev.data.operations = [ev.data.operations, `${doneVar(`${x.id}.${c.id}`)},=,1`].filter(Boolean).join(' ');
+        }
+      }
+      return;
+    }
+    if (puzzle) {
+      // The players read the words, then the puzzle window opens; solving it gives the gifts.
+      put(actName(x), 'Event', 'events.ini', {
+        display: o.text.trim() ? undefined : 'false',
+        buttons: '1',
+        event1: puzzleName(x),
+        vartests,
+        audio: o.sound || undefined,
+      });
+      text(actName(x) + '.text', o.text);
+      if (o.text.trim()) text(actName(x) + '.button1', 'К головоломке');
+      put(puzzleName(x), 'Puzzle', 'puzzles.ini', {
+        class: puzzle.kind,
+        skill: `{${puzzle.skill}}`,
+        puzzlelevel: String(puzzle.level),
+        puzzlealtlevel: puzzle.kind === 'code' || puzzle.kind === 'image' ? String(puzzle.alt) : undefined,
+        image: puzzle.kind === 'image' ? puzzle.image : undefined,
+        buttons: '1',
+        event1: passName(x),
+      });
+      text(puzzleName(x) + '.text', puzzleHint(puzzle));
+      text(puzzleName(x) + '.button1', 'Готово');
+      outcomeEvent(passName(x), { ...x, outcome: { ...o, text: puzzle.pass, sound: undefined } });
+      return;
+    }
+    if (!test) {
+      outcomeEvent(actName(x), x, { vartests, ...extra });
+      return;
+    }
+    // A skill test: the players roll and press the button; the gifts come only with success.
+    put(actName(x), 'Event', 'events.ini', {
+      buttons: '2',
+      event1: passName(x),
+      event2: failName(x),
+      buttoncolor1: 'green',
+      buttoncolor2: 'red',
+      vartests,
+      audio: o.sound || undefined,
+    });
+    text(actName(x) + '.text', testText(o.text, test));
+    text(actName(x) + '.button1', 'Успех');
+    text(actName(x) + '.button2', 'Провал');
+    outcomeEvent(passName(x), { ...x, outcome: { ...o, text: test.pass, sound: undefined } });
+    const failText = [test.fail.trim(), test.harm && test.harm.amount > 0 ? `<i>${harmText(test.harm)}</i>` : ''].filter(Boolean).join('\n\n');
+    put(failName(x), 'Event', 'events.ini', { display: failText ? undefined : 'false', buttons: '1', event1: '' });
+    text(failName(x) + '.text', failText);
+    if (failText) text(failName(x) + '.button1', 'Далее');
+    };
+
   for (const x of p.pieces) {
     if (x.kind === 'start' || x.kind === 'mark') continue;
     if (x.kind === 'monster') {
@@ -177,6 +263,21 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       });
       text(tokenName(x) + '.text', x.title.trim() ? `Появляется ${x.title.trim()}!` : r ? 'Из темноты появляется чудовище!' : '');
       text(tokenName(x) + '.button1', 'Далее');
+      if (p.moreMonsters && !x.outcome.win) {
+        // more investigators, more monsters: an ordinary monster comes with a twin (not the one whose defeat wins)
+        put(tokenName(x) + 'Twin', 'Spawn', 'spawns.ini', {
+          xposition: num(x.x + 1),
+          yposition: num(x.y),
+          trigger: `Varspawn_${x.id}`,
+          monster: customMonster(x) ?? x.look,
+          buttons: '1',
+          event1: '',
+          vartests: `VarOperation:#heroes,>=,4 VarOperation:twin_${x.id},==,0`,
+          operations: `twin_${x.id},=,1`,
+        });
+        text(tokenName(x) + 'Twin.text', 'С ним приходит ещё один!');
+        text(tokenName(x) + 'Twin.button1', 'Далее');
+      }
       const own = customMonster(x);
       if (own) {
         const v = x.voice ?? {};
@@ -209,84 +310,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       }
       continue;
     }
-    const o = x.outcome;
-    const lock = o.lock?.needs.length ? o.lock : undefined;
-    const vartests = lock ? lock.needs.map((n) => `VarOperation:${doneVar(n)},==,1`).join(' ') : undefined;
-    if (lock) {
-      // Valkyrie runs the first event whose tests pass: the result when it is open, else "closed"
-      const tok = comps.find((c) => c.name === tokenName(x));
-      if (tok) tok.data.event1 = `${actName(x)} ${lockedName(x)}`;
-      put(lockedName(x), 'Event', 'events.ini', { buttons: '1', event1: '' });
-      text(lockedName(x) + '.text', lock.text.trim() || 'Заперто.');
-      text(lockedName(x) + '.button1', 'Далее');
-    }
-    const test = o.test;
-    const puzzle = o.puzzle;
-    const choices = o.choices?.filter((c) => c.label.trim()) ?? [];
-    if (choices.length) {
-      // A conversation: one button per answer, each answer has its own result and is remembered.
-      const data: Record<string, string | undefined> = { buttons: String(choices.length), vartests, audio: o.sound || undefined };
-      choices.forEach((c, i) => (data['event' + (i + 1)] = choiceName(x, c.id)));
-      put(actName(x), 'Event', 'events.ini', data);
-      text(actName(x) + '.text', o.text.trim() || '…');
-      choices.forEach((c, i) => text(actName(x) + '.button' + (i + 1), c.label.trim()));
-      for (const c of choices) {
-        const name = choiceName(x, c.id);
-        outcomeEvent(name, { ...x, outcome: { ...c.outcome, once: o.once } }, {}, itemName(x) + c.id);
-        if (needed.has(`${x.id}.${c.id}`)) {
-          const ev = comps.find((q) => q.name === name)!;
-          ev.data.operations = [ev.data.operations, `${doneVar(`${x.id}.${c.id}`)},=,1`].filter(Boolean).join(' ');
-        }
-      }
-      continue;
-    }
-    if (puzzle) {
-      // The players read the words, then the puzzle window opens; solving it gives the gifts.
-      put(actName(x), 'Event', 'events.ini', {
-        display: o.text.trim() ? undefined : 'false',
-        buttons: '1',
-        event1: puzzleName(x),
-        vartests,
-        audio: o.sound || undefined,
-      });
-      text(actName(x) + '.text', o.text);
-      if (o.text.trim()) text(actName(x) + '.button1', 'К головоломке');
-      put(puzzleName(x), 'Puzzle', 'puzzles.ini', {
-        class: puzzle.kind,
-        skill: `{${puzzle.skill}}`,
-        puzzlelevel: String(puzzle.level),
-        puzzlealtlevel: puzzle.kind === 'code' || puzzle.kind === 'image' ? String(puzzle.alt) : undefined,
-        image: puzzle.kind === 'image' ? puzzle.image : undefined,
-        buttons: '1',
-        event1: passName(x),
-      });
-      text(puzzleName(x) + '.text', puzzleHint(puzzle));
-      text(puzzleName(x) + '.button1', 'Готово');
-      outcomeEvent(passName(x), { ...x, outcome: { ...o, text: puzzle.pass, sound: undefined } });
-      continue;
-    }
-    if (!test) {
-      outcomeEvent(actName(x), x, { vartests });
-      continue;
-    }
-    // A skill test: the players roll and press the button; the gifts come only with success.
-    put(actName(x), 'Event', 'events.ini', {
-      buttons: '2',
-      event1: passName(x),
-      event2: failName(x),
-      buttoncolor1: 'green',
-      buttoncolor2: 'red',
-      vartests,
-      audio: o.sound || undefined,
-    });
-    text(actName(x) + '.text', testText(o.text, test));
-    text(actName(x) + '.button1', 'Успех');
-    text(actName(x) + '.button2', 'Провал');
-    outcomeEvent(passName(x), { ...x, outcome: { ...o, text: test.pass, sound: undefined } });
-    const failText = [test.fail.trim(), test.harm && test.harm.amount > 0 ? `<i>${harmText(test.harm)}</i>` : ''].filter(Boolean).join('\n\n');
-    put(failName(x), 'Event', 'events.ini', { display: failText ? undefined : 'false', buttons: '1', event1: '' });
-    text(failName(x) + '.text', failText);
-    if (failText) text(failName(x) + '.button1', 'Далее');
+    actEvents(x);
   }
 
   // A room appears once, however many doors lead to it.
@@ -312,7 +336,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   // --- the beginning and the endings ---
   if (!rawHas('EventStart')) {
     const goal = p.goal.trim();
-    const startOps = [...(p.mythos ? mythosOps(p.mythos.level) : []), ...(start ? comesOut(start).map((m) => `@spawn_${m.id},=,1`) : [])];
+    const startOps = [...(p.mythos ? levelOps(p.mythos.level) : []), ...(start ? comesOut(start).map((m) => `@spawn_${m.id},=,1`) : [])];
     put(START, 'Event', 'events.ini', {
       trigger: 'EventStart',
       buttons: '1',
@@ -345,15 +369,25 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   };
 
   // --- time: Valkyrie's own mythos events get stronger, and the author's events come in their rounds ---
+  // With "adapt", every round below is kept in a variable set at the start for the number of investigators.
+  const adapt = !!p.mythos?.adapt;
+  const due: [string, number][] = [];
+  const roundTest = (key: string, round: number, op: '==' | '>=') => {
+    if (!adapt) return `VarOperation:#round,${op},${round}`;
+    due.push([key, round]);
+    return `VarOperation:#round,${op},${key}`;
+  };
   for (const r of p.mythos?.rises ?? []) {
     if (r.round < 2) continue;
     // set at the end of the round before, so the mythos phase of this round is already stronger
-    put(`EventMythos${r.round}`, 'Event', 'events.ini', { trigger: `EndRound${r.round - 1}`, display: 'false', buttons: '1', event1: '', operations: mythosOps(r.level).join(' ') });
+    const ops = levelOps(r.level).join(' ');
+    if (adapt) put(`EventMythos${r.round}`, 'Event', 'events.ini', { trigger: 'EndRound', display: 'false', buttons: '1', event1: '', vartests: roundTest(`due_rise${r.round}`, r.round - 1, '=='), operations: ops });
+    else put(`EventMythos${r.round}`, 'Event', 'events.ini', { trigger: `EndRound${r.round - 1}`, display: 'false', buttons: '1', event1: '', operations: ops });
   }
   for (const t of p.timeline ?? []) {
     const name = 'EventTime' + t.id;
     const x: Piece = { id: t.id, room: '', kind: 'interact', look: '', x: 0, y: 0, title: '', outcome: { ...t.outcome, once: false } };
-    outcomeEvent(name, x, { trigger: 'Mythos', vartests: `VarOperation:#round,${t.every ? '>=' : '=='},${t.round}` });
+    outcomeEvent(name, x, { trigger: 'Mythos', vartests: roundTest(`due_${t.id}`, t.round, t.every ? '>=' : '==') });
     if (t.lose) {
       const c = comps.find((q) => q.name === name)!;
       const e = ending('lose');
@@ -363,6 +397,44 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       text(name + '.text', t.outcome.text.trim() || p.loseText || 'Время вышло.');
       text(name + '.button1', e.button);
     }
+  }
+
+  if (due.length) {
+    // one hidden event per group of investigators; Valkyrie runs every EventStart event at the start
+    const groups: [string, string, number][] = [
+      ['1', 'VarOperation:#heroes,<=,1', PACE[1]],
+      ['2', 'VarOperation:#heroes,==,2', PACE[2]],
+      ['3', 'VarOperation:#heroes,>=,3 VarOperation:#heroes,<=,4', PACE[3]],
+      ['5', 'VarOperation:#heroes,>=,5', PACE[5]],
+    ];
+    for (const [id, test, shift] of groups) {
+      put('EventPace' + id, 'Event', 'events.ini', {
+        trigger: 'EventStart',
+        display: 'false',
+        buttons: '1',
+        event1: '',
+        vartests: test,
+        operations: due.map(([key, round]) => `${key},=,${Math.max(1, round + shift)}`).join(' '),
+      });
+    }
+  }
+
+  // The author's own mythos events: a hidden pool picks one at random, like Valkyrie's PerilMythosPool.
+  const cards = p.mythos?.own?.filter((c) => c.outcome.text.trim() || c.outcome.test) ?? [];
+  if (cards.length) {
+    const names: string[] = [];
+    for (const c of cards) {
+      const x: Piece = { id: c.id, room: '', kind: 'interact', look: '', x: 0, y: 0, title: '', outcome: { ...c.outcome, once: false, lock: undefined, puzzle: undefined, choices: undefined } };
+      const when = [c.from > 1 ? `VarOperation:#round,>=,${c.from}` : '', c.once ? `VarOperation:used_${c.id},==,0` : ''].filter(Boolean).join(' ');
+      actEvents(x, when || undefined);
+      const ev = comps.find((q) => q.name === actName(x))!;
+      if (c.once) ev.data.operations = [ev.data.operations, `used_${c.id},=,1`].filter(Boolean).join(' ');
+      names.push(actName(x));
+    }
+    // along with Valkyrie's events, about every second round brings one of the author's
+    const quiet = p.mythos?.mode === 'only' ? [] : names.map((_, i) => `EventMythosQuiet${i + 1}`);
+    for (const q of quiet) put(q, 'Event', 'events.ini', { display: 'false', buttons: '1', event1: '' });
+    put('EventMythosOwn', 'Event', 'events.ini', { trigger: 'Mythos', randomevents: 'true', display: 'false', buttons: '1', event1: [...names, ...quiet].join(' ') });
   }
 
   if (!p.raw || allOutcomes(p).some((o) => o.win)) {
