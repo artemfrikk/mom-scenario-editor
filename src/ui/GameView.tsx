@@ -201,7 +201,10 @@ export function GameView() {
   const busy = !!game.current;
   const itemName = (q: string) => {
     const qi = getComponent(s, q);
-    if (qi && !qi.data.itemname && (qi.data.traits ?? '').includes('weapon')) return 'случайное оружие';
+    if (qi && !qi.data.itemname && qi.data.traits) {
+      const t = qi.data.traits;
+      return t.includes('weapon') ? 'случайное оружие' : t.includes('lightsource') ? 'случайный источник света' : t.includes('tome') ? 'случайная книга' : t.includes('spell') ? 'случайное заклинание' : 'случайный предмет';
+    }
     const id = (qi?.data.itemname ?? '').split(/\s+/)[0];
     const it = catalog.items.find((x) => x.id === id);
     return it ? labelOf(it.name, it.nameKey) : q;

@@ -78,6 +78,8 @@ export interface Room {
   y: number;
   rot: number; // 0, 90, 180, 270
   enterText: string; // shown when the room appears on the map
+  sound?: string; // played when the room appears: a game sound id or a file inside the package
+  music?: string; // the music switches to this when the room appears
 }
 
 export interface Piece {
@@ -90,7 +92,15 @@ export interface Piece {
   title: string; // the author's name for it: "Письменный стол", "Дворецкий"
   when?: 'room' | 'event'; // monsters: come out with the room, or when an outcome calls them
   voice?: MonsterVoice; // monsters: the author's own texts instead of the game's
+  appear?: string; // monsters: the sound when it comes out
   outcome: Outcome;
+}
+
+// An item the investigators begin with: a chosen one, or a random one of a kind.
+export interface StartItem {
+  id: string;
+  item?: string; // catalog item id
+  kind?: 'common' | 'weapon' | 'lightsource' | 'tome' | 'spell'; // or a random common item with this trait
 }
 
 // A monster's own words in the game windows. Left empty, Valkyrie shows its usual texts for this monster.
@@ -181,6 +191,8 @@ export interface Project {
   next?: Next;
   marks?: Mark[]; // marks this chapter sets; later chapters can read them
   campaign?: Project[]; // the other chapters, only in the saved file (editor.json)
+  endSound?: { win?: string; lose?: string }; // sounds of the endings
+  startItems?: StartItem[]; // what the investigators begin with
   moreMonsters?: boolean; // with 4 or more investigators every ordinary monster comes with a twin
   timeline?: TimedEvent[];
   nextId: number;

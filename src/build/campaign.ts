@@ -6,12 +6,21 @@
 import { scenarioToFiles } from '../format/valkyrie';
 import type { Scenario } from '../format/scenario';
 import { compile } from './compile';
-import { PROJECT_FILE, newProject, type Assets, type Project } from './project';
+import { allOutcomes, PROJECT_FILE, newProject, type Assets, type Project } from './project';
 
-// Files a chapter uses: its pictures, sounds and puzzle pictures.
+// Files a chapter uses: its pictures, music, sounds and puzzle pictures.
 export function usedAssets(p: Project): Set<string> {
   return new Set(
-    [p.cover, p.prologue.image, p.prologue.music, ...p.pieces.map((x) => x.outcome.sound ?? ''), ...p.pieces.map((x) => x.outcome.puzzle?.image ?? '')].filter(Boolean),
+    [
+      p.cover,
+      p.prologue.image,
+      p.prologue.music,
+      ...allOutcomes(p).flatMap((o) => [o.sound ?? '', o.puzzle?.image ?? '']),
+      ...p.rooms.flatMap((r) => [r.sound ?? '', r.music ?? '']),
+      ...p.pieces.map((x) => x.appear ?? ''),
+      p.endSound?.win ?? '',
+      p.endSound?.lose ?? '',
+    ].filter(Boolean),
   );
 }
 

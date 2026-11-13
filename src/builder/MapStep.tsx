@@ -13,6 +13,7 @@ import { useBuilder } from '../build/store';
 import { Board, type BoardApi } from './Board';
 import { imageOf, KINDS, tilesFree, kindInfo, MARK_TOKENS, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
 import { WhatHappens } from './WhatHappens';
+import { SoundPick } from './Sound';
 
 type Tab = 'rooms' | 'things' | 'people' | 'monsters';
 type Grab = { what: 'tile' | 'piece'; kind?: PieceKind; look: string; icon: string; label: string };
@@ -238,6 +239,7 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
         <span>Что видят сыщики, войдя сюда</span>
         <textarea rows={3} value={r.enterText} placeholder="Необязательно. Например: «Холодно. В камине тлеют угли…»" onChange={(e) => change((q) => updateRoom(q, id, { enterText: e.target.value }), 'enter' + id)} />
       </label>
+      <RoomSound id={id} sound={r.sound} music={r.music} />
 
       <div className="room-add">
         <div className="hint">Что здесь будет?</div>
@@ -288,4 +290,22 @@ function summary(p: Project, id: string): string {
   if (!bits.length && o.text) bits.push(o.text.slice(0, 40) + (o.text.length > 40 ? '…' : ''));
   if (!bits.length && x.kind !== 'start' && x.kind !== 'mark') bits.push('пока ничего не делает');
   return bits.join(' · ');
+}
+
+// A room's own sound when it appears, and the music that starts there.
+function RoomSound({ id, sound, music }: { id: string; sound?: string; music?: string }) {
+  const change = useBuilder((s) => s.change);
+  const [open, setOpen] = useState(false);
+  if (!open && !sound && !music)
+    return (
+      <button className="link" onClick={() => setOpen(true)}>
+        ▸ 🔊 Звук и музыка комнаты
+      </button>
+    );
+  return (
+    <>
+      <SoundPick label="🔊 Звук, когда комната открывается" value={sound} onChange={(v) => change((q) => updateRoom(q, id, { sound: v }))} />
+      <SoundPick music label="🎵 Музыка с этого момента" value={music} onChange={(v) => change((q) => updateRoom(q, id, { music: v }))} />
+    </>
+  );
 }

@@ -9,6 +9,7 @@ import { roomBehindDoor } from '../build/edit';
 import { useOwned } from '../build/owned';
 import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Choice, type Lock, type MonsterVoice, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
 import { assetUrl } from './assetUrl';
+import { SoundPick } from './Sound';
 import { harmText } from '../build/compile';
 import { useBuilder } from '../build/store';
 import { itemTitle, kindInfo, tilesFree, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
@@ -162,8 +163,10 @@ function Gifts({ p, o, set, here, rooms, self }: { p: Project; o: Outcome; set: 
   const waiting = p.pieces.filter((m) => m.kind === 'monster' && m.when === 'event' && m.id !== self);
   const campaign = useBuilder((s) => s.chapters.length > 1);
   const [remember, setRemember] = useState(false);
+  const [sound, setSound] = useState(false);
   return (
     <>
+      {(sound || !!o.sound) && <SoundPick label="🔊 Звук в этот момент" value={o.sound} onChange={(v) => set({ sound: v })} />}
       {campaign && (remember || !!o.remember?.length) && <RememberPart p={p} o={o} set={set} />}
       {o.item !== undefined && (
         <label className="field">
@@ -194,6 +197,7 @@ function Gifts({ p, o, set, here, rooms, self }: { p: Project; o: Outcome; set: 
         <div className="more">
           {o.item === undefined && <button onClick={() => set({ item: 'ItemCommonKnife' })}>🗝 Дать предмет</button>}
           {!o.clues && <button onClick={() => set({ clues: 1 })}>❓ Дать улику</button>}
+          {!sound && !o.sound && <button onClick={() => setSound(true)}>🔊 Звук</button>}
           {campaign && !remember && !o.remember?.length && <button onClick={() => setRemember(true)}>📜 Запомнить для следующих глав</button>}
           {rooms && others.length > 0 && (
             <div className="field">
@@ -583,6 +587,7 @@ function MonsterPart({ p, x, setPiece }: { p: Project; x: Piece; setPiece: (patc
           <div className="hint">{callers.length ? `Позовёт: ${callers.join(', ')}.` : 'Откройте нужный жетон и в «Ещё» отметьте этого монстра, или выберите раунд на шаге «Угроза».'}</div>
         )}
       </div>
+      <SoundPick label="🔊 Звук, когда он появляется" value={x.appear} onChange={(v) => setPiece({ appear: v })} />
       <VoicePart x={x} setPiece={setPiece} name={x.title.trim() || options.find((o) => o.value === x.look)?.label || 'Монстр'} />
     </>
   );
