@@ -18,6 +18,14 @@ const PACK_OF = new Map<string, string>(
 
 // Names inside the files. Imported rooms keep the tile name they came with.
 export const tileName = (r: Room) => 'Tile' + r.id;
+// The investigators' weapon kinds in Valkyrie's MoM attack window (content attacks.ini).
+export const ATTACK_TYPES = ['heavy', 'bladed', 'firearm', 'spell', 'unarmed'];
+
+// A monster with its own name or texts becomes a CustomMonster built on the figure from the box.
+export const customMonster = (x: Piece) =>
+  x.kind === 'monster' && (x.title.trim() || Object.values(x.voice ?? {}).some((t) => t?.trim())) ? 'CustomMonster' + x.id : undefined;
+const horrorName = (x: Piece) => 'EventHorror' + x.id;
+
 export const tokenName = (x: Piece) => (x.kind === 'monster' ? 'Spawn' : 'Token') + x.id;
 const actName = (x: Piece) => 'Event' + x.id;
 const defeatName = (x: Piece) => 'EventDefeated' + x.id;
@@ -161,7 +169,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
         xposition: num(x.x),
         yposition: num(x.y),
         trigger: `Varspawn_${x.id}`,
-        monster: x.look,
+        monster: customMonster(x) ?? x.look,
         buttons: '1',
         event1: '',
         vartests: `VarOperation:spawned_${x.id},==,0`,
@@ -169,6 +177,32 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       });
       text(tokenName(x) + '.text', x.title.trim() ? `Появляется ${x.title.trim()}!` : r ? 'Из темноты появляется чудовище!' : '');
       text(tokenName(x) + '.button1', 'Далее');
+      const own = customMonster(x);
+      if (own) {
+        const v = x.voice ?? {};
+        const say = (t?: string) => t?.trim() ?? '';
+        put(own, 'CustomMonster', 'monsters.ini', {
+          base: x.look,
+          activation: say(v.attack) ? x.id : undefined,
+          attacks: say(v.hit) ? ATTACK_TYPES.map((t) => t + ':1').join(' ') : undefined,
+          horrorevent: say(v.horror) ? horrorName(x) : undefined,
+        });
+        text(own + '.monstername', x.title);
+        if (say(v.attack)) {
+          // Valkyrie's monster phase: how it moves, then "Монстр атакует" or "Никого рядом"
+          put('Activation' + x.id, 'Activation', 'monsters.ini', {});
+          text('Activation' + x.id + '.ability', say(v.move) || '{0} движется на 2 клетки к ближайшему сыщику.');
+          text('Activation' + x.id + '.master', say(v.attack));
+          text('Activation' + x.id + '.movebutton', 'Никого рядом');
+          text('Activation' + x.id + '.move', '{0} ничего не делает и ждёт.');
+        }
+        for (const t of say(v.hit) ? ATTACK_TYPES : []) text(`${own}.Attack_${t}_1`, say(v.hit));
+        if (say(v.horror)) {
+          put(horrorName(x), 'Event', 'events.ini', { buttons: '1', event1: '' });
+          text(horrorName(x) + '.text', say(v.horror));
+          text(horrorName(x) + '.button1', 'Далее');
+        }
+      }
       const o = x.outcome;
       if (o.text.trim() || o.win || o.reveal?.length || o.spawn?.length || o.clues || o.item || o.remember?.length || needed.has(x.id)) {
         outcomeEvent(defeatName(x), x, { trigger: 'Defeated' + tokenName(x) });

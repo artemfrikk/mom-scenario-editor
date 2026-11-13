@@ -78,7 +78,13 @@ export function exampleScenario(): Project {
   const [, study] = d.door(library, 'Потайной ход', 'TileSideStudy', { text: '' }, 'Кабинет. Пентаграмма мелом на полу, десятки свечей. В центре кто-то в капюшоне.');
   const passage = d.p.pieces.find((x) => x.kind === 'explore' && x.room === library)!.id;
   d.outcome(passage, { text: 'Вы протискиваетесь в узкий проход.', lock: { needs: [shelf], text: 'Здесь только стена с книгами.' } });
-  d.piece(study, 'monster', 'MonsterCultist', 'Культист', { text: 'Культист падает. Ритуал прерван.', win: true });
+  d.piece(study, 'monster', 'MonsterCultist', 'Культист в капюшоне', { text: 'Культист падает. Ритуал прерван.', win: true }, {
+    voice: {
+      attack: 'Культист выкрикивает слово на мёртвом языке, и свечи вспыхивают у вашего лица. Сыщик проходит проверку {will} и получает 2 ужаса минус число {success}.',
+      hit: '«Ты опоздал», смеётся культист, не пытаясь защищаться. Пройдите проверку навыка вашего оружия и нанесите столько урона, сколько получили {success}.',
+      horror: 'Под капюшоном нет лица, только темнота, в которой мерцают свечи. Проверка {will}: получите 2 ужаса минус число {success}.',
+    },
+  });
   const late = d.piece(hall, 'monster', 'MonsterCultist', 'Второй культист', { text: 'Второй культист повержен.' }, { when: 'event' });
 
   d.p = {
@@ -157,6 +163,6 @@ export function exampleCampaign(): Project {
 }
 
 export const EXAMPLES: { id: string; icon: string; title: string; text: string; make: () => Project }[] = [
-  { id: 'house', icon: '🏚', title: 'Тихий дом на Ривер-стрит', text: 'Один вечер, три комнаты: проверка навыка, ключ и замок, разговор, головоломка, монстр и часы.', make: exampleScenario },
+  { id: 'house', icon: '🏚', title: 'Тихий дом на Ривер-стрит', text: 'Один вечер, три комнаты: проверка навыка, ключ и замок, разговор, головоломка, монстр со своими текстами и часы.', make: exampleScenario },
   { id: 'whateley', icon: '📜', title: 'Наследство Уэйтли', text: 'Кампания из двух глав: ответ в первой главе открывает дверь во второй.', make: exampleCampaign },
 ];

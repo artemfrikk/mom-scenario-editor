@@ -89,7 +89,16 @@ export interface Piece {
   y: number;
   title: string; // the author's name for it: "Письменный стол", "Дворецкий"
   when?: 'room' | 'event'; // monsters: come out with the room, or when an outcome calls them
+  voice?: MonsterVoice; // monsters: the author's own texts instead of the game's
   outcome: Outcome;
+}
+
+// A monster's own words in the game windows. Left empty, Valkyrie shows its usual texts for this monster.
+export interface MonsterVoice {
+  attack?: string; // the monster attacks (monster phase): what happens to the investigator
+  move?: string; // the monster phase, before the attack: how it moves
+  hit?: string; // an investigator attacks it: what to roll and what happens
+  horror?: string; // the horror check against it
 }
 
 export interface Prologue {

@@ -289,4 +289,42 @@ describe('compile', () => {
     expect(again.texts.Russian['EventP2.text']).toBe('В столе ключ.\n\n<i>Сыщик получает улику.</i>');
     expect(tokenName(p.pieces[3])).toBe('SpawnP4');
   });
+
+  it('a monster with its own name and texts becomes a CustomMonster with them', async () => {
+    const { monsterMoment } = await import('../model/game');
+    const p = sample();
+    p.pieces[3] = { ...p.pieces[3], title: 'Брат Иезекииль', voice: { attack: 'Он режет вас ножом.', hit: 'Он смеётся.', horror: 'Проверка {will}.' } };
+    const s = compile(p);
+    const own = getComponent(s, 'CustomMonsterP4')!;
+    expect(own.data.base).toBe('MonsterCultist');
+    expect(own.data.activation).toBe('P4');
+    expect(own.data.attacks).toBe('heavy:1 bladed:1 firearm:1 spell:1 unarmed:1');
+    expect(own.data.horrorevent).toBe('EventHorrorP4');
+    expect(getComponent(s, 'SpawnP4')!.data.monster).toBe('CustomMonsterP4');
+    expect(s.texts.Russian['CustomMonsterP4.monstername']).toBe('Брат Иезекииль');
+    expect(s.texts.Russian['ActivationP4.master']).toBe('Он режет вас ножом.');
+    expect(s.texts.Russian['CustomMonsterP4.Attack_firearm_1']).toBe('Он смеётся.');
+    // the files Valkyrie reads keep them
+    const back = scenarioFromFiles(scenarioToFiles(s));
+    expect(getComponent(back, 'ActivationP4')?.type).toBe('Activation');
+
+    let st = play(s);
+    st = closeAll(s, touch(s, st, 'TokenP3', () => 0));
+    expect(st.monsters[0].name).toBe('Брат Иезекииль');
+    expect(st.monsters[0].look).toBe('MonsterCultist');
+    st = monsterMoment(s, st, 0, 'attack');
+    expect(st.log.at(-1)).toContain('Он режет вас ножом.');
+    st = monsterMoment(s, st, 0, 'horror');
+    expect(st.current).toBe('EventHorrorP4');
+    st = closeAll(s, st);
+    // defeating it still wins
+    st = defeat(s, st, 0, () => 0);
+    expect(st.vars['@win'] ?? st.vars.win).toBeTruthy();
+  });
+
+  it('a monster without its own texts stays the game\'s monster', () => {
+    const s = compile(sample());
+    expect(getComponent(s, 'SpawnP4')!.data.monster).toBe('MonsterCultist');
+    expect(s.components.some((c) => c.type === 'CustomMonster')).toBe(false);
+  });
 });

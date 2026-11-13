@@ -7,6 +7,7 @@ import {
   closable,
   choose,
   defeat,
+  monsterMoment,
   eliminated,
   endInvestigatorPhase,
   MAX_START,
@@ -231,9 +232,9 @@ export function GameView() {
             </div>
             {spawned && (
               <div className="game-monster">
-                <Thumb path={monsterImage(spawned.monsterId)?.image} className="game-monster-img" />
+                <Thumb path={monsterImage(spawned.look)?.image} className="game-monster-img" />
                 <div>
-                  <b>{labelOf(spawned.name, monsterImage(spawned.monsterId)?.nameKey)}</b>
+                  <b>{labelOf(spawned.name, monsterImage(spawned.look)?.nameKey)}</b>
                   <div className="hint">Здоровье: {spawned.maxHp}</div>
                 </div>
               </div>
@@ -325,9 +326,9 @@ export function GameView() {
           {game.monsters.length === 0 && <div className="hint">Пока никого.</div>}
           {game.monsters.map((m, i) => (
             <div className="monster-row" key={i}>
-              <Thumb path={monsterImage(m.monsterId)?.image} className="chip-img" />
+              <Thumb path={monsterImage(m.look)?.image} className="chip-img" />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <b>{labelOf(m.name, monsterImage(m.monsterId)?.nameKey)}</b>
+                <b>{labelOf(m.name, monsterImage(m.look)?.nameKey)}</b>
                 <div className="hint">
                   Здоровье {m.hp} из {m.maxHp}
                 </div>
@@ -341,6 +342,17 @@ export function GameView() {
               <button className="small" disabled={busy || game.ended} onClick={() => act((g) => defeat(s, g, i))}>
                 Побеждён
               </button>
+              <div className="monster-moments">
+                <button className="small ghost" disabled={busy || game.ended} title="Монстр атакует сыщика" onClick={() => act((g) => monsterMoment(s, g, i, 'attack'))}>
+                  ⚔ Атакует
+                </button>
+                <button className="small ghost" disabled={busy || game.ended} title="Сыщик атакует монстра" onClick={() => act((g) => monsterMoment(s, g, i, 'hit'))}>
+                  🗡 Его бьют
+                </button>
+                <button className="small ghost" disabled={busy || game.ended} title="Проверка ужаса в фазе ужаса" onClick={() => act((g) => monsterMoment(s, g, i, 'horror'))}>
+                  😱 Ужас
+                </button>
+              </div>
             </div>
           ))}
         </div>

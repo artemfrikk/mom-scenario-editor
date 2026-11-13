@@ -7,7 +7,7 @@ import { useImages } from '../images';
 import type { Sizes } from '../build/board';
 import { roomBehindDoor } from '../build/edit';
 import { useOwned } from '../build/owned';
-import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Choice, type Lock, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
+import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Choice, type Lock, type MonsterVoice, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
 import { assetUrl } from './assetUrl';
 import { harmText } from '../build/compile';
 import { useBuilder } from '../build/store';
@@ -583,9 +583,75 @@ function MonsterPart({ p, x, setPiece }: { p: Project; x: Piece; setPiece: (patc
           <div className="hint">{callers.length ? `Позовёт: ${callers.join(', ')}.` : 'Откройте нужный жетон и в «Ещё» отметьте этого монстра, или выберите раунд на шаге «Угроза».'}</div>
         )}
       </div>
+      <VoicePart x={x} setPiece={setPiece} name={x.title.trim() || options.find((o) => o.value === x.look)?.label || 'Монстр'} />
     </>
   );
 }
+
+// The monster's own texts: Valkyrie shows them instead of its usual ones for this monster.
+const VOICES: { key: keyof MonsterVoice; icon: string; title: string; hint: string; sample: (name: string) => string }[] = [
+  {
+    key: 'attack',
+    icon: '⚔',
+    title: 'Когда монстр атакует',
+    hint: 'Фаза монстров: Valkyrie покажет это вместо обычной атаки.',
+    sample: (n) => `${n} бросается на ближайшего сыщика. Сыщик проходит проверку {agility} и получает 3 урона минус число {success}.`,
+  },
+  {
+    key: 'hit',
+    icon: '🗡',
+    title: 'Когда сыщики его атакуют',
+    hint: 'Покажется при атаке любым оружием.',
+    sample: (n) => `${n} закрывается руками, но не отступает. Пройдите проверку навыка вашего оружия и нанесите столько урона, сколько получили {success}.`,
+  },
+  {
+    key: 'horror',
+    icon: '😱',
+    title: 'Проверка ужаса',
+    hint: 'Фаза ужаса: сыщики рядом с монстром проходят проверку воли.',
+    sample: (n) => `Вы смотрите на него, и мир на миг теряет цвета. ${n} шепчет ваше имя. Проверка {will}: получите 2 ужаса минус число {success}.`,
+  },
+];
+
+function VoicePart({ x, setPiece, name }: { x: Piece; setPiece: (patch: Partial<Piece>, key?: string) => void; name: string }) {
+  const v = x.voice ?? {};
+  const [open, setOpen] = useState(() => !!x.title.trim() || Object.values(v).some((t) => t?.trim()));
+  const put = (patch: Partial<MonsterVoice>, key?: string) => setPiece({ voice: { ...v, ...patch } }, key);
+  if (!open)
+    return (
+      <button className="link" onClick={() => setOpen(true)}>
+        ▸ Своё имя и тексты: атака, удары сыщиков, проверка ужаса
+      </button>
+    );
+  return (
+    <div className="field voice">
+      <span>Свои тексты монстра</span>
+      <span className="hint">Пустое поле: Valkyrie покажет обычный текст из игры. Значки в скобках, например {'{will}'} или {'{success}'}, игра заменит на символы.</span>
+      <label className="field">
+        <span className="hint">Имя</span>
+        <input value={x.title} placeholder={`${name}: или своё, например «Брат Иезекииль»`} onChange={(e) => setPiece({ title: e.target.value }, 'title' + x.id)} />
+      </label>
+      {VOICES.map((f) => (
+        <label key={f.key} className="field">
+          <span className="voice-head">
+            {f.icon} {f.title}
+            {!v[f.key]?.trim() && (
+              <button type="button" className="link auto" onClick={() => put({ [f.key]: f.sample(name) })}>
+                вставить пример
+              </button>
+            )}
+          </span>
+          <textarea rows={2} value={v[f.key] ?? ''} placeholder={f.hint} onChange={(e) => put({ [f.key]: e.target.value }, 'voice' + f.key + x.id)} />
+          {f.key === 'attack' && !!v.attack?.trim() && (
+            <input value={v.move ?? ''} placeholder={`Как он подходит. Пусто: «${name} движется на 2 клетки к ближайшему сыщику».`} onChange={(e) => put({ move: e.target.value }, 'voicemove' + x.id)} />
+          )}
+        </label>
+      ))}
+    </div>
+  );
+}
+
+
 
 function DoorPart({ p, x, sizes, set, onNewRoom }: { p: Project; x: Piece; sizes: Sizes; set: (o: Partial<Outcome>) => void; onNewRoom: (id: string) => void }) {
   const change = useBuilder((s) => s.change);

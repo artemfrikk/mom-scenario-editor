@@ -720,3 +720,9 @@ label.check.sub { padding-left: 22px; font-size: 13px; }
 .chapters .row button { padding: 5px 10px; font-size: 12px; }
 .chapter-add { text-align: left; font-size: 12px; padding: 7px 12px; margin-bottom: 8px; color: var(--muted); }
 .next-chapter { max-width: 360px; margin-top: -4px; }
+.monster-moments { flex: 1 0 100%; display: flex; gap: 4px; flex-wrap: wrap; }
+.voice { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
+.voice .voice-head { display: flex; gap: 8px; align-items: baseline; }
+.voice .voice-head .link { font-size: 12px; padding: 0; margin-left: auto; }
+.voice textarea + input { margin-top: 4px; }
+.voice > .hint { display: block; margin-bottom: 4px; }
