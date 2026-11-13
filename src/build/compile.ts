@@ -258,6 +258,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
         monster: customMonster(x) ?? x.look,
         buttons: '1',
         event1: '',
+        audio: x.appear || undefined,
         vartests: `VarOperation:spawned_${x.id},==,0`,
         operations: `spawned_${x.id},=,1`,
       });
@@ -328,6 +329,8 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       add: shows(r).join(' '),
       vartests: `VarOperation:${opened},==,0`,
       operations: [`${opened},=,1`, ...out].join(' '),
+      audio: r.sound || undefined,
+      music: r.music || undefined,
     });
     text(openName(r) + '.text', r.enterText);
     if (r.enterText.trim()) text(openName(r) + '.button1', 'Далее');
@@ -343,7 +346,8 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       event1: goal ? GOAL : '',
       add: start ? shows(start).join(' ') : undefined,
       operations: startOps.join(' ') || undefined,
-      music: p.prologue.music || undefined,
+      music: start?.music || p.prologue.music || undefined,
+      audio: start?.sound || undefined,
     });
     text(START + '.text', p.prologue.text || 'Начинается расследование.');
     text(START + '.button1', goal ? 'Далее' : 'Начать расследование');
@@ -437,15 +441,25 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     put('EventMythosOwn', 'Event', 'events.ini', { trigger: 'Mythos', randomevents: 'true', display: 'false', buttons: '1', event1: [...names, ...quiet].join(' ') });
   }
 
+  // what the investigators begin with; Valkyrie picks a random item of a kind once per game
+  for (const it of p.startItems ?? []) {
+    if (!it.item && !it.kind) continue;
+    put('QItemStart' + it.id, 'QItem', 'items.ini', {
+      itemname: it.item || undefined,
+      traits: it.item ? undefined : it.kind === 'common' ? 'common' : it.kind === 'spell' ? 'spell' : `common ${it.kind}`,
+      starting: 'True',
+    });
+  }
+
   if (!p.raw || allOutcomes(p).some((o) => o.win)) {
     const e = ending('win');
-    put(WIN, 'Event', 'events.ini', { trigger: 'Varwin', buttons: '1', event1: e.event1, operations: e.operations });
+    put(WIN, 'Event', 'events.ini', { trigger: 'Varwin', buttons: '1', event1: e.event1, operations: e.operations, audio: p.endSound?.win || undefined });
     text(WIN + '.text', p.winText || 'Победа!');
     text(WIN + '.button1', e.button);
   }
   if (!rawHas('Eliminated')) {
     const e = ending('lose');
-    put(LOSE, 'Event', 'events.ini', { trigger: 'Eliminated', buttons: '1', event1: e.event1, operations: e.operations });
+    put(LOSE, 'Event', 'events.ini', { trigger: 'Eliminated', buttons: '1', event1: e.event1, operations: e.operations, audio: p.endSound?.lose || undefined });
     text(LOSE + '.text', p.loseText || 'Поражение.');
     text(LOSE + '.button1', e.button);
   }

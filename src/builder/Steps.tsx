@@ -14,6 +14,8 @@ import { packName } from '../ui/options';
 import { Picker } from '../ui/widgets';
 import { Dialog } from './WhatHappens';
 import { NextChapter } from './Chapters';
+import { SoundPick } from './Sound';
+import { StartItems } from './StartItems';
 import { assetUrl } from './assetUrl';
 
 function FileButton({ accept, label, onFile }: { accept: string; label: string; onFile: (name: string) => void }) {
@@ -196,6 +198,7 @@ export function PrologueStep() {
           <div className="hint">С картинкой вступление покажется на отдельном экране: картинка слева, текст справа.</div>
         </div>
       </div>
+      <StartItems />
       <NextButton to="map" label="Дальше: карта →" />
     </div>
   );
@@ -211,11 +214,13 @@ export function EndingsStep() {
         <span>🏆 Победа</span>
         <textarea rows={4} value={p.winText} onChange={(e) => set({ winText: e.target.value }, 'win')} />
       </label>
+      <SoundPick label="🔊 Звук победы" value={p.endSound?.win} onChange={(v) => set({ endSound: { ...p.endSound, win: v } })} />
       <NextChapter how="win" />
       <label className="field">
         <span>💀 Поражение</span>
         <textarea rows={4} value={p.loseText} onChange={(e) => set({ loseText: e.target.value }, 'lose')} />
       </label>
+      <SoundPick label="🔊 Звук поражения" value={p.endSound?.lose} onChange={(v) => set({ endSound: { ...p.endSound, lose: v } })} />
       <NextChapter how="lose" />
       <Problems />
       <NextButton to="play" label="Сыграть пробную партию →" />

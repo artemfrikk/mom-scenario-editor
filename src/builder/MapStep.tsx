@@ -13,6 +13,7 @@ import { useBuilder } from '../build/store';
 import { Board, type BoardApi } from './Board';
 import { imageOf, KINDS, tilesFree, kindInfo, MARK_TOKENS, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
 import { WhatHappens } from './WhatHappens';
+import { SoundPick } from './Sound';
 
 type Tab = 'rooms' | 'things' | 'people' | 'monsters';
 type Grab = { what: 'tile' | 'piece'; kind?: PieceKind; look: string; icon: string; label: string };
@@ -112,15 +113,25 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
   const match = (label: string) => !q || label.toLowerCase().includes(q);
 
   // Drag with mouse or finger. A short tap counts as "put it into the chosen room".
+  // A finger that moves mostly up or down scrolls the list; any other move drags the piece out.
+  // The browser does not scroll here (touch-action: none), so a diagonal drag towards the map is never lost.
   const grab = (e: React.PointerEvent, g: Grab) => {
     if (e.pointerType === 'mouse') e.preventDefault();
+    const touch = e.pointerType !== 'mouse';
+    const list = (e.currentTarget as HTMLElement).closest('.pal-list') as HTMLElement | null;
     const sx = e.clientX;
     const sy = e.clientY;
-    let moved = false;
+    const top = list?.scrollTop ?? 0;
+    let mode: '' | 'drag' | 'scroll' = '';
     const mv = (ev: PointerEvent) => {
-      if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
-      moved = true;
-      setGhost({ g, x: ev.clientX, y: ev.clientY });
+      const dx = ev.clientX - sx;
+      const dy = ev.clientY - sy;
+      if (!mode) {
+        if (Math.hypot(dx, dy) < 8) return;
+        mode = touch && list && Math.abs(dy) > Math.abs(dx) * 2.5 ? 'scroll' : 'drag';
+      }
+      if (mode === 'scroll') list!.scrollTop = top - dy;
+      else setGhost({ g, x: ev.clientX, y: ev.clientY });
     };
     const stop = () => {
       window.removeEventListener('pointermove', mv);
@@ -128,10 +139,10 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
       window.removeEventListener('pointercancel', stop);
       setGhost(null);
     };
-    // the finger scrolled the list instead: nothing is placed
     const finish = (ev: PointerEvent) => {
       stop();
-      if (!moved) return onPlace(g, null);
+      if (mode === 'scroll') return;
+      if (!mode) return onPlace(g, null);
       const at = board.current?.toWorld(ev.clientX, ev.clientY);
       if (at) onPlace(g, at);
     };
@@ -238,6 +249,7 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
         <span>Что видят сыщики, войдя сюда</span>
         <textarea rows={3} value={r.enterText} placeholder="Необязательно. Например: «Холодно. В камине тлеют угли…»" onChange={(e) => change((q) => updateRoom(q, id, { enterText: e.target.value }), 'enter' + id)} />
       </label>
+      <RoomSound id={id} sound={r.sound} music={r.music} />
 
       <div className="room-add">
         <div className="hint">Что здесь будет?</div>
@@ -288,4 +300,22 @@ function summary(p: Project, id: string): string {
   if (!bits.length && o.text) bits.push(o.text.slice(0, 40) + (o.text.length > 40 ? '…' : ''));
   if (!bits.length && x.kind !== 'start' && x.kind !== 'mark') bits.push('пока ничего не делает');
   return bits.join(' · ');
+}
+
+// A room's own sound when it appears, and the music that starts there.
+function RoomSound({ id, sound, music }: { id: string; sound?: string; music?: string }) {
+  const change = useBuilder((s) => s.change);
+  const [open, setOpen] = useState(false);
+  if (!open && !sound && !music)
+    return (
+      <button className="link" onClick={() => setOpen(true)}>
+        ▸ 🔊 Звук и музыка комнаты
+      </button>
+    );
+  return (
+    <>
+      <SoundPick label="🔊 Звук, когда комната открывается" value={sound} onChange={(v) => change((q) => updateRoom(q, id, { sound: v }))} />
+      <SoundPick music label="🎵 Музыка с этого момента" value={music} onChange={(v) => change((q) => updateRoom(q, id, { music: v }))} />
+    </>
+  );
 }

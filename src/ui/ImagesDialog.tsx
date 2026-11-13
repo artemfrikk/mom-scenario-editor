@@ -11,17 +11,17 @@ export function ImagesButton() {
   const count = useImages((s) => s.count);
   const found = useImages((s) => s.found);
   const show = useImagesDialog((s) => s.show);
-  if (status === 'loading') return <button disabled>🖼 Копирую картинки… {found}</button>;
+  if (status === 'loading') return <button disabled>🖼<span className="tl"> Копирую картинки…</span> {found}</button>;
   if (status === 'ready') {
     return (
       <button className="ghost" onClick={show} title="Картинки игры подключены. Нажмите, чтобы выбрать другую папку.">
-        🖼 Картинки: {count}
+        🖼<span className="tl"> Картинки:</span> {count}
       </button>
     );
   }
   return (
     <button onClick={show} title="Тайлы, монстры и предметы будут выглядеть как в игре">
-      🖼 Подключить картинки
+      🖼<span className="tl"> Подключить картинки</span>
     </button>
   );
 }

@@ -151,18 +151,22 @@ export default function App() {
             </button>
           </>
         )}
-        <button onClick={() => setChoosing(true)}>Новый</button>
-        <button onClick={() => fileInput.current?.click()}>Открыть…</button>
+        <button onClick={() => setChoosing(true)} title="Новый сценарий">
+          📄<span className="tl"> Новый</span>
+        </button>
+        <button onClick={() => fileInput.current?.click()} title="Открыть файл .valkyrie">
+          📂<span className="tl"> Открыть…</span>
+        </button>
         <ImagesButton />
         <button className="ghost" onClick={() => setPacks(true)} title="Какие коробки игры у вас есть">
-          📦 Мои коробки
+          📦<span className="tl"> Мои коробки</span>
         </button>
         <button className="ghost" onClick={() => openTranslator(true)} title="Перевести любой сценарий Valkyrie">
           🌍
         </button>
         {started && (
-          <button className="primary" onClick={doSave} title="Ctrl+S">
-            Скачать .valkyrie
+          <button className="primary" onClick={doSave} title="Скачать .valkyrie (Ctrl+S)">
+            ⬇ Скачать<span className="tl"> .valkyrie</span>
           </button>
         )}
         <input ref={fileInput} type="file" accept=".valkyrie,.zip" hidden onChange={(e) => (doOpen(e.target.files?.[0]), (e.target.value = ''))} />
