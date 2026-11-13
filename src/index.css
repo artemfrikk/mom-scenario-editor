@@ -702,3 +702,9 @@ label.check input { width: auto; flex: 0 0 auto; }
 .rise { padding: 8px 0; border-top: 1px dashed #3a3342; }
 .rise > .skill-row { flex: 1 1 100%; order: 3; margin: 0; }
 .rise > button { flex: 0 0 auto; }
+.wh-btns.col { flex-direction: column; align-items: center; gap: 6px; }
+.wh-btns.col .wh-btn { margin: 0; min-width: 60%; text-align: center; }
+.wh-btns.col { margin-top: 14px; }
+.answer { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-bottom: 1px dashed #3a3342; }
+.answer-num { flex: 0 0 auto; width: 22px; text-align: center; color: var(--accent); font-weight: 600; }
+label.check.sub { padding-left: 22px; font-size: 13px; }

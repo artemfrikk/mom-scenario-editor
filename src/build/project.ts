@@ -41,9 +41,16 @@ export interface PuzzleSpec {
   pass: string; // text once solved
 }
 
+// One answer in a conversation: the button the players press and what follows from it.
+export interface Choice {
+  id: string; // c1, c2... inside its piece
+  label: string;
+  outcome: Outcome; // its own text and gifts; once, test, puzzle and lock are not used
+}
+
 // Closed until other pieces were used: a key found, a lever pulled, a monster defeated.
 export interface Lock {
-  needs: string[]; // ids of pieces whose outcome must have happened (all of them)
+  needs: string[]; // ids of pieces whose outcome must have happened (all of them); "P5.c2" is one answer of a conversation
   text: string; // what the players read while it is still closed
 }
 
@@ -52,6 +59,7 @@ export interface Outcome {
   text: string; // with a test: what they read before rolling
   test?: SkillTest;
   puzzle?: PuzzleSpec;
+  choices?: Choice[]; // the players choose an answer instead of reading one result
   lock?: Lock;
   item?: string; // catalog item id the investigators receive
   clues?: number; // clues the investigators receive
@@ -216,17 +224,27 @@ export function deletePiece(p: Project, id: string): Project {
 }
 
 function forget(p: Project, rooms: Set<string>, pieces: Set<string>): Project {
-  const clean = (o: Outcome): Outcome => ({ ...o, reveal: o.reveal?.filter((r) => !rooms.has(r)), spawn: o.spawn?.filter((m) => !pieces.has(m)) });
+  const clean = (o: Outcome): Outcome => ({
+    ...o,
+    reveal: o.reveal?.filter((r) => !rooms.has(r)),
+    spawn: o.spawn?.filter((m) => !pieces.has(m)),
+    choices: o.choices?.map((c) => ({ ...c, outcome: clean(c.outcome) })),
+    lock: o.lock && { ...o.lock, needs: o.lock.needs.filter((n) => !pieces.has(n.split('.')[0])) },
+  });
   return {
     ...p,
     timeline: p.timeline?.map((t) => ({ ...t, outcome: clean(t.outcome) })),
-    pieces: p.pieces.map((x) => {
-      const o = x.outcome;
-      const reveal = o.reveal?.filter((r) => !rooms.has(r));
-      const spawn = o.spawn?.filter((m) => !pieces.has(m));
-      const needs = o.lock?.needs.filter((m) => !pieces.has(m));
-      if (reveal?.length === o.reveal?.length && spawn?.length === o.spawn?.length && needs?.length === o.lock?.needs.length) return x;
-      return { ...x, outcome: { ...o, reveal, spawn, lock: o.lock && { ...o.lock, needs: needs ?? [] } } };
-    }),
+    pieces: p.pieces.map((x) => ({ ...x, outcome: clean(x.outcome) })),
   };
 }
+
+// Every result in the scenario: the pieces', their answers' and the rounds'.
+export function allOutcomes(p: Project): Outcome[] {
+  const out: Outcome[] = [];
+  for (const x of p.pieces) out.push(x.outcome, ...(x.outcome.choices ?? []).map((c) => c.outcome));
+  for (const t of p.timeline ?? []) out.push(t.outcome);
+  return out;
+}
+
+// The variable that remembers a piece was used ("P5") or an answer was chosen ("P5.c2").
+export const doneVar = (need: string) => 'done_' + need.replace('.', '_');

@@ -7,7 +7,7 @@ import { useImages } from '../images';
 import type { Sizes } from '../build/board';
 import { roomBehindDoor } from '../build/edit';
 import { useOwned } from '../build/owned';
-import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Lock, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
+import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Choice, type Lock, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
 import { assetUrl } from './assetUrl';
 import { harmText } from '../build/compile';
 import { useBuilder } from '../build/store';
@@ -62,18 +62,13 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
   const p = useBuilder((s) => s.project);
   const change = useBuilder((s) => s.change);
   const select = useBuilder((s) => s.select);
-  const owned = useOwned((s) => s.packs);
   useImages((s) => s.names); // names in Russian arrive later
   const x = pieceOf(p, id);
-  const [more, setMore] = useState(false);
   if (!x) return null;
   const info = kindInfo(x.kind);
   const o = x.outcome;
   const set = (patch: Partial<Outcome>, key?: string) => change((q) => updateOutcome(q, id, patch), key);
   const setPiece = (patch: Partial<Piece>, key?: string) => change((q) => updatePiece(q, id, patch), key);
-  const items = ITEMS.filter((i) => owned.includes(packOf(i.value) ?? 'MoMBase'));
-  const others = p.rooms.filter((r) => r.id !== x.room);
-  const waiting = p.pieces.filter((m) => m.kind === 'monster' && m.when === 'event' && m.id !== id);
   const presets = PRESETS[x.kind] ?? [];
 
   if (x.kind === 'start' || x.kind === 'mark') {
@@ -133,6 +128,8 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
                   ? 'Что игроки прочтут перед проверкой'
                   : o.puzzle
                     ? 'Что игроки прочтут перед головоломкой'
+                    : o.choices?.length
+                      ? 'Вопрос или ситуация, на которую игроки отвечают'
                   : x.kind === 'explore'
                     ? 'Что игроки прочтут, открыв дверь'
                     : 'Что игроки прочтут'}
@@ -140,70 +137,123 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
             <textarea rows={5} value={o.text} placeholder={x.kind === 'explore' ? 'Дверь со скрипом поддаётся…' : 'Напишите текст для игроков'} onChange={(e) => set({ text: e.target.value }, 'text' + id)} />
           </label>
 
-          {x.kind !== 'monster' && <ChallengePart id={id} o={o} set={set} />}
+          {x.kind !== 'monster' && <ChallengePart p={p} x={x} set={set} />}
           {x.kind !== 'monster' && <LockPart p={p} x={x} set={set} />}
 
-          {o.item !== undefined && (
-            <label className="field">
-              <span>Предмет, который получат сыщики</span>
-              <div className="row">
-                <Picker options={items} value={o.item} onChange={(v) => set({ item: v })} />
-                <button className="auto ghost" onClick={() => set({ item: undefined })} title="Без предмета">✕</button>
-              </div>
+          {!o.choices?.length && <Gifts p={p} o={o} set={set} here={x.room} rooms={x.kind !== 'explore'} self={id} />}
+          {x.kind !== 'monster' && (
+            <label className="check">
+              <input type="checkbox" checked={o.once} onChange={(e) => set({ once: e.target.checked })} /> Жетон исчезает после использования
             </label>
-          )}
-          {!!o.clues && (
-            <label className="field">
-              <span>Сколько улик</span>
-              <div className="row">
-                <input type="number" min={1} max={5} value={o.clues} onChange={(e) => set({ clues: Math.max(1, Math.min(5, Number(e.target.value) || 1)) })} />
-                <button className="auto ghost" onClick={() => set({ clues: undefined })} title="Без улик">✕</button>
-              </div>
-            </label>
-          )}
-
-          <button className="link" onClick={() => setMore(!more)}>
-            {more ? '▾' : '▸'} Ещё: предмет, улика, открыть комнату, позвать монстра, победа
-          </button>
-          {more && (
-            <div className="more">
-              {o.item === undefined && <button onClick={() => set({ item: 'ItemCommonKnife' })}>🗝 Дать предмет</button>}
-              {!o.clues && <button onClick={() => set({ clues: 1 })}>❓ Дать улику</button>}
-              {x.kind !== 'explore' && others.length > 0 && (
-                <div className="field">
-                  <span className="hint">Откроются комнаты</span>
-                  <RoomChecks p={p} rooms={others.map((r) => r.id)} value={o.reveal ?? []} onChange={(reveal) => set({ reveal })} />
-                </div>
-              )}
-              {waiting.length > 0 && (
-                <div className="field">
-                  <span className="hint">Появятся монстры (те, что ждут сигнала)</span>
-                  {waiting.map((m) => (
-                    <label key={m.id} className="check">
-                      <input
-                        type="checkbox"
-                        checked={(o.spawn ?? []).includes(m.id)}
-                        onChange={(e) => set({ spawn: e.target.checked ? [...(o.spawn ?? []), m.id] : (o.spawn ?? []).filter((q) => q !== m.id) })}
-                      />
-                      {monsterTitle(m.look)} — {roomTitle(p, m.room)}
-                    </label>
-                  ))}
-                </div>
-              )}
-              <label className="check">
-                <input type="checkbox" checked={!!o.win} onChange={(e) => set({ win: e.target.checked || undefined })} /> 🏆 После этого сыщики побеждают
-              </label>
-              {x.kind !== 'monster' && (
-                <label className="check">
-                  <input type="checkbox" checked={o.once} onChange={(e) => set({ once: e.target.checked })} /> Жетон исчезает после использования
-                </label>
-              )}
-            </div>
           )}
         </div>
         <Preview p={p} x={x} />
       </div>
     </Dialog>
+  );
+}
+
+// What the investigators get: an item, clues, rooms that open, monsters that come, victory.
+function Gifts({ p, o, set, here, rooms, self }: { p: Project; o: Outcome; set: (o: Partial<Outcome>, key?: string) => void; here: string; rooms: boolean; self: string }) {
+  const [more, setMore] = useState(false);
+  const owned = useOwned((s) => s.packs);
+  const items = ITEMS.filter((i) => owned.includes(packOf(i.value) ?? 'MoMBase'));
+  const others = p.rooms.filter((r) => r.id !== here);
+  const waiting = p.pieces.filter((m) => m.kind === 'monster' && m.when === 'event' && m.id !== self);
+  return (
+    <>
+      {o.item !== undefined && (
+        <label className="field">
+          <span>Предмет, который получат сыщики</span>
+          <div className="row">
+            <Picker options={items} value={o.item} onChange={(v) => set({ item: v })} />
+            <button className="auto ghost" onClick={() => set({ item: undefined })} title="Без предмета">
+              ✕
+            </button>
+          </div>
+        </label>
+      )}
+      {!!o.clues && (
+        <label className="field">
+          <span>Сколько улик</span>
+          <div className="row">
+            <input type="number" min={1} max={5} value={o.clues} onChange={(e) => set({ clues: Math.max(1, Math.min(5, Number(e.target.value) || 1)) })} />
+            <button className="auto ghost" onClick={() => set({ clues: undefined })} title="Без улик">
+              ✕
+            </button>
+          </div>
+        </label>
+      )}
+      <button className="link" onClick={() => setMore(!more)}>
+        {more ? '▾' : '▸'} Ещё: предмет, улика, открыть комнату, позвать монстра, победа
+      </button>
+      {more && (
+        <div className="more">
+          {o.item === undefined && <button onClick={() => set({ item: 'ItemCommonKnife' })}>🗝 Дать предмет</button>}
+          {!o.clues && <button onClick={() => set({ clues: 1 })}>❓ Дать улику</button>}
+          {rooms && others.length > 0 && (
+            <div className="field">
+              <span className="hint">Откроются комнаты</span>
+              <RoomChecks p={p} rooms={others.map((r) => r.id)} value={o.reveal ?? []} onChange={(reveal) => set({ reveal })} />
+            </div>
+          )}
+          {waiting.length > 0 && (
+            <div className="field">
+              <span className="hint">Появятся монстры (те, что ждут сигнала)</span>
+              {waiting.map((m) => (
+                <label key={m.id} className="check">
+                  <input
+                    type="checkbox"
+                    checked={(o.spawn ?? []).includes(m.id)}
+                    onChange={(e) => set({ spawn: e.target.checked ? [...(o.spawn ?? []), m.id] : (o.spawn ?? []).filter((q) => q !== m.id) })}
+                  />
+                  {monsterTitle(m.look)} — {roomTitle(p, m.room)}
+                </label>
+              ))}
+            </div>
+          )}
+          <label className="check">
+            <input type="checkbox" checked={!!o.win} onChange={(e) => set({ win: e.target.checked || undefined })} /> 🏆 После этого сыщики побеждают
+          </label>
+        </div>
+      )}
+    </>
+  );
+}
+
+const SAMPLE_CHOICES: Choice[] = [
+  { id: 'c1', label: 'Расспросить', outcome: { text: '«Хозяин заперся в кабинете три дня назад. С тех пор оттуда слышен шёпот».', once: false } },
+  { id: 'c2', label: 'Пригрозить', outcome: { text: 'Он бледнеет и молча указывает на лестницу в подвал.', once: false } },
+];
+
+// A conversation: the players pick an answer, each answer leads to its own result.
+function ChoicePart({ p, x, choices, set }: { p: Project; x: Piece; choices: Choice[]; set: (o: Partial<Outcome>, key?: string) => void }) {
+  const put = (id: string, patch: Partial<Choice>, key?: string) => set({ choices: choices.map((c) => (c.id === id ? { ...c, ...patch } : c)) }, key);
+  const nextId = () => 'c' + (Math.max(0, ...choices.map((c) => Number(c.id.slice(1)) || 0)) + 1);
+  return (
+    <div className="challenge">
+      <span className="hint">Ответы игроков (кнопки в окне). Каждый ведёт к своему итогу, и игра запоминает выбор: его можно отметить в замке другого жетона.</span>
+      {choices.map((c, i) => (
+        <div key={c.id} className="answer">
+          <div className="row">
+            <span className="answer-num">{i + 1}</span>
+            <input value={c.label} placeholder="Надпись на кнопке" onChange={(e) => put(c.id, { label: e.target.value }, 'clabel' + x.id + c.id)} />
+            <button className="auto ghost danger" title="Убрать ответ" disabled={choices.length <= 2} onClick={() => set({ choices: choices.filter((q) => q.id !== c.id) })}>
+              🗑
+            </button>
+          </div>
+          <textarea rows={2} value={c.outcome.text} placeholder="Что прочтут, выбрав этот ответ" onChange={(e) => put(c.id, { outcome: { ...c.outcome, text: e.target.value } }, 'ctext' + x.id + c.id)} />
+          <Gifts p={p} o={c.outcome} set={(patch, key) => put(c.id, { outcome: { ...c.outcome, ...patch } }, key)} here={x.room} rooms self={x.id} />
+        </div>
+      ))}
+      {choices.length < 4 && (
+        <div className="row">
+          <button className="auto" onClick={() => set({ choices: [...choices, { id: nextId(), label: '', outcome: { text: '', once: false } }] })}>
+            ➕ Ещё ответ
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -228,15 +278,19 @@ const PUZZLES: { kind: PuzzleKind; icon: string; label: string; hint: string; le
   { kind: 'tower', icon: '🗼', label: 'Башня', hint: 'Перенесите кольца на одну башню, большое кольцо нельзя класть на маленькое.', level: ['Сложность', 1, 20, 4] },
 ];
 
-type Mode = 'none' | 'test' | 'puzzle';
+type Mode = 'none' | 'test' | 'puzzle' | 'choice';
 
 // What stands between the investigators and the result: nothing, a skill test or a puzzle.
-function ChallengePart({ id, o, set }: { id: string; o: Outcome; set: (o: Partial<Outcome>, key?: string) => void }) {
-  const mode: Mode = o.puzzle ? 'puzzle' : o.test ? 'test' : 'none';
+function ChallengePart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcome>, key?: string) => void }) {
+  const o = x.outcome;
+  const id = x.id;
+  const mode: Mode = o.choices?.length ? 'choice' : o.puzzle ? 'puzzle' : o.test ? 'test' : 'none';
   const choose = (m: Mode) => {
-    if (m === 'none') set({ test: undefined, puzzle: undefined });
-    if (m === 'test' && !o.test) set({ puzzle: undefined, test: { skill: 'observation', need: 1, pass: 'Получилось!', fail: 'Ничего не выходит. Можно попробовать ещё раз.' } });
-    if (m === 'puzzle' && !o.puzzle) set({ test: undefined, puzzle: { kind: 'code', skill: 'lore', level: 4, alt: 3, pass: 'Замок щёлкает и открывается.' } });
+    if (m === 'none') set({ test: undefined, puzzle: undefined, choices: undefined });
+    if (m === 'choice' && !o.choices?.length)
+      set({ test: undefined, puzzle: undefined, choices: SAMPLE_CHOICES, text: o.text || '«Кто вы такие? Что вам здесь нужно?» — спрашивает он.' });
+    if (m === 'test' && !o.test) set({ puzzle: undefined, choices: undefined, test: { skill: 'observation', need: 1, pass: 'Получилось!', fail: 'Ничего не выходит. Можно попробовать ещё раз.' } });
+    if (m === 'puzzle' && !o.puzzle) set({ test: undefined, choices: undefined, puzzle: { kind: 'code', skill: 'lore', level: 4, alt: 3, pass: 'Замок щёлкает и открывается.' } });
   };
   return (
     <div className="field wh-test">
@@ -251,7 +305,11 @@ function ChallengePart({ id, o, set }: { id: string; o: Outcome; set: (o: Partia
         <button className={mode === 'puzzle' ? 'on' : ''} onClick={() => choose('puzzle')}>
           🧩 Головоломка
         </button>
+        <button className={mode === 'choice' ? 'on' : ''} onClick={() => choose('choice')}>
+          💬 Выбор ответа
+        </button>
       </div>
+      {o.choices?.length ? <ChoicePart p={p} x={x} choices={o.choices} set={set} /> : null}
       {o.test && <TestPart id={id} test={o.test} set={set} />}
       {o.puzzle && <PuzzlePart puzzle={o.puzzle} set={set} id={id} />}
     </div>
@@ -409,10 +467,13 @@ function LockPart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcom
           {others.length ? (
             <>
               <span className="hint">Откроется, когда будет всё отмеченное (найден ключ, пройдена проверка, побеждён монстр)</span>
-              {others.map((q) => (
-                <label key={q.id} className="check">
-                  <input type="checkbox" checked={lock.needs.includes(q.id)} onChange={(e) => put({ needs: e.target.checked ? [...lock.needs, q.id] : lock.needs.filter((n) => n !== q.id) })} />
-                  {pieceLabel(p, q)}
+              {others.flatMap((q) => [
+                { key: q.id, label: pieceLabel(p, q), sub: false },
+                ...(q.outcome.choices ?? []).filter((c) => c.label.trim()).map((c) => ({ key: `${q.id}.${c.id}`, label: `↳ выбран ответ «${c.label.trim()}»`, sub: true })),
+              ]).map((n) => (
+                <label key={n.key} className={'check' + (n.sub ? ' sub' : '')}>
+                  <input type="checkbox" checked={lock.needs.includes(n.key)} onChange={(e) => put({ needs: e.target.checked ? [...lock.needs, n.key] : lock.needs.filter((k) => k !== n.key) })} />
+                  {n.label}
                 </label>
               ))}
             </>
@@ -432,7 +493,7 @@ function LockPart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcom
 function pieceLabel(p: Project, q: Piece): string {
   const info = kindInfo(q.kind);
   const name = q.kind === 'monster' ? `${monsterTitle(q.look)} побеждён` : q.title || info.title;
-  const gift = q.outcome.item ? ` → ${itemTitle(q.outcome.item)}` : q.outcome.test ? ' (после проверки)' : q.outcome.puzzle ? ' (после головоломки)' : '';
+  const gift = q.outcome.item ? ` → ${itemTitle(q.outcome.item)}` : q.outcome.test ? ' (после проверки)' : q.outcome.puzzle ? ' (после головоломки)' : q.outcome.choices?.length ? ' (любой ответ)' : '';
   return `${info.icon} ${name}${gift} · ${roomTitle(p, q.room)}`;
 }
 
@@ -517,8 +578,7 @@ export function RoomChecks({ p, rooms, value, onChange }: { p: Project; rooms: s
 }
 
 // The window as the players will see it.
-function Preview({ p, x }: { p: Project; x: Piece }) {
-  const o = x.outcome;
+function giftLines(p: Project, o: Outcome): string[] {
   const lines: string[] = [];
   if (o.item) lines.push(`Сыщики получают: ${itemTitle(o.item)}`);
   if (o.clues) lines.push(o.clues > 1 ? `Улики: ${o.clues}` : 'Сыщик получает улику');
@@ -528,6 +588,12 @@ function Preview({ p, x }: { p: Project; x: Piece }) {
     if (q) lines.push(`Появляется: ${monsterTitle(q.look)}`);
   }
   if (o.win) lines.push('Победа!');
+  return lines;
+}
+
+function Preview({ p, x }: { p: Project; x: Piece }) {
+  const o = x.outcome;
+  const lines = giftLines(p, o);
   const locked = o.lock && (
     <>
       <div className="hint">Пока заперто</div>
@@ -537,6 +603,41 @@ function Preview({ p, x }: { p: Project; x: Piece }) {
       </div>
     </>
   );
+  const answers = o.choices?.filter((c) => c.label.trim()) ?? [];
+  if (o.choices?.length) {
+    return (
+      <div className="wh-preview">
+        <div className="hint">Так увидят игроки</div>
+        <div className="wh-card">
+          <div className="wh-text">{o.text || <span className="hint">Напишите вопрос</span>}</div>
+          <div className="wh-btns col">
+            {answers.map((c) => (
+              <div key={c.id} className="wh-btn">
+                {c.label}
+              </div>
+            ))}
+          </div>
+        </div>
+        {answers.map((c) => (
+          <div key={c.id}>
+            <div className="hint">После «{c.label.trim()}»</div>
+            <div className="wh-card">
+              <div className="wh-text">{c.outcome.text || <span className="hint">Без текста</span>}</div>
+              {giftLines(p, c.outcome).length > 0 && (
+                <ul className="wh-effects">
+                  {giftLines(p, c.outcome).map((l) => (
+                    <li key={l}>{l}</li>
+                  ))}
+                </ul>
+              )}
+              <div className="wh-btn">Далее</div>
+            </div>
+          </div>
+        ))}
+        {locked}
+      </div>
+    );
+  }
   const t = o.test;
   const skill = t && SKILLS.find((k) => k.id === t.skill);
   const effects = lines.length > 0 && (

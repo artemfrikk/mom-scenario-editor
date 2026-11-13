@@ -2,7 +2,7 @@
 
 import catalog from '../content/catalog.json';
 import { reverseOf } from '../model/tiles';
-import { pieceOf, roomOf, startRoom, type Project } from './project';
+import { allOutcomes, pieceOf, roomOf, startRoom, type Project } from './project';
 
 export interface Problem {
   level: 'error' | 'warning';
@@ -40,7 +40,8 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
 
   // rooms nobody opens
   const timeline = p.timeline ?? [];
-  const opened = new Set([...p.pieces, ...timeline].flatMap((x) => x.outcome.reveal ?? []));
+  const outcomes = allOutcomes(p);
+  const opened = new Set(outcomes.flatMap((o) => o.reveal ?? []));
   if (!p.raw) {
     for (const r of p.rooms) {
       if (r === start || opened.has(r.id)) continue;
@@ -69,19 +70,22 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
     if (x.kind === 'explore' && !(x.outcome.reveal ?? []).length) {
       out.push({ level: 'warning', text: `Дверь в комнате «${where}» никуда не ведёт. Выберите, какую комнату она открывает.`, piece: x.id, room: x.room, step: 'map' });
     }
-    if (x.kind === 'monster' && x.when === 'event' && ![...p.pieces, ...timeline].some((q) => (q.outcome.spawn ?? []).includes(x.id))) {
+    if (x.kind === 'monster' && x.when === 'event' && !outcomes.some((o) => (o.spawn ?? []).includes(x.id))) {
       out.push({ level: 'warning', text: `Монстр в комнате «${where}» ждёт сигнала, но его никто не зовёт.`, piece: x.id, room: x.room, step: 'map' });
     }
-    if (['search', 'interact', 'npc', 'sight'].includes(x.kind) && !x.outcome.text.trim() && !x.outcome.test && !x.outcome.puzzle && !x.outcome.item && !x.outcome.clues && !x.outcome.win && !(x.outcome.reveal ?? []).length) {
+    if (['search', 'interact', 'npc', 'sight'].includes(x.kind) && !x.outcome.text.trim() && !x.outcome.test && !x.outcome.puzzle && !x.outcome.choices?.length && !x.outcome.item && !x.outcome.clues && !x.outcome.win && !(x.outcome.reveal ?? []).length) {
       out.push({ level: 'warning', text: `Жетон в комнате «${where}» ничего не делает. Напишите, что найдут сыщики.`, piece: x.id, room: x.room, step: 'map' });
     }
     if (x.outcome.puzzle?.kind === 'image' && !x.outcome.puzzle.image)
       out.push({ level: 'error', text: `Для головоломки-картинки в комнате «${where}» не выбрана картинка.`, piece: x.id, room: x.room, step: 'map' });
     if (x.outcome.lock && !x.outcome.lock.needs.length)
       out.push({ level: 'warning', text: `Замок в комнате «${where}»: не отмечено, что его открывает.`, piece: x.id, room: x.room, step: 'map' });
+    const answers = x.outcome.choices ?? [];
+    if (answers.length && answers.filter((c) => c.label.trim()).length < 2)
+      out.push({ level: 'warning', text: `В разговоре в комнате «${where}» меньше двух ответов с надписью на кнопке.`, piece: x.id, room: x.room, step: 'map' });
     for (const n of x.outcome.lock?.needs ?? []) {
-      const q = pieceOf(p, n);
-      if (q?.outcome.lock?.needs.includes(x.id))
+      const q = pieceOf(p, n.split('.')[0]);
+      if (q?.outcome.lock?.needs.some((m) => m.split('.')[0] === x.id))
         out.push({ level: 'error', text: `Два замка в комнатах «${where}» и «${roomLabel(p, q.room)}» ждут друг друга: их никогда не открыть.`, piece: x.id, room: x.room, step: 'map' });
     }
     for (const m of x.outcome.spawn ?? []) if (!pieceOf(p, m)) out.push({ level: 'warning', text: `Жетон в комнате «${where}» зовёт монстра, которого больше нет.`, piece: x.id, step: 'map' });
@@ -96,7 +100,7 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
     if (lose && t !== lose && t.round > lose.round)
       out.push({ level: 'warning', text: `Событие раунда ${t.round} не наступит: игра кончается на раунде ${lose.round}.`, step: 'threat' });
   }
-  if (!p.raw && ![...p.pieces, ...timeline].some((x) => x.outcome.win)) {
+  if (!p.raw && !outcomes.some((o) => o.win)) {
     out.push({ level: 'error', text: 'Пока нельзя победить. Выберите, после чего сыщики побеждают: находка, разговор или побеждённый монстр.', step: 'map' });
   }
   if (!p.winText.trim()) out.push({ level: 'warning', text: 'Нет текста победы.', step: 'endings' });

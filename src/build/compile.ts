@@ -8,7 +8,7 @@
 import catalog from '../content/catalog.json';
 import { CURRENT_FORMAT, type QComponent, type Scenario } from '../format/scenario';
 import { setIntro } from '../model/intro';
-import { PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Harm, type PuzzleSpec, type Room, type SkillTest } from './project';
+import { allOutcomes, doneVar, PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Harm, type PuzzleSpec, type Room, type SkillTest } from './project';
 
 export const LANG = 'Russian';
 
@@ -26,6 +26,7 @@ const itemName = (x: Piece) => 'QItem' + x.id;
 const passName = (x: Piece) => 'EventPass' + x.id;
 const failName = (x: Piece) => 'EventFail' + x.id;
 const lockedName = (x: Piece) => 'EventLocked' + x.id;
+const choiceName = (x: Piece, c: string) => 'EventAnswer' + x.id + c;
 const puzzleName = (x: Piece) => 'Puzzle' + x.id;
 const START = 'EventStart';
 const GOAL = 'EventGoal';
@@ -95,7 +96,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   const monsters = p.pieces.filter((x) => x.kind === 'monster');
   const roomById = new Map(p.rooms.map((r) => [r.id, r]));
   // pieces something else waits for: their result is remembered in a variable
-  const needed = new Set(p.pieces.flatMap((x) => x.outcome.lock?.needs ?? []));
+  const needed = new Set(p.pieces.flatMap((x) => x.outcome.lock?.needs ?? []).flatMap((n) => [n, n.split('.')[0]]));
 
   // --- the map ---
   for (const r of p.rooms) {
@@ -126,11 +127,11 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     if (o.clues) ops.push(`clues,+,${o.clues}`);
     for (const r of o.reveal ?? []) if (roomById.has(r)) ops.push(`@open_${r},=,1`);
     for (const m of o.spawn ?? []) if (monsters.some((q) => q.id === m)) ops.push(`@spawn_${m},=,1`);
-    if (needed.has(x.id)) ops.push(`done_${x.id},=,1`);
+    if (needed.has(x.id)) ops.push(`${doneVar(x.id)},=,1`);
     if (o.win) ops.push('@win,=,1');
     return ops;
   };
-  const outcomeEvent = (name: string, x: Piece, extra: Record<string, string | undefined> = {}) => {
+  const outcomeEvent = (name: string, x: Piece, extra: Record<string, string | undefined> = {}, item = itemName(x)) => {
     const o = x.outcome;
     const ops = operations(x);
     const remove = o.once && x.kind !== 'monster' ? tokenName(x) : undefined;
@@ -140,7 +141,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       display: shown ? undefined : 'false',
       buttons: '1',
       event1: '',
-      add: o.item ? itemName(x) : undefined,
+      add: o.item ? item : undefined,
       remove,
       operations: ops.join(' ') || undefined,
       audio: o.sound || undefined,
@@ -148,7 +149,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     });
     text(name + '.text', shown);
     if (shown) text(name + '.button1', 'Далее');
-    if (o.item) put(itemName(x), 'QItem', 'items.ini', { itemname: o.item, starting: 'False' });
+    if (o.item) put(item, 'QItem', 'items.ini', { itemname: o.item, starting: 'False' });
   };
 
   for (const x of p.pieces) {
@@ -175,7 +176,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     }
     const o = x.outcome;
     const lock = o.lock?.needs.length ? o.lock : undefined;
-    const vartests = lock ? lock.needs.map((n) => `VarOperation:done_${n},==,1`).join(' ') : undefined;
+    const vartests = lock ? lock.needs.map((n) => `VarOperation:${doneVar(n)},==,1`).join(' ') : undefined;
     if (lock) {
       // Valkyrie runs the first event whose tests pass: the result when it is open, else "closed"
       const tok = comps.find((c) => c.name === tokenName(x));
@@ -186,6 +187,24 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     }
     const test = o.test;
     const puzzle = o.puzzle;
+    const choices = o.choices?.filter((c) => c.label.trim()) ?? [];
+    if (choices.length) {
+      // A conversation: one button per answer, each answer has its own result and is remembered.
+      const data: Record<string, string | undefined> = { buttons: String(choices.length), vartests, audio: o.sound || undefined };
+      choices.forEach((c, i) => (data['event' + (i + 1)] = choiceName(x, c.id)));
+      put(actName(x), 'Event', 'events.ini', data);
+      text(actName(x) + '.text', o.text.trim() || '…');
+      choices.forEach((c, i) => text(actName(x) + '.button' + (i + 1), c.label.trim()));
+      for (const c of choices) {
+        const name = choiceName(x, c.id);
+        outcomeEvent(name, { ...x, outcome: { ...c.outcome, once: o.once } }, {}, itemName(x) + c.id);
+        if (needed.has(`${x.id}.${c.id}`)) {
+          const ev = comps.find((q) => q.name === name)!;
+          ev.data.operations = [ev.data.operations, `${doneVar(`${x.id}.${c.id}`)},=,1`].filter(Boolean).join(' ');
+        }
+      }
+      continue;
+    }
     if (puzzle) {
       // The players read the words, then the puzzle window opens; solving it gives the gifts.
       put(actName(x), 'Event', 'events.ini', {
@@ -237,7 +256,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
 
   // A room appears once, however many doors lead to it.
   const start = startRoom(p);
-  const revealed = new Set([...p.pieces, ...(p.timeline ?? [])].flatMap((x) => x.outcome.reveal ?? []));
+  const revealed = new Set(allOutcomes(p).flatMap((o) => o.reveal ?? []));
   for (const r of p.rooms) {
     if (r === start || !revealed.has(r.id)) continue;
     const opened = `opened_${r.id}`;
@@ -303,7 +322,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     }
   }
 
-  if (!p.raw || p.pieces.some((x) => x.outcome.win) || (p.timeline ?? []).some((t) => t.outcome.win)) {
+  if (!p.raw || allOutcomes(p).some((o) => o.win)) {
     put(WIN, 'Event', 'events.ini', { trigger: 'Varwin', buttons: '1', event1: '', operations: '$end,=,1' });
     text(WIN + '.text', p.winText || 'Победа!');
     text(WIN + '.button1', 'Завершить');

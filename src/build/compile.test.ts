@@ -194,6 +194,36 @@ describe('compile', () => {
     expect(st.ended).toBe(true);
   });
 
+  it('a conversation remembers the answer, and a lock can wait for one answer', () => {
+    const p = sample();
+    p.pieces.push(
+      piece('P9', 'R1', 'npc', 'TokenGreyMan', {
+        text: 'Кто вы?',
+        once: false,
+        choices: [
+          { id: 'c1', label: 'Солгать', outcome: { text: 'Он не верит.', once: false } },
+          { id: 'c2', label: 'Сказать правду', outcome: { text: 'Он даёт ключ.', item: 'ItemUniqueBrassKey', once: false } },
+        ],
+      }),
+    );
+    p.pieces[2].outcome.lock = { needs: ['P9.c2'], text: 'Заперто.' };
+    const s = compile(p);
+    expect(s.texts.Russian['EventP9.button2']).toBe('Сказать правду');
+    let st = play(s);
+    st = touch(s, st, 'TokenP9', () => 0);
+    st = closeAll(s, choose(s, st, 1, () => 0)); // a lie
+    st = touch(s, st, 'TokenP3', () => 0);
+    expect(st.current).toBe('EventLockedP3');
+    st = closeAll(s, st);
+    st = touch(s, st, 'TokenP9', () => 0);
+    st = choose(s, st, 2, () => 0); // the truth
+    expect(st.current).toBe('EventAnswerP9c2');
+    st = closeAll(s, st);
+    expect(st.items).toContain('QItemP9c2');
+    st = touch(s, st, 'TokenP3', () => 0);
+    expect(st.current).toBe('EventP3');
+  });
+
   it('two doors to the same room open it only once', () => {
     const p = sample();
     p.pieces.push(piece('P5', 'R1', 'explore', 'TokenExplore', { reveal: ['R2'] }));
