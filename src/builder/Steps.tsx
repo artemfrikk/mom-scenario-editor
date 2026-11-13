@@ -260,7 +260,14 @@ export function OwnedDialog({ onClose }: { onClose: () => void }) {
   const packs = useOwned((s) => s.packs);
   const setPacks = useOwned((s) => s.set);
   return (
-    <Dialog title="Мои коробки" icon="📦" onClose={onClose}>
+    <Dialog
+      title="Мои коробки"
+      icon="📦"
+      onClose={() => {
+        setPacks(packs); // closing counts as an answer, so the question is not asked again
+        onClose();
+      }}
+    >
       <p className="hint">Отметьте, что у вас есть. В палитре останутся только эти комнаты, монстры и жетоны.</p>
       {catalog.packs.map((pk) => (
         <label key={pk.id} className="check">

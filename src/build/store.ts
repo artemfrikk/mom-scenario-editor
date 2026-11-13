@@ -37,7 +37,7 @@ interface State {
   addChapter: () => void;
   removeChapter: (i: number) => void;
   open: (file: File) => Promise<void>;
-  reset: () => void;
+  reset: (from?: Project) => void;
   save: () => Promise<Blob>;
 }
 
@@ -153,8 +153,11 @@ export const useBuilder = create<State>((set, get) => ({
       dirty: false,
     });
   },
-  reset: () =>
-    set({ project: newProject(), chapters: [newProject()], chapter: 0, assets: {}, foreign: false, fileName: 'scenario.valkyrie', step: 'cover', selected: null, past: [], future: [], dirty: false }),
+  // A new scenario: empty, or one of the examples (which may be a whole campaign).
+  reset: (from) => {
+    const chapters = chaptersOf(from ?? newProject());
+    set({ project: chapters[0], chapters, chapter: 0, assets: {}, foreign: false, fileName: 'scenario.valkyrie', step: 'cover', selected: null, past: [], future: [], dirty: !!from });
+  },
   save: async () => {
     const blob = await saveValkyrie(compileCampaign(allChapters(), get().assets));
     set({ dirty: false });

@@ -38,9 +38,18 @@ export const snap = (v: number, step: number) => Math.round(v / step) * step;
 // A free spot for a new piece in a room: the middle, moved along until nothing else stands there.
 export function freeSpot(p: Project, room: Room, sizes: Sizes = {}): { x: number; y: number } {
   const b = roomBox(room, sizes);
-  const taken = (x: number, y: number) => p.pieces.some((q: Piece) => Math.abs(q.x - x) < 0.6 && Math.abs(q.y - y) < 0.6);
   const cx = snap((b.minX + b.maxX) / 2, SNAP_PIECE);
   const cy = snap((b.minY + b.maxY) / 2, SNAP_PIECE);
+  // first a spot where the token does not touch another one, then one where it does not cover it
+  const inner = { ...b, minX: b.minX + 0.45, maxX: b.maxX - 0.45, minY: b.minY + 0.45, maxY: b.maxY - 0.45 };
+  for (const [box, gap] of [[inner, 1.1], [b, 0.6]] as const) {
+    const spot = search(box, cx, cy, (x, y) => p.pieces.some((q: Piece) => Math.abs(q.x - x) < gap && Math.abs(q.y - y) < gap));
+    if (spot) return spot;
+  }
+  return { x: cx, y: cy };
+}
+
+function search(b: Box, cx: number, cy: number, taken: (x: number, y: number) => boolean): { x: number; y: number } | undefined {
   for (let ring = 0; ring < 6; ring++) {
     for (let dx = -ring; dx <= ring; dx++) {
       for (let dy = -ring; dy <= ring; dy++) {
@@ -51,5 +60,5 @@ export function freeSpot(p: Project, room: Room, sizes: Sizes = {}): { x: number
       }
     }
   }
-  return { x: cx, y: cy };
+  return undefined;
 }

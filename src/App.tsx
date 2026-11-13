@@ -7,6 +7,8 @@ import { MapStep } from './builder/MapStep';
 import { ThreatStep } from './builder/ThreatStep';
 import { CoverStep, EndingsStep, OwnedDialog, PlayStep, Problems, PrologueStep } from './builder/Steps';
 import { useProblems } from './builder/problems';
+import { StartChoices, StartDialog } from './builder/Start';
+import type { Project } from './build/project';
 import { useImages } from './images';
 import { useStore } from './store';
 import { ImagesButton, ImagesDialog } from './ui/ImagesDialog';
@@ -76,11 +78,14 @@ export default function App() {
     }
   };
 
-  const startNew = () => {
+  const [choosing, setChoosing] = useState(false);
+  const startNew = (from?: Project) => {
     if (dirty && !confirm('Начать новый сценарий? Несохранённые изменения пропадут.')) return;
-    reset();
+    setChoosing(false);
+    reset(from);
     setStarted(true);
     if (!askedPacks) setPacks(true);
+    if (from) flash(`Открыт пример «${from.title}». Меняйте в нём что угодно или сразу сыграйте на шаге «Сыграть».`);
   };
 
   useEffect(() => {
@@ -146,7 +151,7 @@ export default function App() {
             </button>
           </>
         )}
-        <button onClick={startNew}>Новый</button>
+        <button onClick={() => setChoosing(true)}>Новый</button>
         <button onClick={() => fileInput.current?.click()}>Открыть…</button>
         <ImagesButton />
         <button className="ghost" onClick={() => setPacks(true)} title="Какие коробки игры у вас есть">
@@ -193,13 +198,14 @@ export default function App() {
         </div>
       )}
       {started && <ImagesDialog auto={step === 'map'} />}
+      {choosing && <StartDialog onPick={startNew} onClose={() => setChoosing(false)} />}
       {packs && <OwnedDialog onClose={() => setPacks(false)} />}
       {(notice || toast) && <div className="toast">{notice || toast}</div>}
     </div>
   );
 }
 
-function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => void; onDrop: (f: File | undefined) => void }) {
+function Welcome({ onNew, onOpen, onDrop }: { onNew: (from?: Project) => void; onOpen: () => void; onDrop: (f: File | undefined) => void }) {
   return (
     <div
       className="page"
@@ -212,11 +218,8 @@ function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => v
       <div className="welcome">
         <h1>Создайте свою историю для «Особняков безумия»</h1>
         <div className="lead">Напишите вступление, разложите комнаты и решите, что случится в каждой. Связи, переменные и события Valkyrie конструктор расставит сам.</div>
+        <StartChoices onPick={onNew} />
         <div className="actions">
-          <button onClick={onNew}>
-            <b>✨ Новый сценарий</b>
-            <span>Шесть шагов: обложка, вступление, карта, угроза, финалы, пробная игра. Можно сделать кампанию из нескольких глав.</span>
-          </button>
           <button onClick={onOpen}>
             <b>📂 Открыть .valkyrie</b>
             <span>Продолжите свой сценарий. Можно перетащить файл сюда.</span>
