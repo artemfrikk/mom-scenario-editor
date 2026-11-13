@@ -10,7 +10,7 @@ import { newProject, PROJECT_FILE, PROJECT_FORMAT, type Assets, type Project } f
 
 // card texts the constructor writes itself
 const OWN_TEXTS = ['quest.name', 'quest.description', 'quest.authors', 'quest.synopsys'];
-const GENERATED_EXTRA = [/^mse-/, /^editor\.json$/];
+const GENERATED_EXTRA = [/^mse-/, /^editor\.json$/, /^ch\d+\//]; // ch2/... are the other chapters of a campaign, rebuilt on save
 
 export function projectFromScenario(s: Scenario): { project: Project; assets: Assets; foreign: boolean } {
   const assets: Assets = {};

@@ -106,3 +106,19 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
   if (!p.winText.trim()) out.push({ level: 'warning', text: 'Нет текста победы.', step: 'endings' });
   return out;
 }
+
+// Problems that span the chapters of a campaign; reported on the chapter where they can be fixed.
+export function checkCampaign(chapters: Project[], here: number): Problem[] {
+  if (chapters.length < 2) return [];
+  const out: Problem[] = [];
+  const p = chapters[here];
+  const ids = new Set(chapters.map((c) => c.chapter));
+  const reached = new Set(chapters.flatMap((c) => [c.next?.win, c.next?.lose]).filter(Boolean));
+  if (here > 0 && !reached.has(p.chapter)) out.push({ level: 'warning', text: 'В эту главу не ведёт ни один финал. Выберите её в шаге «Финалы» нужной главы.', step: 'endings' });
+  for (const to of [p.next?.win, p.next?.lose]) if (to && !ids.has(to)) out.push({ level: 'error', text: 'Финал ведёт в главу, которой больше нет.', step: 'endings' });
+  const set = new Set(chapters.flatMap((c) => allOutcomes(c).flatMap((o) => o.remember ?? [])));
+  for (const x of p.pieces)
+    for (const n of x.outcome.lock?.needs ?? [])
+      if (n.startsWith('%') && !set.has(n.slice(1))) out.push({ level: 'warning', text: 'Замок ждёт отметку из прошлой главы, но её никто не ставит.', piece: x.id, room: x.room, step: 'map' });
+  return out;
+}

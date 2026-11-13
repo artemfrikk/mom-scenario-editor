@@ -160,8 +160,11 @@ function Gifts({ p, o, set, here, rooms, self }: { p: Project; o: Outcome; set: 
   const items = ITEMS.filter((i) => owned.includes(packOf(i.value) ?? 'MoMBase'));
   const others = p.rooms.filter((r) => r.id !== here);
   const waiting = p.pieces.filter((m) => m.kind === 'monster' && m.when === 'event' && m.id !== self);
+  const campaign = useBuilder((s) => s.chapters.length > 1);
+  const [remember, setRemember] = useState(false);
   return (
     <>
+      {campaign && (remember || !!o.remember?.length) && <RememberPart p={p} o={o} set={set} />}
       {o.item !== undefined && (
         <label className="field">
           <span>Предмет, который получат сыщики</span>
@@ -191,6 +194,7 @@ function Gifts({ p, o, set, here, rooms, self }: { p: Project; o: Outcome; set: 
         <div className="more">
           {o.item === undefined && <button onClick={() => set({ item: 'ItemCommonKnife' })}>🗝 Дать предмет</button>}
           {!o.clues && <button onClick={() => set({ clues: 1 })}>❓ Дать улику</button>}
+          {campaign && !remember && !o.remember?.length && <button onClick={() => setRemember(true)}>📜 Запомнить для следующих глав</button>}
           {rooms && others.length > 0 && (
             <div className="field">
               <span className="hint">Откроются комнаты</span>
@@ -218,6 +222,40 @@ function Gifts({ p, o, set, here, rooms, self }: { p: Project; o: Outcome; set: 
         </div>
       )}
     </>
+  );
+}
+
+// Campaign marks: what this result makes the next chapters remember ("Дворецкий спасён").
+function RememberPart({ p, o, set }: { p: Project; o: Outcome; set: (o: Partial<Outcome>, key?: string) => void }) {
+  const [label, setLabel] = useState('');
+  const marks = p.marks ?? [];
+  const on = o.remember ?? [];
+  const add = () => {
+    const text = label.trim();
+    if (!text) return;
+    const st = useBuilder.getState();
+    const id = `${p.chapter ?? 'ch1'}m${st.project.nextId}`;
+    st.change((q) => ({ ...q, nextId: q.nextId + 1, marks: [...(q.marks ?? []), { id, label: text }] }));
+    set({ remember: [...on, id] });
+    setLabel('');
+  };
+  return (
+    <div className="field">
+      <span>📜 Запомнить для следующих глав</span>
+      {marks.map((m) => (
+        <label key={m.id} className="check">
+          <input type="checkbox" checked={on.includes(m.id)} onChange={(e) => set({ remember: e.target.checked ? [...on, m.id] : on.filter((k) => k !== m.id) })} />
+          {m.label}
+        </label>
+      ))}
+      <div className="row">
+        <input value={label} placeholder="Например: дворецкий спасён" onChange={(e) => setLabel(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()} />
+        <button className="auto" disabled={!label.trim()} onClick={add}>
+          + Запомнить
+        </button>
+      </div>
+      <span className="hint">В следующих главах это можно проверить у замка: «🔒 Заперто, пока…» → «Из прошлых глав».</span>
+    </div>
   );
 }
 
@@ -457,6 +495,10 @@ function LockPart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcom
   const lock = x.outcome.lock;
   const others = p.pieces.filter((q) => q.id !== x.id && q.kind !== 'start' && q.kind !== 'mark');
   const put = (patch: Partial<Lock>, key?: string) => set({ lock: { needs: [], text: 'Заперто. Нужен ключ.', ...lock, ...patch } }, key);
+  const chapters = useBuilder((s) => s.chapters);
+  const here = useBuilder((s) => s.chapter);
+  const past = chapters.flatMap((c, i) => (i === here ? [] : (c.marks ?? []).map((m) => ({ key: '%' + m.id, label: `📜 ${m.label} · ${c.chapterTitle || `Глава ${i + 1}`}` }))));
+  const toggle = (key: string, on: boolean) => put({ needs: on ? [...lock!.needs, key] : lock!.needs.filter((k) => k !== key) });
   return (
     <div className="field wh-test">
       <label className="check">
@@ -472,13 +514,24 @@ function LockPart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcom
                 ...(q.outcome.choices ?? []).filter((c) => c.label.trim()).map((c) => ({ key: `${q.id}.${c.id}`, label: `↳ выбран ответ «${c.label.trim()}»`, sub: true })),
               ]).map((n) => (
                 <label key={n.key} className={'check' + (n.sub ? ' sub' : '')}>
-                  <input type="checkbox" checked={lock.needs.includes(n.key)} onChange={(e) => put({ needs: e.target.checked ? [...lock.needs, n.key] : lock.needs.filter((k) => k !== n.key) })} />
+                  <input type="checkbox" checked={lock.needs.includes(n.key)} onChange={(e) => toggle(n.key, e.target.checked)} />
                   {n.label}
                 </label>
               ))}
             </>
           ) : (
-            <div className="hint">Сначала положите на карту то, что открывает замок: например, обыск, где лежит ключ.</div>
+            !past.length && <div className="hint">Сначала положите на карту то, что открывает замок: например, обыск, где лежит ключ.</div>
+          )}
+          {past.length > 0 && (
+            <>
+              <span className="hint">Из прошлых глав</span>
+              {past.map((n) => (
+                <label key={n.key} className="check">
+                  <input type="checkbox" checked={lock.needs.includes(n.key)} onChange={(e) => toggle(n.key, e.target.checked)} />
+                  {n.label}
+                </label>
+              ))}
+            </>
           )}
           <label className="field">
             <span>Что прочтут, пока заперто</span>

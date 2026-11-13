@@ -50,7 +50,7 @@ export interface Choice {
 
 // Closed until other pieces were used: a key found, a lever pulled, a monster defeated.
 export interface Lock {
-  needs: string[]; // ids of pieces whose outcome must have happened (all of them); "P5.c2" is one answer of a conversation
+  needs: string[]; // ids of pieces whose outcome must have happened (all of them); "P5.c2" is one answer of a conversation, "%ch1m4" a campaign mark
   text: string; // what the players read while it is still closed
 }
 
@@ -60,6 +60,7 @@ export interface Outcome {
   test?: SkillTest;
   puzzle?: PuzzleSpec;
   choices?: Choice[]; // the players choose an answer instead of reading one result
+  remember?: string[]; // campaign marks set by this result, read in later chapters
   lock?: Lock;
   item?: string; // catalog item id the investigators receive
   clues?: number; // clues the investigators receive
@@ -122,6 +123,18 @@ export interface TimedEvent {
   lose?: boolean; // time is up: the investigators lose
 }
 
+// A campaign mark: something the next chapters remember ("Дворецкий спасён").
+export interface Mark {
+  id: string; // the chapter's id, "m" and a number: ch1m4
+  label: string;
+}
+
+// Where the campaign goes after a chapter ends: another chapter's id, or nothing for the end.
+export interface Next {
+  win?: string;
+  lose?: string;
+}
+
 export interface Project {
   format: number;
   title: string;
@@ -140,6 +153,11 @@ export interface Project {
   winText: string;
   loseText: string;
   mythos?: Mythos; // left out: Valkyrie decides (scenarios made elsewhere)
+  chapter?: string; // chapter id inside a campaign: ch1 is the main scenario
+  chapterTitle?: string;
+  next?: Next;
+  marks?: Mark[]; // marks this chapter sets; later chapters can read them
+  campaign?: Project[]; // the other chapters, only in the saved file (editor.json)
   timeline?: TimedEvent[];
   nextId: number;
   raw?: RawPart;
@@ -247,4 +265,10 @@ export function allOutcomes(p: Project): Outcome[] {
 }
 
 // The variable that remembers a piece was used ("P5") or an answer was chosen ("P5.c2").
-export const doneVar = (need: string) => 'done_' + need.replace('.', '_');
+export const doneVar = (need: string) => (need.startsWith('%') ? markVar(need.slice(1)) : 'done_' + need.replace('.', '_'));
+
+// Variables starting with % survive the move to the next chapter (Valkyrie's VarManager.TrimQuest).
+export const markVar = (mark: string) => '%mark_' + mark;
+
+// Where a chapter's quest.ini lies inside the package; Valkyrie looks for it from the package's folder.
+export const chapterPath = (id: string) => (id === 'ch1' ? 'quest.ini' : `${id}/quest.ini`);

@@ -8,7 +8,7 @@
 import catalog from '../content/catalog.json';
 import { CURRENT_FORMAT, type QComponent, type Scenario } from '../format/scenario';
 import { setIntro } from '../model/intro';
-import { allOutcomes, doneVar, PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Harm, type PuzzleSpec, type Room, type SkillTest } from './project';
+import { allOutcomes, chapterPath, doneVar, markVar, PROJECT_FILE, startRoom, type Assets, type Piece, type Project, type Harm, type PuzzleSpec, type Room, type SkillTest } from './project';
 
 export const LANG = 'Russian';
 
@@ -128,6 +128,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     for (const r of o.reveal ?? []) if (roomById.has(r)) ops.push(`@open_${r},=,1`);
     for (const m of o.spawn ?? []) if (monsters.some((q) => q.id === m)) ops.push(`@spawn_${m},=,1`);
     if (needed.has(x.id)) ops.push(`${doneVar(x.id)},=,1`);
+    for (const m of o.remember ?? []) ops.push(`${markVar(m)},=,1`);
     if (o.win) ops.push('@win,=,1');
     return ops;
   };
@@ -169,7 +170,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       text(tokenName(x) + '.text', x.title.trim() ? `Появляется ${x.title.trim()}!` : r ? 'Из темноты появляется чудовище!' : '');
       text(tokenName(x) + '.button1', 'Далее');
       const o = x.outcome;
-      if (o.text.trim() || o.win || o.reveal?.length || o.spawn?.length || o.clues || o.item || needed.has(x.id)) {
+      if (o.text.trim() || o.win || o.reveal?.length || o.spawn?.length || o.clues || o.item || o.remember?.length || needed.has(x.id)) {
         outcomeEvent(defeatName(x), x, { trigger: 'Defeated' + tokenName(x) });
       }
       continue;
@@ -303,6 +304,12 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
       text(openName(start) + '.button1', 'Далее');
     }
   }
+  // The end of a chapter: the game ends, or the button opens the next chapter of the campaign.
+  const ending = (how: 'win' | 'lose') => {
+    const to = p.next?.[how];
+    return to ? { event1: chapterPath(to), operations: undefined, button: 'Следующая глава' } : { event1: '', operations: '$end,=,1', button: 'Завершить' };
+  };
+
   // --- time: Valkyrie's own mythos events get stronger, and the author's events come in their rounds ---
   for (const r of p.mythos?.rises ?? []) {
     if (r.round < 2) continue;
@@ -315,22 +322,26 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     outcomeEvent(name, x, { trigger: 'Mythos', vartests: `VarOperation:#round,${t.every ? '>=' : '=='},${t.round}` });
     if (t.lose) {
       const c = comps.find((q) => q.name === name)!;
-      c.data.operations = [c.data.operations, '$end,=,1'].filter(Boolean).join(' ');
+      const e = ending('lose');
+      c.data.operations = [c.data.operations, e.operations].filter(Boolean).join(' ');
+      c.data.event1 = e.event1;
       delete c.data.display;
       text(name + '.text', t.outcome.text.trim() || p.loseText || 'Время вышло.');
-      text(name + '.button1', 'Завершить');
+      text(name + '.button1', e.button);
     }
   }
 
   if (!p.raw || allOutcomes(p).some((o) => o.win)) {
-    put(WIN, 'Event', 'events.ini', { trigger: 'Varwin', buttons: '1', event1: '', operations: '$end,=,1' });
+    const e = ending('win');
+    put(WIN, 'Event', 'events.ini', { trigger: 'Varwin', buttons: '1', event1: e.event1, operations: e.operations });
     text(WIN + '.text', p.winText || 'Победа!');
-    text(WIN + '.button1', 'Завершить');
+    text(WIN + '.button1', e.button);
   }
   if (!rawHas('Eliminated')) {
-    put(LOSE, 'Event', 'events.ini', { trigger: 'Eliminated', buttons: '1', event1: '', operations: '$end,=,1' });
+    const e = ending('lose');
+    put(LOSE, 'Event', 'events.ini', { trigger: 'Eliminated', buttons: '1', event1: e.event1, operations: e.operations });
     text(LOSE + '.text', p.loseText || 'Поражение.');
-    text(LOSE + '.button1', 'Завершить');
+    text(LOSE + '.button1', e.button);
   }
 
   // --- the scenario card ---
@@ -338,7 +349,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   const quest: Record<string, string> = {
     ...(p.raw?.quest ?? {}),
     format: CURRENT_FORMAT,
-    hidden: 'False',
+    hidden: p.chapter && p.chapter !== 'ch1' ? 'True' : 'False',
     type: 'MoM',
     defaultlanguage: p.raw?.quest.defaultlanguage || LANG,
     defaultmusicon: 'True',

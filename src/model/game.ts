@@ -264,7 +264,10 @@ export function choose(s: Scenario, st: GameState, index: number, rng: Rng = Mat
   if (index === 0) return next(s, out, rng, depth + 1);
   const targets = buttonsOf(c).find((b) => b.index === index)?.targets ?? [];
   const enabled = targets.filter((t) => !isDisabled(s, out, t) && getComponent(s, t));
-  for (const t of targets) if (!getComponent(s, t)) out = note(out, `Предупреждение: нет события «${t}».`);
+  // An event named after a quest.ini of the package moves the game to another chapter (Valkyrie's StartQuestEvent).
+  const chapter = targets.find((t) => /(^|\/)quest\.ini$/i.test(t) && !getComponent(s, t));
+  for (const t of targets) if (!getComponent(s, t) && t !== chapter) out = note(out, `Предупреждение: нет события «${t}».`);
+  if (chapter) return { ...note(out, `Дальше Valkyrie откроет следующую главу (${chapter}). Пробная игра проходит одну главу.`), ended: true, stack: [] };
 
   if ((out.vars['$end'] ?? 0) !== 0) return { ...out, ended: true, stack: [] };
   if (enabled.length) out = queueEvent(s, out, c.data.randomevents === 'true' ? pick(enabled, rng) : enabled[0]);

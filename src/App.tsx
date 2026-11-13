@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { checkProject } from './build/check';
-import { compile } from './build/compile';
+import { useEffect, useRef, useState } from 'react';
+import { compileCampaign } from './build/campaign';
 import { useOwned } from './build/owned';
-import { restoreAutosave, useBuilder, type Step } from './build/store';
+import { allChapters, restoreAutosave, useBuilder, type Step } from './build/store';
+import { ChapterBar } from './builder/Chapters';
 import { MapStep } from './builder/MapStep';
 import { ThreatStep } from './builder/ThreatStep';
-import { tileTitle } from './builder/names';
 import { CoverStep, EndingsStep, OwnedDialog, PlayStep, Problems, PrologueStep } from './builder/Steps';
+import { useProblems } from './builder/problems';
 import { useImages } from './images';
 import { useStore } from './store';
 import { ImagesButton, ImagesDialog } from './ui/ImagesDialog';
@@ -38,7 +38,7 @@ export default function App() {
   const [started, setStarted] = useState(false);
   const [packs, setPacks] = useState(false);
   const [translator, setTranslator] = useState(() => window.location.hash === '#translate');
-  const problems = useMemo(() => checkProject(p, tileTitle), [p]);
+  const problems = useProblems();
   const errors = problems.filter((x) => x.level === 'error').length;
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function App() {
   }, []);
 
   const openTranslator = (on: boolean) => {
-    if (on) useStore.setState({ scenario: compile(p, useBuilder.getState().assets), fileName, lang: 'Russian' });
+    if (on) useStore.setState({ scenario: compileCampaign(allChapters(), useBuilder.getState().assets), fileName, lang: 'Russian' });
     window.location.hash = on ? 'translate' : '';
     setTranslator(on);
   };
@@ -167,6 +167,7 @@ export default function App() {
       ) : (
         <div className="builder">
           <nav className="steps-nav">
+            <ChapterBar />
             {STEPS.map((s, i) => {
               const count = s.step === 'play' ? 0 : problems.filter((x) => x.step === s.step).length;
               return (
@@ -214,7 +215,7 @@ function Welcome({ onNew, onOpen, onDrop }: { onNew: () => void; onOpen: () => v
         <div className="actions">
           <button onClick={onNew}>
             <b>✨ Новый сценарий</b>
-            <span>Шесть шагов: обложка, вступление, карта, угроза, финалы, пробная игра.</span>
+            <span>Шесть шагов: обложка, вступление, карта, угроза, финалы, пробная игра. Можно сделать кампанию из нескольких глав.</span>
           </button>
           <button onClick={onOpen}>
             <b>📂 Открыть .valkyrie</b>
