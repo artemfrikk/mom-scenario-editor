@@ -13,10 +13,13 @@ import { useBuilder } from '../build/store';
 import { Board, type BoardApi } from './Board';
 import { imageOf, KINDS, tilesFree, kindInfo, MARK_TOKENS, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
 import { WhatHappens } from './WhatHappens';
+import { PaceBar } from './Pace';
+import { placeScene, SCENES } from '../build/scenes';
 import { SoundPick } from './Sound';
+import { HelpWithText, MoodIdeas, SoundIdeas } from './Mood';
 
-type Tab = 'rooms' | 'things' | 'people' | 'monsters';
-type Grab = { what: 'tile' | 'piece'; kind?: PieceKind; look: string; icon: string; label: string };
+type Tab = 'rooms' | 'things' | 'scenes' | 'people' | 'monsters';
+type Grab = { what: 'tile' | 'piece' | 'scene'; kind?: PieceKind; look: string; icon: string; label: string };
 
 export function MapStep() {
   const p = useBuilder((s) => s.project);
@@ -72,6 +75,27 @@ export function MapStep() {
       flash(at ? 'Положите это внутрь комнаты.' : 'Сначала выберите комнату на карте.');
       return;
     }
+    if (g.what === 'scene') {
+      const scene = SCENES.find((sc) => sc.id === g.look);
+      if (!scene) return;
+      // what belongs elsewhere goes to a room opened earlier: the starting one, or any other
+      const start = startRoom(p);
+      const other = (start && start.id !== target.id ? start : p.rooms.find((r) => r.id !== target.id)) ?? target;
+      let focus = '';
+      change((q) => {
+        const [next, f] = placeScene(q, scene, target.id, other.id, sizes);
+        focus = f;
+        return next;
+      });
+      select({ kind: 'piece', id: focus });
+      setOpen(focus);
+      flash(
+        scene.elsewhere && other.id !== target.id
+          ? `Сцена «${scene.title}» готова. ${scene.elsewhere[0].toUpperCase() + scene.elsewhere.slice(1)} в комнате «${roomTitle(p, other.id)}»: перетащите в другую, если нужно.`
+          : `Сцена «${scene.title}» готова. Поменяйте тексты на свои.`,
+      );
+      return;
+    }
     let id = '';
     change((q) => {
       const [next, pid] = addPiece(q, target.id, g.kind!, g.look, at ?? undefined, sizes);
@@ -93,8 +117,9 @@ export function MapStep() {
           </div>
         )}
         <Board apiRef={board} sizes={sizes} onSizes={onSizes} onOpenPiece={setOpen} dimmed={dimmed} />
+        <PaceBar />
       </div>
-      {room && <RoomPanel id={room.id} onAdd={(kind, look) => place({ what: 'piece', kind, look, icon: '', label: '' }, null)} onOpen={setOpen} />}
+      {room && <RoomPanel key={room.id} id={room.id} onAdd={(kind, look) => place({ what: 'piece', kind, look, icon: '', label: '' }, null)} onOpen={setOpen} />}
       {open && <WhatHappens id={open} sizes={sizes} onClose={() => setOpen(null)} />}
     </div>
   );
@@ -151,12 +176,15 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
     window.addEventListener('pointercancel', stop);
   };
 
-  const Item = ({ g, image, note }: { g: Grab; image?: string; note?: string }) => {
+  const Item = ({ g, image, note, show }: { g: Grab; image?: string; note?: string; show?: boolean }) => {
     const url = imageUrl(urls, image);
     return (
       <div className="pal-item" onPointerDown={(e) => grab(e, g)} title={note}>
         {url ? <img src={url} alt="" draggable={false} /> : <span className="pal-icon">{g.icon}</span>}
-        <span className="pal-label">{g.label}</span>
+        <span className="pal-label">
+          {g.label}
+          {show && note && <span className="pal-note">{note}</span>}
+        </span>
       </div>
     );
   };
@@ -168,6 +196,7 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
           [
             ['rooms', '🧱 Комнаты'],
             ['things', '🔍 Жетоны'],
+            ['scenes', '🎬 Сцены'],
             ['people', '🧍 Люди'],
             ['monsters', '👹 Монстры'],
           ] as const
@@ -179,9 +208,9 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
       </div>
       <input className="pal-search" placeholder="Поиск…" value={query} onChange={(e) => setQuery(e.target.value)} />
       <div className="hint pal-hint">
-        {tab === 'rooms' ? 'Перетащите комнату на поле или нажмите, чтобы поставить рядом.' : hasRoom ? 'Перетащите в комнату или нажмите, чтобы положить в выбранную.' : 'Перетащите в комнату на карте.'}
+        {tab === 'rooms' ? 'Перетащите комнату на поле или нажмите, чтобы поставить рядом.' : tab === 'scenes' ? 'Готовая сцена со всеми связями. Перетащите в комнату или нажмите, чтобы положить в выбранную.' : hasRoom ? 'Перетащите в комнату или нажмите, чтобы положить в выбранную.' : 'Перетащите в комнату на карте.'}
       </div>
-      <div className={'pal-list' + (tab === 'rooms' ? ' tiles' : '')}>
+      <div className={'pal-list' + (tab === 'rooms' ? ' tiles' : tab === 'scenes' ? ' scenes' : '')}>
         {tab === 'rooms' &&
           tiles.filter((t) => match(t.label)).map((t) => <Item key={t.value} g={{ what: 'tile', look: t.value, icon: '🧱', label: t.label }} image={t.image} note={t.note} />)}
         {tab === 'things' && (
@@ -195,6 +224,18 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
             ))}
           </>
         )}
+        {tab === 'scenes' &&
+          (['Замки и ключи', 'Люди', 'Опасность', 'Тайны'] as const).map((group) => {
+            const list = SCENES.filter((sc) => sc.group === group && match(sc.title + ' ' + sc.hint));
+            return list.length ? (
+              <div key={group} className="pal-group">
+                <div className="pal-sub">{group}</div>
+                {list.map((sc) => (
+                  <Item key={sc.id} g={{ what: 'scene', look: sc.id, icon: sc.icon, label: sc.title }} note={sc.hint} show />
+                ))}
+              </div>
+            ) : null;
+          })}
         {tab === 'people' &&
           NPC_TOKENS.filter((t) => owned.includes(packOf(t) ?? 'MoMBase') && match(tokenTitle(t))).map((t) => (
             <Item key={t} g={{ what: 'piece', kind: 'npc', look: t, icon: '🧍', label: tokenTitle(t) }} image={imageOf(t)} />
@@ -217,6 +258,7 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
   const p = useBuilder((s) => s.project);
   const change = useBuilder((s) => s.change);
   const select = useBuilder((s) => s.select);
+  const [ideas, setIdeas] = useState(false);
   const r = roomOf(p, id);
   if (!r) return null;
   const pieces = piecesIn(p, id);
@@ -238,6 +280,14 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
           🗑
         </button>
       </div>
+      {r.todo && (
+        <div className="todo-note">
+          <span>📝 {r.todo.replace(/^Заготовка: /, '')}</span>
+          <button className="small" onClick={() => change((q) => updateRoom(q, id, { todo: undefined }))}>
+            ✓ Сделано
+          </button>
+        </div>
+      )}
       <div className="hint">
         {r === start
           ? 'Сыщики начинают здесь, комната видна с начала игры.'
@@ -249,7 +299,14 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
         <span>Что видят сыщики, войдя сюда</span>
         <textarea rows={3} value={r.enterText} placeholder="Необязательно. Например: «Холодно. В камине тлеют угли…»" onChange={(e) => change((q) => updateRoom(q, id, { enterText: e.target.value }), 'enter' + id)} />
       </label>
-      <RoomSound id={id} sound={r.sound} music={r.music} />
+      <div className="row-wrap">
+        <button className="link" onClick={() => setIdeas(!ideas)}>
+          ✨ Идеи для текста
+        </button>
+        <HelpWithText p={p} room={id} current={r.enterText} onPick={(t) => change((q) => updateRoom(q, id, { enterText: t }))} />
+      </div>
+      {ideas && <MoodIdeas tile={r.tile} onPick={(t) => (change((q) => updateRoom(q, id, { enterText: t })), setIdeas(false))} />}
+      <RoomSound id={id} tile={r.tile} sound={r.sound} music={r.music} />
 
       <div className="room-add">
         <div className="hint">Что здесь будет?</div>
@@ -303,7 +360,7 @@ function summary(p: Project, id: string): string {
 }
 
 // A room's own sound when it appears, and the music that starts there.
-function RoomSound({ id, sound, music }: { id: string; sound?: string; music?: string }) {
+function RoomSound({ id, tile, sound, music }: { id: string; tile: string; sound?: string; music?: string }) {
   const change = useBuilder((s) => s.change);
   const [open, setOpen] = useState(false);
   if (!open && !sound && !music)
@@ -316,6 +373,7 @@ function RoomSound({ id, sound, music }: { id: string; sound?: string; music?: s
     <>
       <SoundPick label="🔊 Звук, когда комната открывается" value={sound} onChange={(v) => change((q) => updateRoom(q, id, { sound: v }))} />
       <SoundPick music label="🎵 Музыка с этого момента" value={music} onChange={(v) => change((q) => updateRoom(q, id, { music: v }))} />
+      <SoundIdeas tile={tile} onSound={(v) => change((q) => updateRoom(q, id, { sound: v }))} onMusic={(v) => change((q) => updateRoom(q, id, { music: v }))} />
     </>
   );
 }

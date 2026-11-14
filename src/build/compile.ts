@@ -108,7 +108,7 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
   const monsters = p.pieces.filter((x) => x.kind === 'monster');
   const roomById = new Map(p.rooms.map((r) => [r.id, r]));
   // pieces something else waits for: their result is remembered in a variable
-  const needed = new Set(p.pieces.flatMap((x) => x.outcome.lock?.needs ?? []).flatMap((n) => [n, n.split('.')[0]]));
+  const needed = new Set(allOutcomes(p).flatMap((o) => [...(o.lock?.needs ?? []), ...(o.ifs ?? []).flatMap((c) => c.needs)]).flatMap((n) => [n, n.split('.')[0]]));
 
   // --- the map ---
   for (const r of p.rooms) {
@@ -150,18 +150,35 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     const remove = o.once && x.kind !== 'monster' ? tokenName(x) : undefined;
     let shown = o.text.trim();
     if (o.clues) shown += (shown ? '\n\n' : '') + `<i>Сыщик получает ${o.clues > 1 ? `улики: ${o.clues}` : 'улику'}.</i>`;
+    const ifs = (o.ifs ?? []).filter((c) => c.needs.length && c.text.trim());
+    const clueLine = o.clues ? `<i>Сыщик получает ${o.clues > 1 ? `улики: ${o.clues}` : 'улику'}.</i>` : '';
+    // Other texts: the result itself is silent and passes on to the first text whose conditions hold, the usual one last.
+    const words = ifs.length ? [...ifs.map((c) => ({ name: name + 'If' + c.id, tests: c.needs, text: c.text.trim() })), { name: name + 'Else', tests: [] as string[], text: o.text.trim() }] : [];
+    // the gifts come with the words, so whatever they start (victory, a room) follows the window as usual
+    const gifts = { add: o.item ? item : undefined, remove, operations: ops.join(' ') || undefined, audio: o.sound || undefined };
     put(name, 'Event', 'events.ini', {
-      display: shown ? undefined : 'false',
+      display: shown && !ifs.length ? undefined : 'false',
       buttons: '1',
-      event1: '',
-      add: o.item ? item : undefined,
-      remove,
-      operations: ops.join(' ') || undefined,
-      audio: o.sound || undefined,
+      event1: words.map((w) => w.name).join(' '),
+      ...(ifs.length ? {} : gifts),
       ...extra,
     });
-    text(name + '.text', shown);
-    if (shown) text(name + '.button1', 'Далее');
+    if (!ifs.length) {
+      text(name + '.text', shown);
+      if (shown) text(name + '.button1', 'Далее');
+    }
+    for (const w of words) {
+      const t = [w.text, clueLine].filter(Boolean).join('\n\n');
+      put(w.name, 'Event', 'events.ini', {
+        display: t ? undefined : 'false',
+        buttons: '1',
+        event1: '',
+        ...gifts,
+        vartests: w.tests.map((n) => `VarOperation:${doneVar(n)},==,1`).join(' ') || undefined,
+      });
+      text(w.name + '.text', t);
+      if (t) text(w.name + '.button1', 'Далее');
+    }
     if (o.item) put(item, 'QItem', 'items.ini', { itemname: o.item, starting: 'False' });
   };
 

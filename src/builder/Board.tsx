@@ -9,6 +9,7 @@ import { flipRoom, rotateRoom } from '../build/edit';
 import { deleteRoom, moveRoom, updatePiece, type Piece } from '../build/project';
 import { reverseOf } from '../model/tiles';
 import { useBuilder } from '../build/store';
+import { actName, paceOf } from '../build/acts';
 import { imageOf, kindInfo, roomTitle } from './names';
 
 const PX_PER_UNIT = 1024 / SQUARE; // Valkyrie MoM tile pictures: 1024 px per room space
@@ -45,6 +46,7 @@ export function Board({
   apiRef: Ref<BoardApi>;
 }) {
   const p = useBuilder((s) => s.project);
+  const pace = useMemo(() => paceOf(p), [p]);
   const selected = useBuilder((s) => s.selected);
   const select = useBuilder((s) => s.select);
   const change = useBuilder((s) => s.change);
@@ -262,6 +264,8 @@ export function Board({
                 </g>
                 <rect className="room-frame" x={b.minX} y={-b.maxY} width={b.maxX - b.minX} height={b.maxY - b.minY} rx={0.15} />
                 <text className="room-name" x={b.minX + 0.3} y={-b.maxY + 0.7} fontSize={0.55}>
+                  {r.todo ? '📝 ' : ''}
+                  {pace.roomAct.has(r.id) && pace.acts.length > 1 ? `${actName(pace.roomAct.get(r.id)!)} · ` : ''}
                   {roomTitle(p, r.id)}
                   {dim ? ' · откроется позже' : ''}
                 </text>

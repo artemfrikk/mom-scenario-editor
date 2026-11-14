@@ -53,7 +53,7 @@ const PHASE = { investigator: 'ход сыщиков', mythos: 'фаза миф�
 const monsterImage = (id: string) => catalog.monsters.find((m) => m.id === id);
 
 // Play the scenario right here: rounds, event windows, monsters, items and the board, as Valkyrie does it.
-export function GameView() {
+export function GameView({ extra }: { extra?: React.ReactNode } = {}) {
   const s = useStore((st) => st.scenario);
   const lang = useStore((st) => st.lang);
   const facts = useStore((st) => st.facts);
@@ -192,6 +192,7 @@ export function GameView() {
             ▶ Начать игру
           </button>
         </div>
+        {extra}
       </div>
     );
   }

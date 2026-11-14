@@ -5,6 +5,7 @@ import catalog from '../content/catalog.json';
 import { useBuilder } from '../build/store';
 import { Picker, type Option } from '../ui/widgets';
 import { assetUrl } from './assetUrl';
+import { soundName as human } from './names';
 
 const NOTE: Record<string, string> = {
   search: 'обыск',
@@ -14,15 +15,6 @@ const NOTE: Record<string, string> = {
   defeated: 'победа над монстром',
   newround: 'новый раунд',
 };
-
-// "AudioDoorCreak1" → "Door Creak 1"
-const human = (id: string) =>
-  id
-    .replace(/^Audio/, '')
-    .replace(/([a-z])([A-Z0-9])/g, '$1 $2')
-    .replace(/(\d+)/, ' $1')
-    .replace(/\s+/g, ' ')
-    .trim();
 
 const SOUNDS: Option[] = catalog.audio
   .filter((a) => !a.traits.includes('music') && !/Button|Click|Select|Deselect|UISlide|TestSound|SoftButton/.test(a.id))

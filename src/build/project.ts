@@ -54,6 +54,13 @@ export interface Lock {
   text: string; // what the players read while it is still closed
 }
 
+// Another text for the same result, read when something happened earlier: "если дворецкого спасли, то…".
+export interface IfText {
+  id: string; // i1, i2... inside its outcome
+  needs: string[]; // as in a lock: pieces used, answers chosen ("P5.c2"), marks of past chapters ("%ch1m4"); all of them
+  text: string;
+}
+
 // What happens when the investigators use a piece (for a monster: when it is defeated).
 export interface Outcome {
   text: string; // with a test: what they read before rolling
@@ -69,6 +76,7 @@ export interface Outcome {
   win?: boolean; // the investigators win
   once: boolean; // the piece disappears after use
   sound?: string; // game sound id or a file inside the package
+  ifs?: IfText[]; // other texts for this result; the first whose conditions hold is read instead of `text`
 }
 
 export interface Room {
@@ -80,6 +88,7 @@ export interface Room {
   enterText: string; // shown when the room appears on the map
   sound?: string; // played when the room appears: a game sound id or a file inside the package
   music?: string; // the music switches to this when the room appears
+  todo?: string; // a blank of a plot template: what the author still has to make here
 }
 
 export interface Piece {
@@ -93,6 +102,7 @@ export interface Piece {
   when?: 'room' | 'event'; // monsters: come out with the room, or when an outcome calls them
   voice?: MonsterVoice; // monsters: the author's own texts instead of the game's
   appear?: string; // monsters: the sound when it comes out
+  todo?: string; // a blank of a plot template: what the author still has to make here
   outcome: Outcome;
 }
 

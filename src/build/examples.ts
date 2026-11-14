@@ -5,14 +5,14 @@
 import { addPiece, addRoom, roomBehindDoor } from './edit';
 import { newProject, type Outcome, type PieceKind, type Piece, type Project } from './project';
 
-class Draft {
+export class Draft {
   p: Project;
   constructor(base: Partial<Project>) {
     this.p = { ...newProject(), authors: 'Пример из конструктора', ...base };
   }
-  room(tile: string, enterText = ''): string {
+  room(tile: string, enterText = '', todo?: string): string {
     const [p, id] = addRoom(this.p, tile);
-    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText } : r)) };
+    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText, todo } : r)) };
     return id;
   }
   piece(room: string, kind: PieceKind, look: string, title: string, outcome: Partial<Outcome>, extra: Partial<Piece> = {}): string {
@@ -21,10 +21,10 @@ class Draft {
     return id;
   }
   // a door and the room behind it
-  door(room: string, title: string, tile: string, outcome: Partial<Outcome>, enterText = ''): [string, string] {
+  door(room: string, title: string, tile: string, outcome: Partial<Outcome>, enterText = '', todo?: string): [string, string] {
     const d = this.piece(room, 'explore', '', title, outcome);
     const [p, id] = roomBehindDoor(this.p, d, tile);
-    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText } : r)) };
+    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText, todo } : r)) };
     return [d, id];
   }
   outcome(id: string, patch: Partial<Outcome>) {
@@ -78,7 +78,12 @@ export function exampleScenario(): Project {
   const [, study] = d.door(library, 'Потайной ход', 'TileSideStudy', { text: '' }, 'Кабинет. Пентаграмма мелом на полу, десятки свечей. В центре кто-то в капюшоне.');
   const passage = d.p.pieces.find((x) => x.kind === 'explore' && x.room === library)!.id;
   d.outcome(passage, { text: 'Вы протискиваетесь в узкий проход.', lock: { needs: [shelf], text: 'Здесь только стена с книгами.' } });
-  d.piece(study, 'monster', 'MonsterCultist', 'Культист в капюшоне', { text: 'Культист падает. Ритуал прерван.', win: true }, {
+  d.piece(study, 'monster', 'MonsterCultist', 'Культист в капюшоне', {
+    text: 'Культист падает. Ритуал прерван.',
+    win: true,
+    // the conversation with the butler changes the last words
+    ifs: [{ id: 'i1', needs: [butler + '.c1'], text: 'Культист падает. В дверях появляется дворецкий с фонарём: «Я не мог оставить хозяина». Ритуал прерван.' }],
+  }, {
     voice: {
       attack: 'Культист выкрикивает слово на мёртвом языке, и свечи вспыхивают у вашего лица. Сыщик проходит проверку {will} и получает 2 ужаса минус число {success}.',
       hit: '«Ты опоздал», смеётся культист, не пытаясь защищаться. Пройдите проверку навыка вашего оружия и нанесите столько урона, сколько получили {success}.',
@@ -94,7 +99,6 @@ export function exampleScenario(): Project {
       { id: 'T91', round: 12, every: false, lose: true, outcome: { text: 'Часы бьют полночь. Пение за стеной обрывается, и дом погружается в тишину. Вы опоздали.', once: false } },
     ],
   };
-  void butler;
   return d.p;
 }
 
