@@ -75,8 +75,8 @@ label.check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
 .brand { font-weight: 700; letter-spacing: 0.3px; color: var(--accent); white-space: nowrap; }
 .brand small { color: var(--muted); font-weight: 400; margin-left: 6px; }
 .topbar > button { white-space: nowrap; flex: 0 0 auto; }
-@media (max-width: 1360px) { .brand small { display: none; } }
-@media (max-width: 1180px) { .topbar .tl { display: none; } .topbar { gap: 6px; padding: 0 10px; } }
+@media (max-width: 1520px) { .brand small { display: none; } }
+@media (max-width: 1380px) { .topbar .tl { display: none; } .topbar { gap: 6px; padding: 0 10px; } }
 @media (max-width: 900px) { .brand { display: none; } }
 .topbar .title { flex: 1; min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .topbar .title b { color: var(--text); }
@@ -745,3 +745,15 @@ label.check.sub { padding-left: 22px; font-size: 13px; }
 .voice .voice-head .link { font-size: 12px; padding: 0; margin-left: auto; }
 .voice textarea + input { margin-top: 4px; }
 .voice > .hint { display: block; margin-bottom: 4px; }
+
+/* acts and pace over the map */
+.pace { position: absolute; top: 10px; left: 10px; z-index: 5; max-width: min(760px, calc(100% - 20px)); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 20px #0008; }
+.pace-head { background: transparent; border: none; display: flex; gap: 8px; align-items: center; padding: 8px 12px; }
+.pace-head .badge { font-size: 11px; padding: 1px 7px; border-radius: 10px; background: var(--warn); color: #1a1408; }
+.pace-body { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.pace-acts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.pace-act { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
+.pace-rooms { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 12px; }
+.pace-rooms .link { background: none; border: none; padding: 0; color: var(--accent); font-size: 12px; text-align: left; }
+.pace-counts { display: flex; gap: 10px; font-size: 13px; }
+.pace-hints { margin: 0; padding-left: 18px; font-size: 13px; color: var(--warn); display: flex; flex-direction: column; gap: 3px; }

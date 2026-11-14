@@ -1,6 +1,7 @@
 // The map step: a palette on the left, the board in the middle, the chosen room on the right.
 // Anything in the palette can be dragged onto the board, or tapped to put it into the chosen room.
 
+import { PaceBar } from './Pace';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import catalog from '../content/catalog.json';
 import { imageUrl, useImages } from '../images';
@@ -93,6 +94,7 @@ export function MapStep() {
           </div>
         )}
         <Board apiRef={board} sizes={sizes} onSizes={onSizes} onOpenPiece={setOpen} dimmed={dimmed} />
+        <PaceBar />
       </div>
       {room && <RoomPanel id={room.id} onAdd={(kind, look) => place({ what: 'piece', kind, look, icon: '', label: '' }, null)} onOpen={setOpen} />}
       {open && <WhatHappens id={open} sizes={sizes} onClose={() => setOpen(null)} />}
