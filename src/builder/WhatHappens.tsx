@@ -10,6 +10,7 @@ import { useOwned } from '../build/owned';
 import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Choice, type IfText, type Lock, type MonsterVoice, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
 import { assetUrl } from './assetUrl';
 import { SoundPick } from './Sound';
+import { HelpWithText } from './Mood';
 import { harmText } from '../build/compile';
 import { useBuilder } from '../build/store';
 import { itemTitle, kindInfo, tilesFree, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
@@ -145,6 +146,7 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
             </span>
             <textarea rows={5} value={o.text} placeholder={x.kind === 'explore' ? 'Дверь со скрипом поддаётся…' : 'Напишите текст для игроков'} onChange={(e) => set({ text: e.target.value }, 'text' + id)} />
           </label>
+          <HelpWithText p={p} piece={x} current={o.text} onPick={(t) => set({ text: t })} />
 
           {!o.test && !o.puzzle && !o.choices?.length && <IfPart p={p} self={id} o={o} set={set} keyBase={id} />}
           {x.kind !== 'monster' && <ChallengePart p={p} x={x} set={set} />}

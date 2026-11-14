@@ -766,3 +766,13 @@ label.check.sub { padding-left: 22px; font-size: 13px; }
 .todo-note { background: #3a2f12; border: 1px solid var(--warn); color: #f3dc9c; border-radius: 8px; padding: 8px 10px; display: flex; gap: 10px; align-items: center; font-size: 13px; margin-bottom: 10px; }
 .todo-note span { flex: 1; }
 .todo-note button { flex: 0 0 auto; }
+
+/* atmosphere helper */
+.row-wrap { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin-bottom: 8px; }
+.mood-ideas { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.mood-ideas.row-wrap { flex-direction: row; gap: 6px; }
+.chip { text-align: left; font-size: 12px; line-height: 1.4; padding: 6px 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); }
+.chip:hover { border-color: var(--accent); }
+.chip.small { padding: 3px 8px; }
+.variant { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 6px; white-space: pre-wrap; }
+.variant > div { flex: 1; }

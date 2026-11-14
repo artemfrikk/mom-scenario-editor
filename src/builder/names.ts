@@ -80,3 +80,12 @@ export function tilesFree(p: Project, owned: string[]): Option[] {
     }));
 }
 
+
+// "AudioDoorCreak1" → "Door Creak 1"
+export const soundName = (id: string) =>
+  id
+    .replace(/^Audio/, '')
+    .replace(/([a-z])([A-Z0-9])/g, '$1 $2')
+    .replace(/(\d+)/, ' $1')
+    .replace(/\s+/g, ' ')
+    .trim();

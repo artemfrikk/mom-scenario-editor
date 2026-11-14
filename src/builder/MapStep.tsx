@@ -16,6 +16,7 @@ import { WhatHappens } from './WhatHappens';
 import { PaceBar } from './Pace';
 import { placeScene, SCENES } from '../build/scenes';
 import { SoundPick } from './Sound';
+import { HelpWithText, MoodIdeas, SoundIdeas } from './Mood';
 
 type Tab = 'rooms' | 'things' | 'scenes' | 'people' | 'monsters';
 type Grab = { what: 'tile' | 'piece' | 'scene'; kind?: PieceKind; look: string; icon: string; label: string };
@@ -118,7 +119,7 @@ export function MapStep() {
         <Board apiRef={board} sizes={sizes} onSizes={onSizes} onOpenPiece={setOpen} dimmed={dimmed} />
         <PaceBar />
       </div>
-      {room && <RoomPanel id={room.id} onAdd={(kind, look) => place({ what: 'piece', kind, look, icon: '', label: '' }, null)} onOpen={setOpen} />}
+      {room && <RoomPanel key={room.id} id={room.id} onAdd={(kind, look) => place({ what: 'piece', kind, look, icon: '', label: '' }, null)} onOpen={setOpen} />}
       {open && <WhatHappens id={open} sizes={sizes} onClose={() => setOpen(null)} />}
     </div>
   );
@@ -257,6 +258,7 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
   const p = useBuilder((s) => s.project);
   const change = useBuilder((s) => s.change);
   const select = useBuilder((s) => s.select);
+  const [ideas, setIdeas] = useState(false);
   const r = roomOf(p, id);
   if (!r) return null;
   const pieces = piecesIn(p, id);
@@ -297,7 +299,14 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
         <span>Что видят сыщики, войдя сюда</span>
         <textarea rows={3} value={r.enterText} placeholder="Необязательно. Например: «Холодно. В камине тлеют угли…»" onChange={(e) => change((q) => updateRoom(q, id, { enterText: e.target.value }), 'enter' + id)} />
       </label>
-      <RoomSound id={id} sound={r.sound} music={r.music} />
+      <div className="row-wrap">
+        <button className="link" onClick={() => setIdeas(!ideas)}>
+          ✨ Идеи для текста
+        </button>
+        <HelpWithText p={p} room={id} current={r.enterText} onPick={(t) => change((q) => updateRoom(q, id, { enterText: t }))} />
+      </div>
+      {ideas && <MoodIdeas tile={r.tile} onPick={(t) => (change((q) => updateRoom(q, id, { enterText: t })), setIdeas(false))} />}
+      <RoomSound id={id} tile={r.tile} sound={r.sound} music={r.music} />
 
       <div className="room-add">
         <div className="hint">Что здесь будет?</div>
@@ -351,7 +360,7 @@ function summary(p: Project, id: string): string {
 }
 
 // A room's own sound when it appears, and the music that starts there.
-function RoomSound({ id, sound, music }: { id: string; sound?: string; music?: string }) {
+function RoomSound({ id, tile, sound, music }: { id: string; tile: string; sound?: string; music?: string }) {
   const change = useBuilder((s) => s.change);
   const [open, setOpen] = useState(false);
   if (!open && !sound && !music)
@@ -364,6 +373,7 @@ function RoomSound({ id, sound, music }: { id: string; sound?: string; music?: s
     <>
       <SoundPick label="🔊 Звук, когда комната открывается" value={sound} onChange={(v) => change((q) => updateRoom(q, id, { sound: v }))} />
       <SoundPick music label="🎵 Музыка с этого момента" value={music} onChange={(v) => change((q) => updateRoom(q, id, { music: v }))} />
+      <SoundIdeas tile={tile} onSound={(v) => change((q) => updateRoom(q, id, { sound: v }))} onMusic={(v) => change((q) => updateRoom(q, id, { music: v }))} />
     </>
   );
 }
