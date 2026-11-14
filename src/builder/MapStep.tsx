@@ -1,7 +1,6 @@
 // The map step: a palette on the left, the board in the middle, the chosen room on the right.
 // Anything in the palette can be dragged onto the board, or tapped to put it into the chosen room.
 
-import { PaceBar } from './Pace';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import catalog from '../content/catalog.json';
 import { imageUrl, useImages } from '../images';
@@ -14,10 +13,12 @@ import { useBuilder } from '../build/store';
 import { Board, type BoardApi } from './Board';
 import { imageOf, KINDS, tilesFree, kindInfo, MARK_TOKENS, monsterTitle, NPC_TOKENS, packOf, roomTitle, tokenTitle } from './names';
 import { WhatHappens } from './WhatHappens';
+import { PaceBar } from './Pace';
+import { placeScene, SCENES } from '../build/scenes';
 import { SoundPick } from './Sound';
 
-type Tab = 'rooms' | 'things' | 'people' | 'monsters';
-type Grab = { what: 'tile' | 'piece'; kind?: PieceKind; look: string; icon: string; label: string };
+type Tab = 'rooms' | 'things' | 'scenes' | 'people' | 'monsters';
+type Grab = { what: 'tile' | 'piece' | 'scene'; kind?: PieceKind; look: string; icon: string; label: string };
 
 export function MapStep() {
   const p = useBuilder((s) => s.project);
@@ -71,6 +72,27 @@ export function MapStep() {
     const target = at ? roomAt(p, at.x, at.y, sizes) : room;
     if (!target) {
       flash(at ? 'Положите это внутрь комнаты.' : 'Сначала выберите комнату на карте.');
+      return;
+    }
+    if (g.what === 'scene') {
+      const scene = SCENES.find((sc) => sc.id === g.look);
+      if (!scene) return;
+      // what belongs elsewhere goes to a room opened earlier: the starting one, or any other
+      const start = startRoom(p);
+      const other = (start && start.id !== target.id ? start : p.rooms.find((r) => r.id !== target.id)) ?? target;
+      let focus = '';
+      change((q) => {
+        const [next, f] = placeScene(q, scene, target.id, other.id, sizes);
+        focus = f;
+        return next;
+      });
+      select({ kind: 'piece', id: focus });
+      setOpen(focus);
+      flash(
+        scene.elsewhere && other.id !== target.id
+          ? `Сцена «${scene.title}» готова. ${scene.elsewhere[0].toUpperCase() + scene.elsewhere.slice(1)} в комнате «${roomTitle(p, other.id)}»: перетащите в другую, если нужно.`
+          : `Сцена «${scene.title}» готова. Поменяйте тексты на свои.`,
+      );
       return;
     }
     let id = '';
@@ -153,12 +175,15 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
     window.addEventListener('pointercancel', stop);
   };
 
-  const Item = ({ g, image, note }: { g: Grab; image?: string; note?: string }) => {
+  const Item = ({ g, image, note, show }: { g: Grab; image?: string; note?: string; show?: boolean }) => {
     const url = imageUrl(urls, image);
     return (
       <div className="pal-item" onPointerDown={(e) => grab(e, g)} title={note}>
         {url ? <img src={url} alt="" draggable={false} /> : <span className="pal-icon">{g.icon}</span>}
-        <span className="pal-label">{g.label}</span>
+        <span className="pal-label">
+          {g.label}
+          {show && note && <span className="pal-note">{note}</span>}
+        </span>
       </div>
     );
   };
@@ -170,6 +195,7 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
           [
             ['rooms', '🧱 Комнаты'],
             ['things', '🔍 Жетоны'],
+            ['scenes', '🎬 Сцены'],
             ['people', '🧍 Люди'],
             ['monsters', '👹 Монстры'],
           ] as const
@@ -181,9 +207,9 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
       </div>
       <input className="pal-search" placeholder="Поиск…" value={query} onChange={(e) => setQuery(e.target.value)} />
       <div className="hint pal-hint">
-        {tab === 'rooms' ? 'Перетащите комнату на поле или нажмите, чтобы поставить рядом.' : hasRoom ? 'Перетащите в комнату или нажмите, чтобы положить в выбранную.' : 'Перетащите в комнату на карте.'}
+        {tab === 'rooms' ? 'Перетащите комнату на поле или нажмите, чтобы поставить рядом.' : tab === 'scenes' ? 'Готовая сцена со всеми связями. Перетащите в комнату или нажмите, чтобы положить в выбранную.' : hasRoom ? 'Перетащите в комнату или нажмите, чтобы положить в выбранную.' : 'Перетащите в комнату на карте.'}
       </div>
-      <div className={'pal-list' + (tab === 'rooms' ? ' tiles' : '')}>
+      <div className={'pal-list' + (tab === 'rooms' ? ' tiles' : tab === 'scenes' ? ' scenes' : '')}>
         {tab === 'rooms' &&
           tiles.filter((t) => match(t.label)).map((t) => <Item key={t.value} g={{ what: 'tile', look: t.value, icon: '🧱', label: t.label }} image={t.image} note={t.note} />)}
         {tab === 'things' && (
@@ -197,6 +223,18 @@ function Palette({ p, onPlace, board, hasRoom }: { p: Project; onPlace: (g: Grab
             ))}
           </>
         )}
+        {tab === 'scenes' &&
+          (['Замки и ключи', 'Люди', 'Опасность', 'Тайны'] as const).map((group) => {
+            const list = SCENES.filter((sc) => sc.group === group && match(sc.title + ' ' + sc.hint));
+            return list.length ? (
+              <div key={group} className="pal-group">
+                <div className="pal-sub">{group}</div>
+                {list.map((sc) => (
+                  <Item key={sc.id} g={{ what: 'scene', look: sc.id, icon: sc.icon, label: sc.title }} note={sc.hint} show />
+                ))}
+              </div>
+            ) : null;
+          })}
         {tab === 'people' &&
           NPC_TOKENS.filter((t) => owned.includes(packOf(t) ?? 'MoMBase') && match(tokenTitle(t))).map((t) => (
             <Item key={t} g={{ what: 'piece', kind: 'npc', look: t, icon: '🧍', label: tokenTitle(t) }} image={imageOf(t)} />
