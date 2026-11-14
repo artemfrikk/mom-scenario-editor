@@ -278,6 +278,14 @@ function RoomPanel({ id, onAdd, onOpen }: { id: string; onAdd: (kind: PieceKind,
           🗑
         </button>
       </div>
+      {r.todo && (
+        <div className="todo-note">
+          <span>📝 {r.todo.replace(/^Заготовка: /, '')}</span>
+          <button className="small" onClick={() => change((q) => updateRoom(q, id, { todo: undefined }))}>
+            ✓ Сделано
+          </button>
+        </div>
+      )}
       <div className="hint">
         {r === start
           ? 'Сыщики начинают здесь, комната видна с начала игры.'

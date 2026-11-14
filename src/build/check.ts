@@ -109,6 +109,9 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
     out.push({ level: 'error', text: 'Пока нельзя победить. Выберите, после чего сыщики побеждают: находка, разговор или побеждённый монстр.', step: 'map' });
   }
   if (!p.winText.trim()) out.push({ level: 'warning', text: 'Нет текста победы.', step: 'endings' });
+  // blanks of a plot template the author has not made yet
+  for (const r of p.rooms) if (r.todo) out.push({ level: 'warning', text: `📝 ${roomLabel(p, r.id)}: ${r.todo.replace(/^Заготовка: /, '')}`, room: r.id, step: 'map' });
+  for (const x of p.pieces) if (x.todo) out.push({ level: 'warning', text: `📝 ${x.title || roomLabel(p, x.room)}: ${x.todo.replace(/^Заготовка: /, '')}`, piece: x.id, room: x.room, step: 'map' });
   return out;
 }
 

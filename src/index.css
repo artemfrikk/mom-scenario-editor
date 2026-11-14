@@ -761,3 +761,8 @@ label.check.sub { padding-left: 22px; font-size: 13px; }
 .pace-rooms .link { background: none; border: none; padding: 0; color: var(--accent); font-size: 12px; text-align: left; }
 .pace-counts { display: flex; gap: 10px; font-size: 13px; }
 .pace-hints { margin: 0; padding-left: 18px; font-size: 13px; color: var(--warn); display: flex; flex-direction: column; gap: 3px; }
+
+.start-sub { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+.todo-note { background: #3a2f12; border: 1px solid var(--warn); color: #f3dc9c; border-radius: 8px; padding: 8px 10px; display: flex; gap: 10px; align-items: center; font-size: 13px; margin-bottom: 10px; }
+.todo-note span { flex: 1; }
+.todo-note button { flex: 0 0 auto; }

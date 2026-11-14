@@ -89,6 +89,14 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
     >
       <div className="wh">
         <div className="wh-form">
+          {x.todo && (
+            <div className="todo-note">
+              <span>📝 {x.todo.replace(/^Заготовка: /, '')}</span>
+              <button className="small" onClick={() => setPiece({ todo: undefined })}>
+                ✓ Сделано
+              </button>
+            </div>
+          )}
           <div className="hint">Комната: {roomTitle(p, x.room)}</div>
 
           {x.kind === 'npc' && (

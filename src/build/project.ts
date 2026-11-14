@@ -88,6 +88,7 @@ export interface Room {
   enterText: string; // shown when the room appears on the map
   sound?: string; // played when the room appears: a game sound id or a file inside the package
   music?: string; // the music switches to this when the room appears
+  todo?: string; // a blank of a plot template: what the author still has to make here
 }
 
 export interface Piece {
@@ -101,6 +102,7 @@ export interface Piece {
   when?: 'room' | 'event'; // monsters: come out with the room, or when an outcome calls them
   voice?: MonsterVoice; // monsters: the author's own texts instead of the game's
   appear?: string; // monsters: the sound when it comes out
+  todo?: string; // a blank of a plot template: what the author still has to make here
   outcome: Outcome;
 }
 

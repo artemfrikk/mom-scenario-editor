@@ -264,6 +264,7 @@ export function Board({
                 </g>
                 <rect className="room-frame" x={b.minX} y={-b.maxY} width={b.maxX - b.minX} height={b.maxY - b.minY} rx={0.15} />
                 <text className="room-name" x={b.minX + 0.3} y={-b.maxY + 0.7} fontSize={0.55}>
+                  {r.todo ? '📝 ' : ''}
                   {pace.roomAct.has(r.id) && pace.acts.length > 1 ? `${actName(pace.roomAct.get(r.id)!)} · ` : ''}
                   {roomTitle(p, r.id)}
                   {dim ? ' · откроется позже' : ''}

@@ -5,14 +5,14 @@
 import { addPiece, addRoom, roomBehindDoor } from './edit';
 import { newProject, type Outcome, type PieceKind, type Piece, type Project } from './project';
 
-class Draft {
+export class Draft {
   p: Project;
   constructor(base: Partial<Project>) {
     this.p = { ...newProject(), authors: 'Пример из конструктора', ...base };
   }
-  room(tile: string, enterText = ''): string {
+  room(tile: string, enterText = '', todo?: string): string {
     const [p, id] = addRoom(this.p, tile);
-    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText } : r)) };
+    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText, todo } : r)) };
     return id;
   }
   piece(room: string, kind: PieceKind, look: string, title: string, outcome: Partial<Outcome>, extra: Partial<Piece> = {}): string {
@@ -21,10 +21,10 @@ class Draft {
     return id;
   }
   // a door and the room behind it
-  door(room: string, title: string, tile: string, outcome: Partial<Outcome>, enterText = ''): [string, string] {
+  door(room: string, title: string, tile: string, outcome: Partial<Outcome>, enterText = '', todo?: string): [string, string] {
     const d = this.piece(room, 'explore', '', title, outcome);
     const [p, id] = roomBehindDoor(this.p, d, tile);
-    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText } : r)) };
+    this.p = { ...p, rooms: p.rooms.map((r) => (r.id === id ? { ...r, enterText, todo } : r)) };
     return [d, id];
   }
   outcome(id: string, patch: Partial<Outcome>) {
