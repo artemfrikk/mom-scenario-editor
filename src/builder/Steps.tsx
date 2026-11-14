@@ -17,6 +17,7 @@ import { NextChapter } from './Chapters';
 import { SoundPick } from './Sound';
 import { StartItems } from './StartItems';
 import { assetUrl } from './assetUrl';
+import { WinCheck } from './WinCheck';
 
 function FileButton({ accept, label, onFile }: { accept: string; label: string; onFile: (name: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -258,7 +259,7 @@ export function PlayStep() {
   useEffect(() => {
     useStore.setState({ scenario, lang: LANG });
   }, [scenario]);
-  return current === scenario ? <GameView /> : null;
+  return current === scenario ? <GameView extra={<WinCheck p={p} scenario={scenario} />} /> : null;
 }
 
 export function OwnedDialog({ onClose }: { onClose: () => void }) {
