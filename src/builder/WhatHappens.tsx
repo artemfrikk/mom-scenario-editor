@@ -7,7 +7,7 @@ import { useImages } from '../images';
 import type { Sizes } from '../build/board';
 import { roomBehindDoor } from '../build/edit';
 import { useOwned } from '../build/owned';
-import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Choice, type Lock, type MonsterVoice, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
+import { deletePiece, pieceOf, updateOutcome, updatePiece, type Harm, type HarmKind, type Choice, type IfText, type Lock, type MonsterVoice, type Outcome, type Piece, type Project, type PuzzleKind, type PuzzleSpec, type Skill, type SkillTest } from '../build/project';
 import { assetUrl } from './assetUrl';
 import { SoundPick } from './Sound';
 import { harmText } from '../build/compile';
@@ -138,6 +138,7 @@ export function WhatHappens({ id, sizes, onClose }: { id: string; sizes: Sizes; 
             <textarea rows={5} value={o.text} placeholder={x.kind === 'explore' ? 'Дверь со скрипом поддаётся…' : 'Напишите текст для игроков'} onChange={(e) => set({ text: e.target.value }, 'text' + id)} />
           </label>
 
+          {!o.test && !o.puzzle && !o.choices?.length && <IfPart p={p} self={id} o={o} set={set} keyBase={id} />}
           {x.kind !== 'monster' && <ChallengePart p={p} x={x} set={set} />}
           {x.kind !== 'monster' && <LockPart p={p} x={x} set={set} />}
 
@@ -245,7 +246,7 @@ function RememberPart({ p, o, set }: { p: Project; o: Outcome; set: (o: Partial<
   };
   return (
     <div className="field">
-      <span>📜 Запомнить для следующих глав</span>
+      <span>👣 Следы для следующей главы</span>
       {marks.map((m) => (
         <label key={m.id} className="check">
           <input type="checkbox" checked={on.includes(m.id)} onChange={(e) => set({ remember: e.target.checked ? [...on, m.id] : on.filter((k) => k !== m.id) })} />
@@ -255,17 +256,17 @@ function RememberPart({ p, o, set }: { p: Project; o: Outcome; set: (o: Partial<
       <div className="row">
         <input value={label} placeholder="Например: дворецкий спасён" onChange={(e) => setLabel(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()} />
         <button className="auto" disabled={!label.trim()} onClick={add}>
-          + Запомнить
+          + Оставить след
         </button>
       </div>
-      <span className="hint">В следующих главах это можно проверить у замка: «🔒 Заперто, пока…» → «Из прошлых глав».</span>
+      <span className="hint">В следующих главах след можно проверить у замка или в «🔀 Если раньше…» → «Следы из прошлых глав».</span>
     </div>
   );
 }
 
 const SAMPLE_CHOICES: Choice[] = [
-  { id: 'c1', label: 'Расспросить', outcome: { text: '«Хозяин заперся в кабинете три дня назад. С тех пор оттуда слышен шёпот».', once: false } },
-  { id: 'c2', label: 'Пригрозить', outcome: { text: 'Он бледнеет и молча указывает на лестницу в подвал.', once: false } },
+  { id: 'c1', label: 'Помочь', outcome: { text: 'Вы перевязываете рану. «Я не забуду этого», — шепчет он.', once: false } },
+  { id: 'c2', label: 'Оставить', outcome: { text: 'Вы уходите. За спиной долго слышны стоны.', once: false } },
 ];
 
 // A conversation: the players pick an answer, each answer leads to its own result.
@@ -274,7 +275,7 @@ function ChoicePart({ p, x, choices, set }: { p: Project; x: Piece; choices: Cho
   const nextId = () => 'c' + (Math.max(0, ...choices.map((c) => Number(c.id.slice(1)) || 0)) + 1);
   return (
     <div className="challenge">
-      <span className="hint">Ответы игроков (кнопки в окне). Каждый ведёт к своему итогу, и игра запоминает выбор: его можно отметить в замке другого жетона.</span>
+      <span className="hint">Варианты решения (кнопки в окне). Каждый ведёт к своему итогу, и игра запоминает выбор. Потом в любом окне можно написать «🔀 Если раньше…» или запереть замок, пока не выбран нужный вариант.</span>
       {choices.map((c, i) => (
         <div key={c.id} className="answer">
           <div className="row">
@@ -285,6 +286,7 @@ function ChoicePart({ p, x, choices, set }: { p: Project; x: Piece; choices: Cho
             </button>
           </div>
           <textarea rows={2} value={c.outcome.text} placeholder="Что прочтут, выбрав этот ответ" onChange={(e) => put(c.id, { outcome: { ...c.outcome, text: e.target.value } }, 'ctext' + x.id + c.id)} />
+          <IfPart p={p} self={x.id} o={c.outcome} set={(patch, key) => put(c.id, { outcome: { ...c.outcome, ...patch } }, key)} keyBase={x.id + c.id} />
           <Gifts p={p} o={c.outcome} set={(patch, key) => put(c.id, { outcome: { ...c.outcome, ...patch } }, key)} here={x.room} rooms self={x.id} />
         </div>
       ))}
@@ -330,7 +332,7 @@ function ChallengePart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<O
   const choose = (m: Mode) => {
     if (m === 'none') set({ test: undefined, puzzle: undefined, choices: undefined });
     if (m === 'choice' && !o.choices?.length)
-      set({ test: undefined, puzzle: undefined, choices: SAMPLE_CHOICES, text: o.text || '«Кто вы такие? Что вам здесь нужно?» — спрашивает он.' });
+      set({ test: undefined, puzzle: undefined, choices: SAMPLE_CHOICES, text: o.text || 'Человек на полу ранен и просит о помощи. Если остаться с ним, вы потеряете время.' });
     if (m === 'test' && !o.test) set({ puzzle: undefined, choices: undefined, test: { skill: 'observation', need: 1, pass: 'Получилось!', fail: 'Ничего не выходит. Можно попробовать ещё раз.' } });
     if (m === 'puzzle' && !o.puzzle) set({ test: undefined, choices: undefined, puzzle: { kind: 'code', skill: 'lore', level: 4, alt: 3, pass: 'Замок щёлкает и открывается.' } });
   };
@@ -348,7 +350,7 @@ function ChallengePart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<O
           🧩 Головоломка
         </button>
         <button className={mode === 'choice' ? 'on' : ''} onClick={() => choose('choice')}>
-          💬 Выбор ответа
+          ⚖ Решение
         </button>
       </div>
       {o.choices?.length ? <ChoicePart p={p} x={x} choices={o.choices} set={set} /> : null}
@@ -495,14 +497,39 @@ function ImageButton({ label, onFile }: { label: string; onFile: (name: string) 
 }
 
 // Closed until something else happened: a key found, a test passed, a monster defeated.
-function LockPart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcome>, key?: string) => void }) {
-  const lock = x.outcome.lock;
-  const others = p.pieces.filter((q) => q.id !== x.id && q.kind !== 'start' && q.kind !== 'mark');
-  const put = (patch: Partial<Lock>, key?: string) => set({ lock: { needs: [], text: 'Заперто. Нужен ключ.', ...lock, ...patch } }, key);
+// What can be waited for: pieces used, answers chosen, marks from past chapters.
+function NeedChecks({ p, self, value, onChange }: { p: Project; self: string; value: string[]; onChange: (v: string[]) => void }) {
+  const others = p.pieces.filter((q) => q.id !== self && q.kind !== 'start' && q.kind !== 'mark');
   const chapters = useBuilder((s) => s.chapters);
   const here = useBuilder((s) => s.chapter);
-  const past = chapters.flatMap((c, i) => (i === here ? [] : (c.marks ?? []).map((m) => ({ key: '%' + m.id, label: `📜 ${m.label} · ${c.chapterTitle || `Глава ${i + 1}`}` }))));
-  const toggle = (key: string, on: boolean) => put({ needs: on ? [...lock!.needs, key] : lock!.needs.filter((k) => k !== key) });
+  const past = chapters.flatMap((c, i) => (i === here ? [] : (c.marks ?? []).map((m) => ({ key: '%' + m.id, label: `👣 ${m.label} · ${c.chapterTitle || `Глава ${i + 1}`}` }))));
+  const toggle = (key: string, on: boolean) => onChange(on ? [...value, key] : value.filter((k) => k !== key));
+  const box = (n: { key: string; label: string; sub?: boolean }) => (
+    <label key={n.key} className={'check' + (n.sub ? ' sub' : '')}>
+      <input type="checkbox" checked={value.includes(n.key)} onChange={(e) => toggle(n.key, e.target.checked)} />
+      {n.label}
+    </label>
+  );
+  return (
+    <>
+      {others.flatMap((q) => [
+        { key: q.id, label: pieceLabel(p, q) },
+        ...(q.outcome.choices ?? []).filter((c) => c.label.trim()).map((c) => ({ key: `${q.id}.${c.id}`, label: `↳ выбрано «${c.label.trim()}»`, sub: true })),
+      ]).map(box)}
+      {!others.length && !past.length && <div className="hint">Сначала положите на карту то, от чего это зависит: обыск, разговор, монстра.</div>}
+      {past.length > 0 && (
+        <>
+          <span className="hint">Следы из прошлых глав</span>
+          {past.map(box)}
+        </>
+      )}
+    </>
+  );
+}
+
+function LockPart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcome>, key?: string) => void }) {
+  const lock = x.outcome.lock;
+  const put = (patch: Partial<Lock>, key?: string) => set({ lock: { needs: [], text: 'Заперто. Нужен ключ.', ...lock, ...patch } }, key);
   return (
     <div className="field wh-test">
       <label className="check">
@@ -510,39 +537,46 @@ function LockPart({ p, x, set }: { p: Project; x: Piece; set: (o: Partial<Outcom
       </label>
       {lock && (
         <div className="challenge">
-          {others.length ? (
-            <>
-              <span className="hint">Откроется, когда будет всё отмеченное (найден ключ, пройдена проверка, побеждён монстр)</span>
-              {others.flatMap((q) => [
-                { key: q.id, label: pieceLabel(p, q), sub: false },
-                ...(q.outcome.choices ?? []).filter((c) => c.label.trim()).map((c) => ({ key: `${q.id}.${c.id}`, label: `↳ выбран ответ «${c.label.trim()}»`, sub: true })),
-              ]).map((n) => (
-                <label key={n.key} className={'check' + (n.sub ? ' sub' : '')}>
-                  <input type="checkbox" checked={lock.needs.includes(n.key)} onChange={(e) => toggle(n.key, e.target.checked)} />
-                  {n.label}
-                </label>
-              ))}
-            </>
-          ) : (
-            !past.length && <div className="hint">Сначала положите на карту то, что открывает замок: например, обыск, где лежит ключ.</div>
-          )}
-          {past.length > 0 && (
-            <>
-              <span className="hint">Из прошлых глав</span>
-              {past.map((n) => (
-                <label key={n.key} className="check">
-                  <input type="checkbox" checked={lock.needs.includes(n.key)} onChange={(e) => toggle(n.key, e.target.checked)} />
-                  {n.label}
-                </label>
-              ))}
-            </>
-          )}
+          <span className="hint">Откроется, когда будет всё отмеченное (найден ключ, пройдена проверка, побеждён монстр, выбран ответ)</span>
+          <NeedChecks p={p} self={x.id} value={lock.needs} onChange={(needs) => put({ needs })} />
           <label className="field">
             <span>Что прочтут, пока заперто</span>
             <textarea rows={2} value={lock.text} onChange={(e) => put({ text: e.target.value }, 'lock' + x.id)} />
           </label>
         </div>
       )}
+    </div>
+  );
+}
+
+// "Если дворецкого спасли, то…": other words for the same result, depending on what happened before.
+function IfPart({ p, self, o, set, keyBase }: { p: Project; self: string; o: Outcome; set: (o: Partial<Outcome>, key?: string) => void; keyBase: string }) {
+  const ifs = o.ifs ?? [];
+  const put = (id: string, patch: Partial<IfText>, key?: string) => set({ ifs: ifs.map((c) => (c.id === id ? { ...c, ...patch } : c)) }, key);
+  const add = () => set({ ifs: [...ifs, { id: 'i' + (Math.max(0, ...ifs.map((c) => Number(c.id.slice(1)) || 0)) + 1), needs: [], text: '' }] });
+  return (
+    <div className="field wh-test">
+      {ifs.map((c, i) => (
+        <div key={c.id} className="challenge">
+          <div className="row">
+            <b>🔀 {i ? 'Иначе, если' : 'Если'} раньше было отмеченное</b>
+            <button className="auto ghost danger" title="Убрать" onClick={() => set({ ifs: ifs.filter((q) => q.id !== c.id) })}>
+              🗑
+            </button>
+          </div>
+          <NeedChecks p={p} self={self} value={c.needs} onChange={(needs) => put(c.id, { needs })} />
+          <label className="field">
+            <span>…то игроки прочтут вместо обычного текста</span>
+            <textarea rows={3} value={c.text} placeholder="«Спасибо, что спасли моего слугу», — говорит профессор." onChange={(e) => put(c.id, { text: e.target.value }, 'if' + keyBase + c.id)} />
+          </label>
+        </div>
+      ))}
+      <div className="row">
+        <button className="auto" onClick={add}>
+          🔀 {ifs.length ? 'Ещё «если…»' : 'Если раньше… — другой текст'}
+        </button>
+      </div>
+      {!ifs.length && <span className="hint">Например: если дворецкого спасли, профессор благодарит; если бросили, молчит. Обычный текст выше остаётся для всех остальных случаев.</span>}
     </div>
   );
 }
@@ -843,6 +877,18 @@ function Preview({ p, x }: { p: Project; x: Piece }) {
         {effects}
         <div className="wh-btn">Далее</div>
       </div>
+      {(o.ifs ?? [])
+        .filter((c) => c.text.trim())
+        .map((c, i) => (
+          <div key={c.id}>
+            <div className="hint">{i ? 'Иначе, если' : 'Если'} раньше было отмеченное 🔀</div>
+            <div className="wh-card">
+              <div className="wh-text">{c.text}</div>
+              {effects}
+              <div className="wh-btn">Далее</div>
+            </div>
+          </div>
+        ))}
       {locked}
     </div>
   );

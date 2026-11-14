@@ -88,6 +88,11 @@ export function checkProject(p: Project, title: TileTitle = catalogTitle): Probl
       if (q?.outcome.lock?.needs.some((m) => m.split('.')[0] === x.id))
         out.push({ level: 'error', text: `Два замка в комнатах «${where}» и «${roomLabel(p, q.room)}» ждут друг друга: их никогда не открыть.`, piece: x.id, room: x.room, step: 'map' });
     }
+    for (const o of [x.outcome, ...answers.map((c) => c.outcome)])
+      for (const c of o.ifs ?? []) {
+        if (!c.needs.length || !c.text.trim()) out.push({ level: 'warning', text: `Текст «если…» в комнате «${where}» не заполнен: отметьте условие и напишите текст.`, piece: x.id, room: x.room, step: 'map' });
+        else if (c.needs.some((n) => !n.startsWith('%') && !pieceOf(p, n.split('.')[0]))) out.push({ level: 'warning', text: `Текст «если…» в комнате «${where}» ждёт то, чего больше нет на карте.`, piece: x.id, room: x.room, step: 'map' });
+      }
     for (const m of x.outcome.spawn ?? []) if (!pieceOf(p, m)) out.push({ level: 'warning', text: `Жетон в комнате «${where}» зовёт монстра, которого больше нет.`, piece: x.id, step: 'map' });
   }
 
@@ -120,5 +125,9 @@ export function checkCampaign(chapters: Project[], here: number): Problem[] {
   for (const x of p.pieces)
     for (const n of x.outcome.lock?.needs ?? [])
       if (n.startsWith('%') && !set.has(n.slice(1))) out.push({ level: 'warning', text: 'Замок ждёт отметку из прошлой главы, но её никто не ставит.', piece: x.id, room: x.room, step: 'map' });
+  for (const x of p.pieces)
+    for (const o of [x.outcome, ...(x.outcome.choices ?? []).map((c) => c.outcome)])
+      for (const n of (o.ifs ?? []).flatMap((c) => c.needs))
+        if (n.startsWith('%') && !set.has(n.slice(1))) out.push({ level: 'warning', text: 'Текст «если…» ждёт след из прошлой главы, но его никто не оставляет.', piece: x.id, room: x.room, step: 'map' });
   return out;
 }
