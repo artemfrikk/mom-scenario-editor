@@ -43,6 +43,15 @@ const LOSE = 'EventLose';
 
 const num = (n: number) => String(Math.round(n * 1e4) / 1e4);
 
+// The question before an action and the word on its button.
+export const ACT_VERB: Record<string, { what: string; ask: string; button: string }> = {
+  search: { what: 'Место для обыска', ask: 'Обыскать?', button: 'Обыскать' },
+  explore: { what: 'Дверь', ask: 'Открыть?', button: 'Открыть' },
+  interact: { what: 'Предмет', ask: 'Взаимодействовать?', button: 'Взаимодействовать' },
+  sight: { what: 'Что-то странное', ask: 'Осмотреть?', button: 'Осмотреть' },
+  npc: { what: 'Человек', ask: 'Заговорить?', button: 'Поговорить' },
+};
+
 export const KIND_TOKEN: Record<string, string> = {
   start: 'TokenInvestigators',
   search: 'TokenSearch',
@@ -122,14 +131,22 @@ export function compile(p: Project, assets: Assets = {}): Scenario {
     if (x.kind === 'monster') continue;
     const type = x.look || KIND_TOKEN[x.kind] || 'TokenInteract';
     const acts = x.kind !== 'start' && x.kind !== 'mark';
+    // Using a token is an action: the window asks first, like the app does ("{action} Обыскать" or "Отмена").
     put(tokenName(x), 'Token', 'tokens.ini', {
       xposition: num(x.x),
       yposition: num(x.y),
       type,
-      display: 'false',
-      buttons: acts ? '1' : '0',
+      display: acts ? undefined : 'false',
+      buttons: acts ? '2' : '0',
       event1: acts ? actName(x) : undefined,
+      event2: acts ? '' : undefined,
     });
+    if (acts) {
+      const verb = ACT_VERB[x.kind] ?? ACT_VERB.interact;
+      text(tokenName(x) + '.text', `<b>${x.title.trim() || verb.what}</b>\n\n<i>${verb.ask} Это одно действие {action}.</i>`);
+      text(tokenName(x) + '.button1', `{action} ${verb.button}`);
+      text(tokenName(x) + '.button2', 'Отмена');
+    }
   }
 
   // --- what happens ---
