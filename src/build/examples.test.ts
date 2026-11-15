@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { choose, newGame, touch, type GameState } from '../model/game';
+import { choose, newGame, touch as tap, type GameState } from '../model/game';
 import type { Scenario } from '../format/scenario';
 import { chaptersOf, compileCampaign } from './campaign';
 import { checkCampaign, checkProject } from './check';
 import { compile } from './compile';
 import { exampleCampaign, exampleScenario } from './examples';
+
+// a token first asks to spend an action: press "{action}" and go on
+const touch = (s: Parameters<typeof tap>[0], st: Parameters<typeof tap>[1], name: string, rng?: Parameters<typeof tap>[3]) => {
+  const a = tap(s, st, name, rng);
+  return a.current === name ? choose(s, a, 1, rng) : a;
+};
 
 const closeAll = (s: Scenario, st: GameState) => {
   while (st.current) st = choose(s, st, 1, () => 0);

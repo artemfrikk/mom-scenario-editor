@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { choose, endInvestigatorPhase, newGame, newRound, nextPhase, touch, type GameState } from '../model/game';
+import { choose, endInvestigatorPhase, newGame, newRound, nextPhase, touch as tap, type GameState } from '../model/game';
 import { getComponent } from '../model/ops';
 import type { Scenario } from '../format/scenario';
 import { compile } from './compile';
 import { newProject, type Piece, type Project } from './project';
+
+// a token first asks to spend an action: press "{action}" and go on
+const touch = (s: Parameters<typeof tap>[0], st: Parameters<typeof tap>[1], name: string, rng?: Parameters<typeof tap>[3]) => {
+  const a = tap(s, st, name, rng);
+  return a.current === name ? choose(s, a, 1, rng) : a;
+};
 
 const piece = (id: string, room: string, kind: Piece['kind'], look: string, outcome: Partial<Piece['outcome']> = {}): Piece => ({
   id,

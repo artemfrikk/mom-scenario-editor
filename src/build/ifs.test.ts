@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { choose, newGame, touch } from '../model/game';
+import { choose, newGame, touch as tap } from '../model/game';
 import { compile } from './compile';
 import { newProject, type Project } from './project';
+
+// a token first asks to spend an action: press "{action}" and go on
+const touch = (s: Parameters<typeof tap>[0], st: Parameters<typeof tap>[1], name: string, rng?: Parameters<typeof tap>[3]) => {
+  const a = tap(s, st, name, rng);
+  return a.current === name ? choose(s, a, 1, rng) : a;
+};
 
 // The butler can be saved or left; the professor later says different words.
 function sample(): Project {

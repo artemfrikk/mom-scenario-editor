@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { scenarioFromFiles, scenarioToFiles } from '../format/valkyrie';
-import { choose, defeat, endInvestigatorPhase, newGame, newRound, nextPhase, puzzleFinish, puzzleSolve, touch, type GameState } from '../model/game';
+import { choose, defeat, endInvestigatorPhase, newGame, newRound, nextPhase, puzzleFinish, puzzleSolve, touch as tap, type GameState } from '../model/game';
 import { getComponent } from '../model/ops';
 import type { Scenario } from '../format/scenario';
 import { compile, tileName, tokenName, usedPacks } from './compile';
 import { projectFromScenario } from './load';
 import { newProject, type Piece, type Project } from './project';
+
+// a token first asks to spend an action: press "{action}" and go on
+const touch = (s: Parameters<typeof tap>[0], st: Parameters<typeof tap>[1], name: string, rng?: Parameters<typeof tap>[3]) => {
+  const a = tap(s, st, name, rng);
+  return a.current === name ? choose(s, a, 1, rng) : a;
+};
 
 const piece = (id: string, room: string, kind: Piece['kind'], look: string, outcome: Partial<Piece['outcome']> = {}, extra: Partial<Piece> = {}): Piece => ({
   id,
@@ -60,6 +66,21 @@ describe('compile', () => {
     expect(st.visible).toContain('TokenP3');
     expect(st.visible).not.toContain('TileR2');
     expect(getComponent(s, 'EventStart')?.data.music).toBe('AudioAtmosphere2');
+  });
+
+  it('using a token first asks to spend an action, and "Отмена" changes nothing', () => {
+    const s = compile(sample());
+    const files = scenarioToFiles(s);
+    const loc = new TextDecoder().decode(Object.entries(files).find(([k]) => /Localization/.test(k))![1] as Uint8Array);
+    expect(loc).toContain('TokenP2.button1,{action} Обыскать');
+    expect(loc).toContain('TokenP3.button1,{action} Открыть');
+    let st = play(s);
+    st = tap(s, st, 'TokenP2', () => 0);
+    expect(st.current).toBe('TokenP2');
+    st = choose(s, st, 2, () => 0);
+    expect(st.current).toBeNull();
+    expect(st.items).not.toContain('QItemP2');
+    expect(st.visible).toContain('TokenP2');
   });
 
   it('a search gives the item and a clue and then disappears', () => {
